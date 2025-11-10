@@ -38,4 +38,12 @@ dependencies {
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
+    // Importa o Firebase Bill of Materials (BOM)
+    implementation platform('com.google.firebase:firebase-bom:33.1.2')
+
+    // Firebase Authentication
+    implementation 'com.google.firebase:firebase-auth'
+
+    // Firebase Firestore (para salvar dados do usuário)
+    implementation 'com.google.firebase:firebase-firestore'
 }
