@@ -3,11 +3,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/app_background_dark"
     tools:context=".ui.MontarEntregaActivity">
 
+    <!-- Cabeçalho Fixo -->
     <ImageButton
         android:id="@+id/backButton"
         android:layout_width="wrap_content"
@@ -32,6 +34,7 @@
         app:layout_constraintTop_toBottomOf="@+id/backButton"
         app:layout_constraintStart_toStartOf="@+id/backButton"/>
 
+    <!-- Rodapé Fixo -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/footerCard"
         android:layout_width="0dp"
@@ -61,13 +64,14 @@
                 android:id="@+id/textInstituicaoSelecionada"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Creche Criança Feliz"
+                android:text="Nenhuma selecionada"
                 android:textColor="@color/white"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/labelInstituicao"
-                app:layout_constraintEnd_toStartOf="@+id/btnProximo"/>
+                app:layout_constraintEnd_toStartOf="@+id/btnProximo"
+                app:layout_constraintBottom_toBottomOf="parent"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnProximo"
@@ -83,10 +87,11 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
+    <!-- Conteúdo Rolável -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
+        android.layout_marginTop="16dp"
         app:layout_constraintTop_toBottomOf="@id/title"
         app:layout_constraintBottom_toTopOf="@id/footerCard"
         app:layout_constraintStart_toStartOf="parent"
@@ -100,6 +105,7 @@
             android:paddingEnd="16dp"
             android:paddingBottom="16dp">
 
+            <!-- Seção Instituições -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -109,6 +115,7 @@
                 android:textStyle="bold"
                 android:layout_marginBottom="8dp"/>
 
+            <!-- Card 1 -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -130,6 +137,7 @@
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintEnd_toStartOf="@+id/btnSelecionarLar"/>
                     <TextView
+                        android:id="@+id/labelUrgenciaLar"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Urgência: "
@@ -137,14 +145,14 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/titleLar"/>
                     <TextView
+                        android:id="@+id/textUrgenciaLar"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Alta"
                         android:textColor="@color/app_accent_red"
                         android:textStyle="bold"
-                        app:layout_constraintStart_toEndOf="@id/titleLar"
-                        app:layout_constraintTop_toBottomOf="@id/titleLar"
-                        android:layout_marginStart="50dp"/>
+                        app:layout_constraintStart_toEndOf="@id/labelUrgenciaLar"
+                        app:layout_constraintTop_toTopOf="@id/labelUrgenciaLar" />
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnSelecionarLar"
                         android:layout_width="wrap_content"
@@ -159,6 +167,7 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Card 2 -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -180,6 +189,7 @@
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintEnd_toStartOf="@+id/btnSelecionarCreche"/>
                     <TextView
+                        android:id="@+id/labelUrgenciaCreche"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Urgência: "
@@ -187,14 +197,14 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/titleCreche"/>
                     <TextView
+                        android:id="@+id/textUrgenciaCreche"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Média"
                         android:textColor="@color/app_accent_yellow"
                         android:textStyle="bold"
-                        app:layout_constraintStart_toEndOf="@id/titleCreche"
-                        app:layout_constraintTop_toBottomOf="@id/titleCreche"
-                        android:layout_marginStart="50dp"/>
+                        app:layout_constraintStart_toEndOf="@id/labelUrgenciaCreche"
+                        app:layout_constraintTop_toTopOf="@id/labelUrgenciaCreche" />
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnSelecionarCreche"
                         android:layout_width="wrap_content"
@@ -209,6 +219,7 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Card 3 -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -230,21 +241,22 @@
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintEnd_toStartOf="@+id/btnSelecionarSopao"/>
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:id="@+id/labelUrgenciaSopao"
+                        android_layout_width="wrap_content"
+                        android_layout_height="wrap_content"
                         android:text="Urgência: "
                         android:textColor="@color/white_60"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/titleSopao"/>
                     <TextView
+                        android:id="@+id/textUrgenciaSopao"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Normal"
                         android:textColor="@color/white"
                         android:textStyle="bold"
-                        app:layout_constraintStart_toEndOf="@id/titleSopao"
-                        app:layout_constraintTop_toBottomOf="@id/titleSopao"
-                        android:layout_marginStart="50dp"/>
+                        app:layout_constraintStart_toEndOf="@id/labelUrgenciaSopao"
+                        app:layout_constraintTop_toTopOf="@id/labelUrgenciaSopao" />
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnSelecionarSopao"
                         android:layout_width="wrap_content"
@@ -259,10 +271,11 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Seção Itens -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Itens em estoque"
+                android:text="Itens em estoque (FIFO)"
                 android:textColor="@color/white"
                 android:textSize="18sp"
                 android:textStyle="bold"
@@ -277,17 +290,18 @@
                 android:background="@drawable/shape_rounded_corners"
                 android:backgroundTint="@color/app_primary_light"
                 android:textColorHint="@color/white_60"
-                android:textColor="@color/white"
+                android.textColor="@color/white"
                 android:padding="12dp"
                 android:drawableStart="@drawable/ic_search"
                 android:drawableTint="@color/white_60"
                 android:drawablePadding="8dp"
                 android:layout_marginBottom="8dp"/>
 
+            <!-- RecyclerView para os itens de estoque -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/itensEstoqueRecyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="300dp"
                 android:nestedScrollingEnabled="false"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:listitem="@layout/item_doacao_registrada"
@@ -298,3 +312,4 @@
     </androidx.core.widget.NestedScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
