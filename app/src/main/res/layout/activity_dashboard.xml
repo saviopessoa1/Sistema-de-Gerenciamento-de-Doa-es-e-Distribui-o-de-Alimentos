@@ -10,6 +10,7 @@
 
     <!-- Conteúdo Principal (Seu Painel) -->
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/app_background_dark"
@@ -314,10 +315,6 @@
 
                         </FrameLayout>
 
-                        <!-- A legenda deste gráfico é complexa e
-                             provavelmente será gerada pelo Java
-                             junto com o gráfico -->
-
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -337,6 +334,20 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:menu="@menu/bottom_nav_menu" />
 
+        <!-- NOVO: Botão Flutuante (FAB) -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabAdicionarDoacao"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:src="@drawable/ic_add"
+            app:backgroundTint="@color/app_accent_green"
+            app:tint="@color/app_primary_dark"
+            app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:fabSize="normal"
+            android:contentDescription="Registrar nova doação"/>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Gaveta de Navegação (Menu Lateral) -->
@@ -352,5 +363,4 @@
         app:menu="@menu/drawer_menu" />
 
 </androidx.drawerlayout.widget.DrawerLayout>
-
 

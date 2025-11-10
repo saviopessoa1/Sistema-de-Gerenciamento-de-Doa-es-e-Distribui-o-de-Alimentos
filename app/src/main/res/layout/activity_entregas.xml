@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/app_background_dark"
@@ -23,7 +24,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:padding="8dp"
+        android.padding="8dp"
         android:src="@drawable/ic_menu"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -83,7 +84,7 @@
         android:layout_marginTop="16dp"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:clipToPadding="false"
+        android.clipToPadding="false"
         app:layout_constraintBottom_toTopOf="@id/buttonMontarEntrega"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -98,7 +99,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:paddingVertical="14dp"
+        android.paddingVertical="14dp"
         android:text="Montar Nova Entrega"
         android:textSize="16sp"
         app:backgroundTint="@color/app_accent_green"
@@ -111,11 +112,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Barra de Navegação Inferior -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android.layout_height="wrap_content"
         android:background="@drawable/header_background_shape"
         app:backgroundTint="@color/app_primary_light"
         app:itemIconTint="@color/bottom_nav_color_selector"
@@ -124,5 +124,4 @@
         app:menu="@menu/bottom_nav_menu" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-
 

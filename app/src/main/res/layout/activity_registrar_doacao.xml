@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/app_primary_dark"
@@ -37,8 +38,8 @@
             android:textStyle="bold"
             android:layout_marginBottom="16dp"/>
 
-        <!-- Campos do Formulário -->
         <EditText
+            android:id="@+id/nomeItemEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Nome do item"
@@ -49,20 +50,53 @@
             android:padding="12dp"
             android:layout_marginBottom="8dp"/>
 
-        <!-- ... (Adicionar outros campos: Data, Qtd, Voluntário, etc.) ... -->
+        <EditText
+            android:id="@+id/quantidadeEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Quantidade (ex: 5)"
+            android:inputType="number"
+            android:background="@drawable/shape_rounded_corners"
+            android:backgroundTint="@color/app_primary_light"
+            android:textColorHint="@color/white_60"
+            android:textColor="@color/white"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- CAMPO DE DATA ATUALIZADO -->
+        <EditText
+            android:id="@+id/validadeEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Data de Validade (DD/MM/AAAA)"
+            android:background="@drawable/shape_rounded_corners"
+            android:backgroundTint="@color/app_primary_light"
+            android:textColorHint="@color/white_60"
+            android:textColor="@color/white"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp"
+            android:focusable="false"
+            android:clickable="true"
+            android:drawableEnd="@drawable/ic_calendar_today"
+            android:drawableTint="@color/white_60"
+        />
+
 
         <RadioGroup
+            android:id="@+id/radioGroupPerecivel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginBottom="8dp">
             <RadioButton
+                android:id="@+id/radioPerecivel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Perecível"
                 android:textColor="@color/white"
                 android:buttonTint="@color/white"/>
             <RadioButton
+                android:id="@+id/radioNaoPerecivel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Não perecível"
@@ -92,19 +126,20 @@
 
     </LinearLayout>
 
-    <!-- Lista com Scroll (Somente esta parte rola) -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/itensRegistradosRecyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:clipToPadding="false"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintTop_toBottomOf="@+id/formContainer"
         app:layout_constraintBottom_toTopOf="@+id/confirmarDoacaoButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         tools:listitem="@layout/item_doacao_registrada"/>
 
-    <!-- Botão de Confirmar (Fixo) -->
     <Button
         android:id="@+id/confirmarDoacaoButton"
         android:layout_width="0dp"
@@ -120,5 +155,3 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-
-

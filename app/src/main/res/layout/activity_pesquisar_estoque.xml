@@ -38,7 +38,7 @@
         android:id="@+id/searchBar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Buscar instituições"
+        android:hint="Buscar itens no Estoque..."
         android:background="@drawable/shape_rounded_corners"
         android:backgroundTint="@color/app_primary_light"
         android:textColorHint="@color/white_60"
