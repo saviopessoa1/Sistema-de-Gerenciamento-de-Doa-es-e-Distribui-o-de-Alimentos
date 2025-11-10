@@ -30,14 +30,11 @@
     <color name="app_accent_yellow">#FFC107</color> <!-- Cor do "Atenção" -->
 
     <!-- Cores de Texto e Variações -->
-    <color name="app_text_white">#CCFFFFFF</color>
-    <color name="app_text_grey">#99FFFFFF</color><!-- Cinza claro do Figma -->
-
     <color name="white_80">#CCFFFFFF</color>
-    <color name="white_60">#99FFFFFF</color>
+    <color name="white_60">#99FFFFFF</color> <!-- Cinza claro do Figma -->
 
-    <color name="app_primary_purple">#673AB7FF</color>
-
+    <color name="app_text_white">#CCFFFFFF</color>
+    <color name="app_text_grey">#99FFFFFF</color>
 
 </resources>
 
