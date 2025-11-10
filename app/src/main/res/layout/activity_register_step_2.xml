@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_background_dark"
+    tools:context=".RegisterStep2Activity"> <!-- ATENÇÃO: Mudei o contexto -->
+
+    <!-- Seção do Cabeçalho Curvo (IDÊNTICO AO ANTERIOR) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/headerLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/header_background_shape"
+        android:paddingBottom="48dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="8dp"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="@color/app_text_white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/titleTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="60dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:text="Registration in to your Account"
+            android:textColor="@color/app_text_white"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/subtitleTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Please fill in the details to create your account."
+            android:textColor="@color/app_text_grey"
+            android:textSize="14sp"
+            app:layout_constraintTop_toBottomOf="@id/titleTextView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Campo "CPF" (NOVO) -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/cpfLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginTop="32dp"
+        android:hint="CPF *"
+        android:textColorHint="@color/app_text_grey"
+        app:boxStrokeColor="@color/app_primary_purple"
+        app:hintTextColor="@color/app_primary_purple"
+        app:layout_constraintTop_toBottomOf="@id/headerLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/cpfEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:textColor="@color/app_text_white" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Campo "Celular" (NOVO) -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/celularLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="Celular *"
+        android:textColorHint="@color/app_text_grey"
+        app:boxStrokeColor="@color/app_primary_purple"
+        app:hintTextColor="@color/app_primary_purple"
+        app:layout_constraintTop_toBottomOf="@id/cpfLayout"
+        app:layout_constraintStart_toStartOf="@id/cpfLayout"
+        app:layout_constraintEnd_toEndOf="@id/cpfLayout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/celularEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="phone"
+            android:textColor="@color/app_text_white" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Campo "Telefone" (NOVO) -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/telefoneLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="Telefone"
+        android:textColorHint="@color/app_text_grey"
+        app:boxStrokeColor="@color/app_primary_purple"
+        app:hintTextColor="@color/app_primary_purple"
+        app:layout_constraintTop_toBottomOf="@id/celularLayout"
+        app:layout_constraintStart_toStartOf="@id/celularLayout"
+        app:layout_constraintEnd_toEndOf="@id/celularLayout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/telefoneEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="phone"
+            android:textColor="@color/app_text_white" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Botão "Registrar" (MODIFICADO) -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/registrarButton"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="24dp"
+        android:text="Registrar"
+        android:backgroundTint="@color/app_primary_purple"
+        app:cornerRadius="16dp"
+        app:layout_constraintTop_toBottomOf="@id/telefoneLayout"
+        app:layout_constraintStart_toStartOf="@id/telefoneLayout"
+        app:layout_constraintEnd_toEndOf="@id/telefoneLayout" />
+
+    <!-- Seção de Login (IDÊNTICO AO ANTERIOR) -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="32dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/haveAccountTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="I have account? "
+            android:textColor="@color/app_text_grey"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/loginTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Log in"
+            android:textColor="@color/app_primary_purple"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

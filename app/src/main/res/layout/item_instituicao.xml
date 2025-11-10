@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp"
+    app:cardBackgroundColor="@color/app_header_curve"
+    app:cardCornerRadius="16dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- Ícone (só aparece se for urgente, mas deixamos o espaço) -->
+        <ImageView
+            android:id="@+id/iconUrgencia"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_warning"
+            app:tint="@android:color/holo_red_dark"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/titleInstituicao"
+            app:layout_constraintBottom_toBottomOf="@id/titleInstituicao"
+            android:visibility="visible" /> <!-- Mude para 'gone' se não for urgente -->
+
+        <!-- Título da Instituição -->
+        <TextView
+            android:id="@+id/titleInstituicao"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Creche Criança Feliz"
+            android:textColor="@color/app_text_white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/iconUrgencia"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btnAcessar"/>
+
+        <!-- Nível de Urgência -->
+        <TextView
+            android:id="@+id/textUrgencia"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Urgência: Alta"
+            android:textColor="@color/app_text_grey"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@id/titleInstituicao"
+            app:layout_constraintTop_toBottomOf="@id/titleInstituicao" />
+
+        <!-- Endereço -->
+        <TextView
+            android:id="@+id/textEndereco"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Rua das Flores, 123 - Centro"
+            android:textColor="@color/app_text_grey"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="@id/textUrgencia"
+            app:layout_constraintTop_toBottomOf="@id/textUrgencia"
+            app:layout_constraintEnd_toStartOf="@+id/btnAcessar"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <!-- Botão Acessar -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAcessar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Acessar"
+            android:backgroundTint="@android:color/holo_green_dark"
+            app:cornerRadius="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

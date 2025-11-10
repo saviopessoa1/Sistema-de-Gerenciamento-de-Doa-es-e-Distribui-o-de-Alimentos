@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:openDrawer="start">
+
+    <!-- Conteúdo Principal (Seu Painel) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/app_background_dark"
+        tools:context=".ui.DashboardActivity">
+
+        <!-- Container que pode rolar (ScrollView) -->
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/contentScrollView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="16dp">
+
+                <!-- Fundo do Cabeçalho -->
+                <View
+                    android:id="@+id/headerBackground"
+                    android:layout_width="match_parent"
+                    android:layout_height="220dp"
+                    android:background="@drawable/header_background_shape"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <!-- Barra Superior (Menu e Título) -->
+                <ImageButton
+                    android:id="@+id/menuButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_menu"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/white" />
+
+                <TextView
+                    android:id="@+id/textViewTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Painel"
+                    android:textColor="@color/white"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="@id/menuButton"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/menuButton" />
+
+                <!-- Card: Estoque -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardEstoque"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginEnd="16dp"
+                    app:cardBackgroundColor="@color/app_primary_light"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/textViewTitle">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:id="@+id/textViewEstoqueLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Estoque"
+                            android:textColor="@color/white"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <!-- Placeholder para o Gráfico de Anel (151400) -->
+                        <FrameLayout
+                            android:id="@+id/pieChartEstoqueContainer"
+                            android:layout_width="120dp"
+                            android:layout_height="120dp"
+                            android:layout_marginTop="8dp"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/textViewEstoqueLabel">
+
+                            <!-- O gráfico será adicionado aqui via código Java -->
+                            <!-- Texto "151400" no centro -->
+                            <TextView
+                                android:id="@+id/textViewEstoqueTotal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="151400"
+                                android:textColor="@color/white"
+                                android:textSize="20sp"
+                                android:textStyle="bold"
+                                android:layout_gravity="center"/>
+
+                        </FrameLayout>
+
+                        <!-- Legenda do Gráfico -->
+                        <TextView
+                            android:id="@+id/legendaNaoPerecivel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:drawablePadding="8dp"
+                            android:gravity="center_vertical"
+                            android:text="Não Perecível"
+                            android:textColor="@color/white_80"
+                            app:drawableStartCompat="@drawable/shape_circle_solid"
+                            app:drawableTint="@color/app_accent_green"
+                            app:layout_constraintBottom_toTopOf="@id/legendaPerecivel"
+                            app:layout_constraintStart_toEndOf="@id/pieChartEstoqueContainer"
+                            app:layout_constraintTop_toTopOf="@id/pieChartEstoqueContainer"
+                            app:layout_constraintVertical_chainStyle="packed" />
+
+                        <TextView
+                            android:id="@+id/legendaPerecivel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:drawablePadding="8dp"
+                            android:gravity="center_vertical"
+                            android:text="Perecível"
+                            android:textColor="@color/white_80"
+                            app:drawableStartCompat="@drawable/shape_circle_solid"
+                            app:drawableTint="@color/white_60"
+                            app:layout_constraintBottom_toBottomOf="@id/pieChartEstoqueContainer"
+                            app:layout_constraintStart_toStartOf="@id/legendaNaoPerecivel"
+                            app:layout_constraintTop_toBottomOf="@id/legendaNaoPerecivel" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Card: Atenção -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardAtencao"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    app:cardBackgroundColor="@color/app_accent_yellow"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    app:layout_constraintEnd_toEndOf="@id/cardEstoque"
+                    app:layout_constraintStart_toStartOf="@id/cardEstoque"
+                    app:layout_constraintTop_toBottomOf="@id/cardEstoque">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:drawablePadding="8dp"
+                        android:gravity="center_vertical"
+                        android:padding="12dp"
+                        android:text="Atenção: 15 itens vencem nesta semana"
+                        android:textColor="@color/app_primary_dark"
+                        android:textStyle="bold"
+                        app:drawableStartCompat="@drawable/ic_warning"
+                        app:drawableTint="@color/app_primary_dark" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Grid de Métricas (2 colunas) -->
+                <GridLayout
+                    android:id="@+id/metricsGrid"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:columnCount="2"
+                    app:layout_constraintEnd_toEndOf="@id/cardEstoque"
+                    app:layout_constraintStart_toStartOf="@id/cardEstoque"
+                    app:layout_constraintTop_toBottomOf="@id/cardAtencao">
+
+                    <!-- Card: Doações Recebidas -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_marginEnd="8dp"
+                        app:cardBackgroundColor="@color/app_primary_light"
+                        app:cardCornerRadius="16dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Doações Recebidas Mês"
+                                android:textColor="@color/white_80" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="1516"
+                                android:textColor="@color/white"
+                                android:textSize="32sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Card: Próximas Entregas -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_marginStart="8dp"
+                        app:cardBackgroundColor="@color/app_primary_light"
+                        app:cardCornerRadius="16dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Próximas Entregas"
+                                android:textColor="@color/white_80" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Lar dos Idosos"
+                                android:textColor="@color/white"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Creche Criança Feliz"
+                                android:textColor="@color/white"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Sopão Comunitário"
+                                android:textColor="@color/white"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                </GridLayout>
+
+                <!-- Card: Doações do Mês (Gráfico) -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardDoacoesMes"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    app:cardBackgroundColor="@color/app_primary_light"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    app:layout_constraintEnd_toEndOf="@id/cardEstoque"
+                    app:layout_constraintStart_toStartOf="@id/cardEstoque"
+                    app:layout_constraintTop_toBottomOf="@id/metricsGrid">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Doações do Mês"
+                            android:textColor="@color/white"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <!-- Placeholder para o Gráfico de Pizza -->
+                        <FrameLayout
+                            android:id="@+id/pieChartDoacoesContainer"
+                            android:layout_width="match_parent"
+                            android:layout_height="200dp"
+                            android:layout_marginTop="8dp">
+
+                            <!-- O gráfico será adicionado aqui via código Java -->
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="[Placeholder Gráfico Pizza]"
+                                android:textColor="@color/white_60"
+                                android:layout_gravity="center"/>
+
+                        </FrameLayout>
+
+                        <!-- A legenda deste gráfico é complexa e
+                             provavelmente será gerada pelo Java
+                             junto com o gráfico -->
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+        <!-- Barra de Navegação Inferior -->
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottomNavigationView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/header_background_shape"
+            app:backgroundTint="@color/app_primary_light"
+            app:itemIconTint="@color/bottom_nav_color_selector"
+            app:itemTextColor="@color/bottom_nav_color_selector"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:menu="@menu/bottom_nav_menu" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Gaveta de Navegação (Menu Lateral) -->
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@color/app_primary_dark"
+        app:headerLayout="@layout/nav_header_main"
+        app:itemIconTint="@color/white_60"
+        app:itemTextColor="@color/white"
+        app:menu="@menu/drawer_menu" />
+
+</androidx.drawerlayout.widget.DrawerLayout>
+
+

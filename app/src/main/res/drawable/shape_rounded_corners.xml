@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Este XML define uma forma de retângulo com bordas arredondadas -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <!-- A cor de fundo será definida pelo "backgroundTint" no layout XML -->
+    <solid android:color="@android:color/white" />
+
+    <!-- Define o raio das bordas -->
+    <corners android:radius="12dp" />
+
+</shape>
+

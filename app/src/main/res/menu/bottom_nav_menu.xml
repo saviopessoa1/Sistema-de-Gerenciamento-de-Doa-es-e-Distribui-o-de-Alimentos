@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_painel"
+        android:icon="@drawable/ic_home"
+        android:title="Painel" />
+    <item
+        android:id="@+id/nav_estoque"
+        android:icon="@drawable/ic_inventory_2"
+        android:title="Estoque" />
+    <item
+        android:id="@+id/nav_instituicoes"
+        android:icon="@drawable/ic_domain"
+        android:title="Instituições" />
+    <item
+        android:id="@+id/nav_entregas"
+        android:icon="@drawable/ic_local_shipping"
+        android:title="Entregas" />
+</menu>
