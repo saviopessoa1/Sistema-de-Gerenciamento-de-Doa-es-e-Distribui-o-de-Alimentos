@@ -1,12 +1,12 @@
 plugins {
     alias(libs.plugins.android.application)
+    // ADICIONE ESTA LINHA AQUI:
+    id 'com.google.gms.google-services'
 }
 
 android {
     namespace 'com.example.SGDDA'
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.example.SGDDA"
@@ -28,6 +28,11 @@ android {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
+    // Adicione esta linha se o Android Studio reclamar do "main" nos XMLs
+    // (Pode não ser necessário, mas é uma boa prática)
+    buildFeatures {
+        viewBinding false // Mantém como false, já que estamos usando findViewById
+    }
 }
 
 dependencies {
@@ -38,12 +43,11 @@ dependencies {
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
-    // Importa o Firebase Bill of Materials (BOM)
+
+    // Dependências do Firebase que já tínhamos adicionado
     implementation platform('com.google.firebase:firebase-bom:33.1.2')
-
-    // Firebase Authentication
     implementation 'com.google.firebase:firebase-auth'
-
-    // Firebase Firestore (para salvar dados do usuário)
     implementation 'com.google.firebase:firebase-firestore'
 }
+
+

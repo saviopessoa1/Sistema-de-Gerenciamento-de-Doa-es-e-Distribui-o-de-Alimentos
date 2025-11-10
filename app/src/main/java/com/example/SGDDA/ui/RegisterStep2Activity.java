@@ -1,36 +1,37 @@
 package com.example.SGDDA.ui;
 
-// --- IMPORTS NECESSÁRIOS ---
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log; // Para Debug
+import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast; // Para feedback
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity; // O import principal que faltava
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.SGDDA.R;
-import com.google.android.material.textfield.TextInputEditText; // Import para os campos
-
-// Imports do Firebase
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestore; // Import do Firestore
 
-import java.util.HashMap; // Para salvar no Firestore
-import java.util.Map; // Para salvar no Firestore
-// --- FIM DOS IMPORTS ---
+import java.util.HashMap; // Import do HashMap
+import java.util.Map; // Import do Map
 
 public class RegisterStep2Activity extends AppCompatActivity {
 
-    // 1. Declaração dos componentes
+    // 1. Declaração dos Componentes
     private ImageButton backButton;
     private TextView loginTextView;
     private Button registrarButton;
@@ -38,12 +39,11 @@ public class RegisterStep2Activity extends AppCompatActivity {
 
     // Firebase
     private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
+    private FirebaseFirestore db; // Instância do Banco de Dados (Firestore)
 
-    // Dados da Etapa 1
-    private String nome;
-    private String email;
-    private String senha;
+    // Dados da tela anterior
+    private String nomeCompleto, email, senha;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,24 +51,7 @@ public class RegisterStep2Activity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_register_step_2);
 
-        // Inicializa Firebase
-        mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
-
-        // Recupera dados da Intent da Etapa 1
-        Intent intent = getIntent();
-        nome = intent.getStringExtra("NOME");
-        email = intent.getStringExtra("EMAIL");
-        senha = intent.getStringExtra("SENHA");
-
-        // Se os dados não vieram, é um erro. Volta para a Etapa 1.
-        if (nome == null || email == null || senha == null) {
-            Toast.makeText(this, "Erro ao carregar dados. Tente novamente.", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
-
-        // Tenta encontrar o 'main'
+        // Ajuste de layout (EdgeToEdge)
         View mainView = findViewById(R.id.main);
         if (mainView != null) {
             ViewCompat.setOnApplyWindowInsetsListener(mainView, (v, insets) -> {
@@ -76,15 +59,9 @@ public class RegisterStep2Activity extends AppCompatActivity {
                 v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
                 return insets;
             });
-        } else {
-            // Log de aviso se o 'main' não for encontrado (pode ser o ID do ConstraintLayout)
-            Log.w("RegisterStep2Activity", "ID 'main' não encontrado no layout 'activity_register_step_2.xml'");
-            // Tenta o ID raiz do seu XML de step 2 se 'main' não existir.
-            // Se o ID raiz for outro, ajuste aqui.
         }
 
-
-        // 2. Encontrar os componentes
+        // 2. Encontrar Componentes
         backButton = findViewById(R.id.backButton);
         loginTextView = findViewById(R.id.loginTextView);
         registrarButton = findViewById(R.id.registrarButton);
@@ -92,94 +69,111 @@ public class RegisterStep2Activity extends AppCompatActivity {
         celularEditText = findViewById(R.id.celularEditText);
         telefoneEditText = findViewById(R.id.telefoneEditText);
 
+        // 3. Inicializar Firebase
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance(); // Inicializa o Firestore
 
-        // 3. Configurar os Listeners
+        // 4. Receber dados da Intent (da Tela 1)
+        Intent intent = getIntent();
+        nomeCompleto = intent.getStringExtra("NOME_COMPLETO");
+        email = intent.getStringExtra("EMAIL");
+        senha = intent.getStringExtra("SENHA");
 
-        // Botão de voltar
-        backButton.setOnClickListener(v -> {
-            finish(); // Fecha a Etapa 2 e volta para a Etapa 1
-        });
-
-        // Link "Log in"
+        // 5. Configurar Listeners
+        backButton.setOnClickListener(v -> finish()); // Volta para a tela anterior
         loginTextView.setOnClickListener(v -> {
-            // Navega de volta para o Login (MainActivity)
+            // Volta para a tela de Login
             Intent loginIntent = new Intent(RegisterStep2Activity.this, MainActivity.class);
-            // Limpa todas as telas anteriores (Etapa 1) do histórico
             loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(loginIntent);
-            finish(); // Fecha a tela atual
+            finish();
         });
 
-        // Botão Registrar
         registrarButton.setOnClickListener(v -> {
-            // Pegar dados desta tela
-            String cpf = cpfEditText.getText().toString().trim();
-            String celular = celularEditText.getText().toString().trim();
-            String telefone = telefoneEditText.getText().toString().trim(); // Opcional
-
-            // Validação
-            if (cpf.isEmpty() || celular.isEmpty()) {
-                Toast.makeText(this, "Preencha os campos obrigatórios (*)", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // Inicia o processo de criação de usuário
-            criarUsuarioFirebase(email, senha, nome, cpf, celular, telefone);
+            // Chama a função de registro
+            registrarUsuario();
         });
     }
 
-    private void criarUsuarioFirebase(String email, String password, String nome, String cpf, String celular, String telefone) {
-        // 3. Chamar o Firebase Auth para criar o usuário
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, task -> {
-                    if (task.isSuccessful()) {
-                        // Sucesso na autenticação
-                        Log.d("FIREBASE_AUTH", "createUserWithEmail:success");
-                        FirebaseUser user = mAuth.getCurrentUser();
+    private void registrarUsuario() {
+        // Pegar os dados desta tela (Etapa 2)
+        String cpf = cpfEditText.getText().toString().trim();
+        String celular = celularEditText.getText().toString().trim();
+        String telefone = telefoneEditText.getText().toString().trim(); // Opcional
 
-                        // 4. Salvar dados (Nome, CPF, Tel) no Firestore
-                        salvarDadosUsuario(user.getUid(), nome, email, cpf, celular, telefone);
+        // Validação básica
+        if (cpf.isEmpty() || celular.isEmpty()) {
+            Toast.makeText(this, "Por favor, preencha CPF e Celular.", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-                    } else {
-                        // Falha na autenticação
-                        Log.w("FIREBASE_AUTH", "createUserWithEmail:failure", task.getException());
-                        Toast.makeText(RegisterStep2Activity.this, "Falha no registro: " + task.getException().getMessage(),
-                                Toast.LENGTH_LONG).show();
+        // 1. Criar o usuário no Firebase Authentication
+        mAuth.createUserWithEmailAndPassword(email, senha)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Autenticação foi um sucesso!
+                            Log.d("RegisterStep2", "createUserWithEmail: Sucesso");
+                            String userId = mAuth.getCurrentUser().getUid(); // Pega o ID único do usuário
+
+                            // 2. Agora, salvar os dados extras no Firestore
+                            salvarDadosUsuario(userId, nomeCompleto, email, cpf, celular, telefone);
+
+                        } else {
+                            // Se falhar a autenticação
+                            Log.w("RegisterStep2", "createUserWithEmail: Falha", task.getException());
+                            Toast.makeText(RegisterStep2Activity.this, "Falha no cadastro: " + task.getException().getMessage(),
+                                    Toast.LENGTH_LONG).show();
+                        }
                     }
                 });
     }
 
-    private void salvarDadosUsuario(String uid, String nome, String email, String cpf, String celular, String telefone) {
-        // Cria um "mapa" (objeto) com os dados do usuário
+    // NOVA FUNÇÃO para salvar no Banco de Dados
+    private void salvarDadosUsuario(String userId, String nome, String email, String cpf, String celular, String telefone) {
+        // Criar um "mapa" (um objeto) com os dados do usuário
         Map<String, Object> usuario = new HashMap<>();
-        usuario.put("nome", nome);
+        usuario.put("uid", userId);
+        usuario.put("nomeCompleto", nome);
         usuario.put("email", email);
         usuario.put("cpf", cpf);
         usuario.put("celular", celular);
         usuario.put("telefone", telefone);
-        usuario.put("tipo", "instituicao"); // Define um tipo padrão
+        // (Você pode adicionar mais campos aqui, ex: "tipoUsuario" = "voluntario")
 
-        // Salva no Firestore na coleção "usuarios" com o ID do usuário (uid)
-        db.collection("usuarios").document(uid)
+        // Salvar no Firestore
+        // Vamos criar uma coleção "usuarios" e salvar um "documento" com o ID do usuário
+        db.collection("usuarios").document(userId)
                 .set(usuario)
-                .addOnSuccessListener(aVoid -> {
-                    // 5. Sucesso ao salvar! Navegar para o Dashboard
-                    Log.d("FIRESTORE", "DocumentSnapshot successfully written!");
-                    abrirDashboard();
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        // Dados salvos com sucesso!
+                        Log.d("RegisterStep2", "Usuário salvo no Firestore com sucesso!");
+                        Toast.makeText(RegisterStep2Activity.this, "Cadastro realizado com sucesso!", Toast.LENGTH_SHORT).show();
+
+                        // 3. Só então, navegar para o Dashboard
+                        Intent intent = new Intent(RegisterStep2Activity.this, DashboardActivity.class);
+                        // Limpa as telas de Login/Cadastro da pilha
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        finish(); // Fecha a tela de registro
+                    }
                 })
-                .addOnFailureListener(e -> {
-                    Log.w("FIRESTORE", "Error writing document", e);
-                    Toast.makeText(RegisterStep2Activity.this, "Erro ao salvar dados.", Toast.LENGTH_SHORT).show();
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // Se falhar o salvamento no banco de dados
+                        Log.w("RegisterStep2", "Erro ao salvar dados no Firestore", e);
+                        Toast.makeText(RegisterStep2Activity.this, "Erro ao salvar dados: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        // (O usuário foi criado no Auth, mas os dados não foram salvos.
+                        // Em um app real, teríamos que tratar isso, talvez deletando o usuário do Auth
+                        // ou pedindo para ele tentar de novo)
+                    }
                 });
     }
 
-    private void abrirDashboard() {
-        Intent intent = new Intent(RegisterStep2Activity.this, DashboardActivity.class);
-        // Limpa todo o histórico de login/registro
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish(); // Fecha a tela atual
-    }
 }
 
 

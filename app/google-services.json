@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "246008341751",
+    "project_id": "sgdda-26141",
+    "storage_bucket": "sgdda-26141.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:246008341751:android:56dd2c9ca73b1a96be1ff2",
+        "android_client_info": {
+          "package_name": "com.example.SGDDA"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBc1d3B2RkYxsmTtqSNi6_VNq3HPV4vlP8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

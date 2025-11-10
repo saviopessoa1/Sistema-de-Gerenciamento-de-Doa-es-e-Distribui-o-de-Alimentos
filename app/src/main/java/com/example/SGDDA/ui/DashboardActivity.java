@@ -1,80 +1,156 @@
 package com.example.SGDDA.ui;
 
-import android.content.Intent; // Import para Intent
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.MenuItem; // Import para item de menu
-import android.widget.ImageButton; // Import para o botão de menu
+import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.TextView; // Import do TextView
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull; // Import para @NonNull
-import androidx.appcompat.app.ActionBarDrawerToggle; // Import para o "hambúrguer"
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
-import androidx.core.view.GravityCompat; // Import para fechar o drawer
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.drawerlayout.widget.DrawerLayout; // Import para o DrawerLayout
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.SGDDA.R;
-import com.google.android.material.navigation.NavigationView; // Import para o NavigationView
-import com.google.firebase.auth.FirebaseAuth; // Import para o Firebase Auth
+import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser; // Import do FirebaseUser
+import com.google.firebase.firestore.DocumentReference; // Import do DocumentReference
+import com.google.firebase.firestore.DocumentSnapshot; // Import do DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestore; // Import do Firestore
 
 public class DashboardActivity extends AppCompatActivity {
 
-    // Declaração dos componentes do Drawer
+    // Componentes do Layout
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private ImageButton menuButton;
+    private ActionBarDrawerToggle drawerToggle;
+
+    // Firebase
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore db; // NOVO: Instância do Firestore
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-// ... existing code ...
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_dashboard);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.drawer_layout), (v, insets) -> { // ID do XML é drawer_layout
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
 
-        // --- INÍCIO DA LÓGICA DO DRAWER E LOGOUT ---
+        // Ajuste de layout (EdgeToEdge)
+        View mainView = findViewById(R.id.drawer_layout); // ID do DrawerLayout
+        if (mainView != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(mainView, (v, insets) -> {
+                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+                return insets;
+            });
+        }
 
-        // 1. Encontrar os componentes
+        // Inicializar Firebase
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance(); // NOVO: Inicializa o Firestore
+
+        // Encontrar Componentes
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
-        menuButton = findViewById(R.id.menuButton); // Botão "hambúrguer"
+        menuButton = findViewById(R.id.menuButton);
 
-        // 2. Configurar o botão de menu para abrir o drawer
-        menuButton.setOnClickListener(v -> {
-            drawerLayout.openDrawer(GravityCompat.START);
-        });
+        // Configurar Funções
+        setupDrawer();
+        setupLogout();
 
-        // 3. Configurar o listener para os cliques nos itens do menu
-        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                int id = item.getItemId();
+        // NOVO: Chamar a função para carregar dados do usuário
+        loadUserData();
+    }
 
-                // Lógica para o item de Logout (nav_logout, ID do drawer_menu.xml)
-                if (id == R.id.nav_logout) {
-                    // Fazer logout do Firebase
-                    FirebaseAuth.getInstance().signOut();
+    // NOVA FUNÇÃO: Carrega os dados do usuário do Firestore
+    private void loadUserData() {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            String userId = currentUser.getUid();
+            DocumentReference userRef = db.collection("usuarios").document(userId);
 
-                    // Redirecionar para a tela de Login (MainActivity)
-                    Intent intent = new Intent(DashboardActivity.this, MainActivity.class);
-                    // Limpar o histórico de telas
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    finish(); // Fechar o Dashboard
+            userRef.get().addOnSuccessListener(documentSnapshot -> {
+                if (documentSnapshot.exists()) {
+                    // O documento do usuário foi encontrado
+                    String nome = documentSnapshot.getString("nomeCompleto");
+                    String email = documentSnapshot.getString("email");
+
+                    // Atualizar o cabeçalho do NavigationView
+                    View headerView = navigationView.getHeaderView(0); // Pega o cabeçalho
+                    TextView navUserName = headerView.findViewById(R.id.navHeaderUserName);
+                    TextView navUserEmail = headerView.findViewById(R.id.navHeaderUserEmail);
+
+                    navUserName.setText(nome);
+                    navUserEmail.setText(email);
+
+                } else {
+                    // Documento não encontrado (raro, mas pode acontecer)
+                    Log.d("Dashboard", "Documento do usuário não encontrado no Firestore.");
+                    Toast.makeText(this, "Erro ao carregar dados.", Toast.LENGTH_SHORT).show();
                 }
-                // TODO: Adicionar lógica para outros itens do menu (nav_perfil, nav_instituicoes, etc.)
+            }).addOnFailureListener(e -> {
+                // Falha ao buscar os dados
+                Log.e("Dashboard", "Erro ao buscar dados do usuário", e);
+                Toast.makeText(this, "Erro de conexão.", Toast.LENGTH_SHORT).show();
+            });
+        }
+    }
 
-                // Fechar o drawer após o clique
-                drawerLayout.closeDrawer(GravityCompat.START);
-                return true;
+
+    // Função para configurar o Menu Lateral (Drawer)
+    private void setupDrawer() {
+        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(drawerToggle);
+        drawerToggle.syncState();
+
+        // Lidar com o clique no botão de menu (hamburger)
+        menuButton.setOnClickListener(v -> {
+            if (drawerLayout.isDrawerOpen(navigationView)) {
+                drawerLayout.closeDrawer(navigationView);
+            } else {
+                drawerLayout.openDrawer(navigationView);
             }
         });
-
-        // --- FIM DA LÓGICA DO DRAWER ---
     }
+
+    // Função para configurar o botão de Logout
+    private void setupLogout() {
+        navigationView.setNavigationItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+
+            if (itemId == R.id.nav_logout) {
+                // Usuário clicou em Logout
+                mAuth.signOut(); // Desloga do Firebase
+                Toast.makeText(DashboardActivity.this, "Deslogado.", Toast.LENGTH_SHORT).show();
+
+                // Envia de volta para a MainActivity (Login)
+                Intent intent = new Intent(DashboardActivity.this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish(); // Fecha o Dashboard
+                return true;
+            }
+
+            // (Adicione outros 'else if' aqui para outros botões do menu, se necessário)
+
+            drawerLayout.closeDrawer(navigationView); // Fecha o menu
+            return true;
+        });
+    }
+
+    // (Strings necessárias para o ActionBarDrawerToggle, se não existirem)
+    // (O Android Studio pode pedir para você criar isso em res/values/strings.xml)
+    // <string name="navigation_drawer_open">Open navigation drawer</string>
+    // <string name="navigation_drawer_close">Close navigation drawer</string>
 }
+
+
