@@ -12,6 +12,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SistemaDeGerenciamentoDeDoaçõesEDistribuiçãoDeAlimentos">
         <activity
+            android:name=".ui.DetalhesEntregaActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.ResumoAgendamentoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.MontarEntregaActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.PesquisarEstoqueActivity"
             android:exported="false" />
         <activity
