@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginBottom="8dp"
+    app:cardBackgroundColor="@color/app_primary_light"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="0dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- Nome do Item -->
+        <TextView
+            android:id="@+id/itemName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Carne Acém 1Kg"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btnSelecionar"/>
+
+        <!-- Detalhes -->
+        <TextView
+            android:id="@+id/itemDetails"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Qtd: 157 | Vence: 15/08/2025"
+            android:textColor="@color/white_60"
+            android:textSize="12sp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/itemName"
+            app:layout_constraintEnd_toStartOf="@+id/btnSelecionar"/>
+
+        <!-- BOTÃO ÚNICO DE AÇÃO -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSelecionar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Selecionar"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            android:paddingHorizontal="16dp"
+            app:backgroundTint="@color/app_accent_blue"
+            app:cornerRadius="20dp"
+            android:minHeight="40dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>
+

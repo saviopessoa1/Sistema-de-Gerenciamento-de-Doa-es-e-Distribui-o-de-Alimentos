@@ -1,41 +1,54 @@
 package com.example.SGDDA.adapter;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.SGDDA.R;
 import com.example.SGDDA.model.DoacaoItem;
+
 import java.util.HashMap;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class SelecaoEstoqueAdapter extends RecyclerView.Adapter<SelecaoEstoqueAdapter.ViewHolder> {
 
-    private List<DoacaoItem> itemList; // Lista exibida atualmente (pode ser busca ou selecionados)
+    private List<DoacaoItem> itemList;
     private Context context;
-    // Mapa para guardar a quantidade selecionada de cada item (ID do Documento -> Quantidade)
-    // Isso garante que a quantidade se mantenha mesmo trocando a lista visual
     private Map<String, Integer> selectedQuantities;
+    private boolean isSearchMode;
+    private OnItemClickListener listener;
 
-    public SelecaoEstoqueAdapter(Context context, List<DoacaoItem> itemList) {
+    public interface OnItemClickListener {
+        void onItemClick(DoacaoItem item);
+    }
+
+    public SelecaoEstoqueAdapter(Context context, List<DoacaoItem> itemList, OnItemClickListener listener) {
         this.context = context;
         this.itemList = itemList;
         this.selectedQuantities = new HashMap<>();
+        this.listener = listener;
+        this.isSearchMode = false;
     }
 
-    // --- NOVO MÉTODO: Atualiza a lista exibida ---
-    public void updateList(List<DoacaoItem> newList) {
+    public void updateList(List<DoacaoItem> newList, boolean isSearch) {
         this.itemList = newList;
+        this.isSearchMode = isSearch;
         notifyDataSetChanged();
     }
 
-    // --- NOVO MÉTODO: Retorna o mapa de seleções para a Activity usar ---
     public Map<String, Integer> getSelectedQuantitiesMap() {
         return selectedQuantities;
     }
@@ -43,7 +56,8 @@ public class SelecaoEstoqueAdapter extends RecyclerView.Adapter<SelecaoEstoqueAd
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_doacao_registrada, parent, false);
+        // USA O NOVO LAYOUT MAIS SIMPLES
+        View view = LayoutInflater.from(context).inflate(R.layout.item_selecao_estoque, parent, false);
         return new ViewHolder(view);
     }
 
@@ -52,39 +66,97 @@ public class SelecaoEstoqueAdapter extends RecyclerView.Adapter<SelecaoEstoqueAd
         DoacaoItem item = itemList.get(position);
         String itemId = item.getDocumentId();
 
-        if (itemId == null) return;
-
         holder.itemName.setText(item.getNomeItem());
-        String detalhes = "Qtd. Disp: " + item.getQuantidade() + " | Vence em: " + item.getDataValidade();
+        String detalhes = "Disp: " + item.getQuantidade() + " | Vence: " + item.getDataValidade();
         holder.itemDetails.setText(detalhes);
 
-        // Pega a quantidade selecionada ou 0 se for a primeira vez
-        int selectedQty = selectedQuantities.getOrDefault(itemId, 0);
-        holder.textQuantidade.setText(String.valueOf(selectedQty));
+        int currentQty = selectedQuantities.getOrDefault(itemId, 0);
 
-        // Botão de Adicionar (+)
-        holder.btnAdd.setOnClickListener(v -> {
-            int currentQty = selectedQuantities.getOrDefault(itemId, 0);
-            if (currentQty < item.getQuantidade()) { // Não pode selecionar mais do que o disponível
-                currentQty++;
-                selectedQuantities.put(itemId, currentQty);
-                holder.textQuantidade.setText(String.valueOf(currentQty));
-            }
+        // Configura a aparência do botão baseado se já foi selecionado ou não
+        if (currentQty > 0) {
+            holder.btnSelecionar.setText("Qtd: " + currentQty);
+            // Fica VERDE para indicar selecionado
+            holder.btnSelecionar.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.app_accent_green)));
+            holder.btnSelecionar.setTextColor(ContextCompat.getColor(context, R.color.app_primary_dark));
+        } else {
+            holder.btnSelecionar.setText("Selecionar");
+            // Fica AZUL (Padrão)
+            holder.btnSelecionar.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.app_accent_blue)));
+            holder.btnSelecionar.setTextColor(ContextCompat.getColor(context, R.color.white));
+        }
+
+        // Clique no Botão -> Abre Dialog de Quantidade
+        holder.btnSelecionar.setOnClickListener(v -> {
+            showQuantityDialog(item, itemId, holder);
         });
 
-        // Botão de Remover (-)
-        holder.btnRemove.setOnClickListener(v -> {
-            int currentQty = selectedQuantities.getOrDefault(itemId, 0);
-            if (currentQty > 0) { // Não pode ser negativo
-                currentQty--;
-                if (currentQty == 0) {
-                    selectedQuantities.remove(itemId); // Remove do mapa se for 0
-                } else {
-                    selectedQuantities.put(itemId, currentQty);
+        // Clique no Item -> Também abre o Dialog (para facilitar)
+        holder.itemView.setOnClickListener(v -> {
+            showQuantityDialog(item, itemId, holder);
+        });
+    }
+
+    private void showQuantityDialog(DoacaoItem item, String itemId, ViewHolder holder) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Quantidade para " + item.getNomeItem());
+        builder.setMessage("Disponível no estoque: " + item.getQuantidade());
+
+        final EditText input = new EditText(context);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        // Se já tem quantidade, mostra ela. Se não, deixa vazio ou 1.
+        int current = selectedQuantities.getOrDefault(itemId, 0);
+        input.setText(current > 0 ? String.valueOf(current) : "");
+        input.setHint("Digite a quantidade");
+
+        // Adiciona margem ao redor do input para ficar bonito
+        android.widget.FrameLayout container = new android.widget.FrameLayout(context);
+        android.widget.FrameLayout.LayoutParams params = new  android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.leftMargin = 50; // Margem lateral
+        params.rightMargin = 50;
+        input.setLayoutParams(params);
+        container.addView(input);
+        builder.setView(container);
+
+        builder.setPositiveButton("Confirmar", (dialog, which) -> {
+            String text = input.getText().toString();
+            if (!text.isEmpty()) {
+                try {
+                    int newQty = Integer.parseInt(text);
+                    if (newQty <= item.getQuantidade() && newQty >= 0) {
+                        if (newQty == 0) {
+                            selectedQuantities.remove(itemId);
+                            // Se estava na lista de carrinho e removeu, atualize a lista
+                            if (!isSearchMode) {
+                                int pos = holder.getAdapterPosition();
+                                if (pos != RecyclerView.NO_POSITION) {
+                                    itemList.remove(pos);
+                                    notifyItemRemoved(pos);
+                                }
+                            }
+                        } else {
+                            selectedQuantities.put(itemId, newQty);
+                            // Se estava buscando, notifica para limpar a busca (opcional, mas bom fluxo)
+                            if (isSearchMode && listener != null) {
+                                listener.onItemClick(item);
+                            }
+                        }
+                        // Atualiza o visual do botão imediatamente
+                        notifyItemChanged(holder.getAdapterPosition());
+                    } else {
+                        Toast.makeText(context, "Quantidade inválida (Máx: " + item.getQuantidade() + ")", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (NumberFormatException e) {
+                    Toast.makeText(context, "Número inválido", Toast.LENGTH_SHORT).show();
                 }
-                holder.textQuantidade.setText(String.valueOf(currentQty));
             }
         });
+        builder.setNegativeButton("Cancelar", (dialog, which) -> dialog.cancel());
+
+        // Mostra o Dialog e foca no campo de texto, abrindo o teclado automaticamente
+        AlertDialog dialog = builder.create();
+        dialog.getWindow().setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        dialog.show();
+        input.requestFocus();
     }
 
     @Override
@@ -92,31 +164,15 @@ public class SelecaoEstoqueAdapter extends RecyclerView.Adapter<SelecaoEstoqueAd
         return itemList.size();
     }
 
-    public List<DoacaoItem> getSelectedItems() {
-        List<DoacaoItem> selectedItems = new ArrayList<>();
-        // Aqui precisamos iterar sobre os itens originais para pegar os dados completos
-        // Mas como itemList pode estar filtrado, essa lógica precisa ser feita com cuidado na Activity
-        // ou passamos a lista completa aqui. Para simplificar, vamos iterar sobre o itemList atual
-        // que pode não ter todos os itens se estiver filtrado.
-        // CORREÇÃO: O método getSelectedItems deve ser chamado pela Activity usando a lista completa dela
-        // Ou podemos iterar sobre a lista atual, mas corremos o risco de perder itens selecionados que não estão na busca.
-
-        // Melhor abordagem: A Activity vai montar a lista final baseada no mapa `selectedQuantities`.
-        return selectedItems;
-    }
-
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView itemName, itemDetails, textQuantidade;
-        ImageButton btnRemove, btnAdd;
+        TextView itemName, itemDetails;
+        Button btnSelecionar; // Botão Único
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             itemName = itemView.findViewById(R.id.itemName);
             itemDetails = itemView.findViewById(R.id.itemDetails);
-            textQuantidade = itemView.findViewById(R.id.textQuantidade);
-            btnRemove = itemView.findViewById(R.id.btnRemove);
-            btnAdd = itemView.findViewById(R.id.btnAdd);
+            btnSelecionar = itemView.findViewById(R.id.btnSelecionar);
         }
     }
 }
-
