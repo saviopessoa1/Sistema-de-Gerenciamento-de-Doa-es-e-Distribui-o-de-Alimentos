@@ -10,7 +10,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -23,39 +22,37 @@ import com.example.SGDDA.adapter.ResumoItemAdapter;
 import com.example.SGDDA.model.DoacaoItem;
 import com.example.SGDDA.model.Entrega;
 import com.example.SGDDA.model.Instituicao;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.timepicker.MaterialTimePicker;
+import com.google.android.material.timepicker.TimeFormat;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot; // <-- NOVO IMPORT
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Transaction; // <-- NOVO IMPORT
-import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.firestore.Transaction;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 
 public class ResumoAgendamentoActivity extends AppCompatActivity {
 
     private static final String TAG = "ResumoAgendamento";
 
-    // Componentes
     private ImageButton backButton;
     private RecyclerView resumoRecyclerView;
     private EditText dataEditText, horarioEditText, voluntarioEditText, obsEditText;
     private Button btnConfirmarEntrega;
 
-    // Dados Recebidos
     private Instituicao instituicao;
     private List<DoacaoItem> itensSelecionados;
 
-    // Firebase
     private FirebaseFirestore db;
     private ResumoItemAdapter adapter;
 
@@ -65,8 +62,7 @@ public class ResumoAgendamentoActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_resumo_agendamento);
 
-        // Ajuste de layout (EdgeToEdge)
-        View mainView = findViewById(R.id.main); // Garanta que o ID "main" exista no XML
+        View mainView = findViewById(R.id.main);
         if (mainView != null) {
             ViewCompat.setOnApplyWindowInsetsListener(mainView, (v, insets) -> {
                 Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -75,10 +71,8 @@ public class ResumoAgendamentoActivity extends AppCompatActivity {
             });
         }
 
-        // Inicializar Firebase
         db = FirebaseFirestore.getInstance();
 
-        // Encontrar Componentes
         backButton = findViewById(R.id.backButton);
         resumoRecyclerView = findViewById(R.id.resumoRecyclerView);
         dataEditText = findViewById(R.id.dataEditText);
@@ -87,7 +81,12 @@ public class ResumoAgendamentoActivity extends AppCompatActivity {
         obsEditText = findViewById(R.id.obsEditText);
         btnConfirmarEntrega = findViewById(R.id.btnConfirmarEntrega);
 
-        // Pegar dados da Intent
+        // Configura campos para não abrir teclado (apenas clique)
+        dataEditText.setFocusable(false);
+        dataEditText.setClickable(true);
+        horarioEditText.setFocusable(false);
+        horarioEditText.setClickable(true);
+
         if (getIntent().hasExtra("INSTITUICAO_SELECIONADA") && getIntent().hasExtra("ITENS_SELECIONADOS")) {
             instituicao = (Instituicao) getIntent().getSerializableExtra("INSTITUICAO_SELECIONADA");
             Serializable itemsSerializable = getIntent().getSerializableExtra("ITENS_SELECIONADOS");
@@ -102,7 +101,6 @@ public class ResumoAgendamentoActivity extends AppCompatActivity {
             return;
         }
 
-        // Configurar RecyclerView de Resumo
         if (itensSelecionados == null) {
             itensSelecionados = new ArrayList<>();
         }
@@ -110,9 +108,13 @@ public class ResumoAgendamentoActivity extends AppCompatActivity {
         resumoRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         resumoRecyclerView.setAdapter(adapter);
 
-        // Configurar Listeners
+        setupListeners();
+    }
+
+    private void setupListeners() {
         backButton.setOnClickListener(v -> finish());
         dataEditText.setOnClickListener(v -> showDatePicker());
+        horarioEditText.setOnClickListener(v -> showTimePicker());
         btnConfirmarEntrega.setOnClickListener(v -> confirmarEntrega());
     }
 
@@ -132,8 +134,23 @@ public class ResumoAgendamentoActivity extends AppCompatActivity {
         datePicker.show(getSupportFragmentManager(), "DATE_PICKER");
     }
 
+    private void showTimePicker() {
+        MaterialTimePicker picker = new MaterialTimePicker.Builder()
+                .setTimeFormat(TimeFormat.CLOCK_24H)
+                .setHour(12)
+                .setMinute(0)
+                .setTitleText("Selecione o horário")
+                .build();
+
+        picker.addOnPositiveButtonClickListener(v -> {
+            String formattedTime = String.format(Locale.getDefault(), "%02d:%02d", picker.getHour(), picker.getMinute());
+            horarioEditText.setText(formattedTime);
+        });
+
+        picker.show(getSupportFragmentManager(), "TIME_PICKER");
+    }
+
     private void confirmarEntrega() {
-        // 1. Validar campos
         String data = dataEditText.getText().toString().trim();
         String horario = horarioEditText.getText().toString().trim();
         String voluntario = voluntarioEditText.getText().toString().trim();
@@ -144,91 +161,91 @@ public class ResumoAgendamentoActivity extends AppCompatActivity {
             return;
         }
 
-        // Desabilita o botão para evitar cliques duplos
         btnConfirmarEntrega.setEnabled(false);
         Toast.makeText(this, "Processando entrega...", Toast.LENGTH_SHORT).show();
 
-        // =================================================================
-        // INÍCIO DA CORREÇÃO
-        // =================================================================
-
-        // 2. Criar o objeto Entrega
-        String dataCombinada = data + " às " + horario; // Combina data e horário
+        String dataHoraEntrega = data + " às " + horario;
 
         Entrega novaEntrega = new Entrega(
                 instituicao.getDocumentId(),
                 instituicao.getNome(),
                 instituicao.getEndereco(),
                 instituicao.getUrgencia(),
-                voluntario, // voluntarioNome
-                dataCombinada, // dataEntrega
-                "Pendente", // status
-                itensSelecionados // itens
+                voluntario,
+                dataHoraEntrega,
+                "Pendente",
+                itensSelecionados
         );
-
-        // Define as observações, já que não estão no construtor
         novaEntrega.setObservacoes(obs);
 
-        // =================================================================
-        // FIM DA CORREÇÃO
-        // =================================================================
-
-
-        // 3. EXECUTAR A TRANSAÇÃO (Salvar Entrega E Atualizar Estoque)
+        // --- TRANSAÇÃO CORRIGIDA (Leituras PRIMEIRO, depois Escritas) ---
         db.runTransaction((Transaction.Function<Void>) transaction -> {
-            // Passo A: Salvar a nova entrega na coleção "entregas"
-            DocumentReference entregaRef = db.collection("entregas").document();
-            transaction.set(entregaRef, novaEntrega);
 
-            // Passo B: Atualizar (subtrair) as quantidades no "estoque"
+            // 1. LEITURAS (READS)
+            // Vamos armazenar as operações que faremos depois
+            Map<DocumentReference, Long> atualizacoesEstoque = new HashMap<>();
+            List<DocumentReference> remocoesEstoque = new ArrayList<>();
+
             for (DoacaoItem itemSelecionado : itensSelecionados) {
-                // Pega a referência do item no estoque pelo ID do documento
                 DocumentReference estoqueItemRef = db.collection("estoque").document(itemSelecionado.getDocumentId());
+                DocumentSnapshot snapshot = transaction.get(estoqueItemRef); // LEITURA
 
-                // Lê o item do estoque DENTRO da transação
-                DocumentSnapshot snapshot = transaction.get(estoqueItemRef);
+                if (!snapshot.exists()) {
+                    // Item não existe mais no estoque? Ignoramos ou lançamos erro.
+                    // Aqui vamos ignorar para não falhar a entrega inteira
+                    continue;
+                }
 
-                long quantidadeAtual = snapshot.getLong("quantidade"); // Pega a qtd atual no DB
+                Long qtdLong = snapshot.getLong("quantidade");
+                long quantidadeAtual = (qtdLong != null) ? qtdLong : 0;
                 long quantidadeSaida = itemSelecionado.getQuantidade();
 
                 if (quantidadeAtual < quantidadeSaida) {
-                    // Se não tiver estoque suficiente, falha a transação
                     throw new FirebaseFirestoreException(
-                            "Estoque insuficiente para " + itemSelecionado.getNomeItem(),
+                            "Estoque insuficiente para: " + itemSelecionado.getNomeItem(),
                             FirebaseFirestoreException.Code.ABORTED
                     );
                 }
 
-                // Calcula o novo estoque
                 long novoEstoque = quantidadeAtual - quantidadeSaida;
-
                 if (novoEstoque == 0) {
-                    // Se o estoque zerar, deleta o item
-                    transaction.delete(estoqueItemRef);
+                    remocoesEstoque.add(estoqueItemRef);
                 } else {
-                    // Se não, atualiza a quantidade
-                    transaction.update(estoqueItemRef, "quantidade", novoEstoque);
+                    atualizacoesEstoque.put(estoqueItemRef, novoEstoque);
                 }
             }
 
-            // Se chegou aqui, a transação deu certo
+            // 2. ESCRITAS (WRITES) - Só agora alteramos o banco
+            DocumentReference entregaRef = db.collection("entregas").document();
+            transaction.set(entregaRef, novaEntrega); // Salva a entrega
+
+            // Atualiza os estoques
+            for (Map.Entry<DocumentReference, Long> entry : atualizacoesEstoque.entrySet()) {
+                transaction.update(entry.getKey(), "quantidade", entry.getValue());
+            }
+            // Remove itens zerados
+            for (DocumentReference ref : remocoesEstoque) {
+                transaction.delete(ref);
+            }
+
             return null;
 
         }).addOnSuccessListener(aVoid -> {
-            // SUCESSO DE TUDO
-            Toast.makeText(ResumoAgendamentoActivity.this, "Entrega agendada e estoque atualizado!", Toast.LENGTH_LONG).show();
-
-            // Limpa as telas de montagem/resumo e volta para o Dashboard
+            Toast.makeText(ResumoAgendamentoActivity.this, "Entrega agendada com sucesso!", Toast.LENGTH_LONG).show();
             Intent intent = new Intent(ResumoAgendamentoActivity.this, DashboardActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
             finish();
 
         }).addOnFailureListener(e -> {
-            // FALHA DA TRANSAÇÃO
             Log.e(TAG, "Erro na transação", e);
-            Toast.makeText(ResumoAgendamentoActivity.this, "Falha: " + e.getMessage(), Toast.LENGTH_LONG).show();
-            btnConfirmarEntrega.setEnabled(true); // Reabilita o botão
+            String msg = e.getMessage();
+            if (msg != null && msg.contains("Estoque insuficiente")) {
+                Toast.makeText(ResumoAgendamentoActivity.this, msg, Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(ResumoAgendamentoActivity.this, "Falha ao agendar: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+            btnConfirmarEntrega.setEnabled(true);
         });
     }
 }

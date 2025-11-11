@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
-    android.layout_height="match_parent"
+    android:layout_height="match_parent"
     android:background="@color/app_background_dark"
     tools:context=".ui.DetalhesEntregaActivity">
 
@@ -35,13 +35,45 @@
         app:layout_constraintStart_toEndOf="@id/backButton"
         android:layout_marginStart="16dp"/>
 
+    <!-- Botões Fixos no Rodapé -->
+    <LinearLayout
+        android:id="@+id/footerButtons"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnConfirmarColeta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Confirmar Coleta no Estoque"
+            android:backgroundTint="@color/app_accent_blue"
+            app:cornerRadius="12dp"
+            android:paddingVertical="14dp"
+            android:layout_marginBottom="8dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnConfirmarEntrega"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Confirmar Entrega"
+            android:backgroundTint="@color/app_accent_green"
+            android:textColor="@color/app_primary_dark"
+            app:cornerRadius="12dp"
+            android:paddingVertical="14dp"/>
+    </LinearLayout>
+
     <!-- Conteúdo Rolável -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
         app:layout_constraintTop_toBottomOf="@id/backButton"
-        app:layout_constraintBottom_toTopOf="@id/btnConfirmarColeta"
+        app:layout_constraintBottom_toTopOf="@id/footerButtons"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -193,38 +225,5 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Botões Fixos no Rodapé -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnConfirmarColeta"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Confirmar Coleta no Estoque"
-        android:backgroundTint="@color/app_accent_blue"
-        app:cornerRadius="12dp"
-        android:paddingVertical="14dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@id/btnConfirmarEntrega"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnConfirmarEntrega"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Confirmar Entrega"
-        android:backgroundTint="@color/app_accent_green"
-        android:textColor="@color/app_primary_dark"
-        app:cornerRadius="12dp"
-        android:paddingVertical="14dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
 </androidx.constraintlayout.widget.ConstraintLayout>
-
 

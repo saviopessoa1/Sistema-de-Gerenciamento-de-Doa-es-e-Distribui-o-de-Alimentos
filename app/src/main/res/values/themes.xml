@@ -1,9 +1,21 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.SistemaDeGerenciamentoDeDoaçõesEDistribuiçãoDeAlimentos" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+        <!-- CORREÇÃO: Barra de Status (Notificações) -->
+        <!-- Define a cor de fundo da barra como a cor escura do app -->
+        <item name="android:statusBarColor">@color/app_primary_dark</item>
+        <!-- Define os ícones (hora, bateria) como claros (branco) -->
+        <item name="android:windowLightStatusBar">false</item>
+
+        <!-- Cores principais do Material Design mapeadas para as do seu app -->
+        <item name="colorPrimary">@color/app_accent_green</item>
+        <item name="colorOnPrimary">@color/app_primary_dark</item>
+        <item name="colorSecondary">@color/app_accent_blue</item>
+        <item name="android:colorBackground">@color/app_background_dark</item>
+
     </style>
 
     <style name="Theme.SistemaDeGerenciamentoDeDoaçõesEDistribuiçãoDeAlimentos" parent="Base.Theme.SistemaDeGerenciamentoDeDoaçõesEDistribuiçãoDeAlimentos" />
 </resources>
+

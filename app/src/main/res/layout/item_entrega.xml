@@ -10,9 +10,11 @@
     android:layout_marginTop="8dp"
     android:layout_marginBottom="8dp"
     app:cardBackgroundColor="@color/app_header_curve"
-    app:cardCornerRadius="16dp">
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="16dp">
@@ -26,86 +28,104 @@
             android:textColor="@color/app_text_white"
             android:textSize="18sp"
             android:textStyle="bold"
+            android:layout_marginEnd="8dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/iconConcluido"/>
 
-        <!-- Ícone de Concluído (NOVO) -->
+        <!-- Ícone de Concluído -->
         <ImageView
             android:id="@+id/iconConcluido"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@android:drawable/ic_menu_save"
             app:tint="@android:color/holo_green_dark"
+            android:visibility="gone"
             app:layout_constraintEnd_toStartOf="@+id/btnDetalhes"
             app:layout_constraintTop_toTopOf="@id/titleInstituicao"
             app:layout_constraintBottom_toBottomOf="@id/titleInstituicao"
-            android:layout_marginEnd="8dp"
-            android:visibility="gone" /> <!-- Começa escondido -->
+            android:layout_marginEnd="8dp"/>
 
-        <!-- Nível de Urgência (Para Pendentes) -->
-        <TextView
-            android:id="@+id/textUrgencia"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Urgência: Alta"
-            android:textColor="@color/app_text_grey"
-            android:textSize="14sp"
-            android:visibility="visible"
-            app:layout_constraintStart_toStartOf="@id/titleInstituicao"
-            app:layout_constraintTop_toBottomOf="@id/titleInstituicao" />
-
-        <!-- Agendamento (Para Pendentes) -->
-        <TextView
-            android:id="@+id/textAgendado"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Agendado: 15/05/2025"
-            android:textColor="@color/app_text_grey"
-            android:textSize="14sp"
-            android:visibility="visible"
-            app:layout_constraintStart_toStartOf="@id/titleInstituicao"
-            app:layout_constraintTop_toBottomOf="@id/textUrgencia" />
-
-        <!-- Data de Entrega (Para Concluídos) (NOVO) -->
-        <TextView
-            android:id="@+id/textEntregue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Entregue: 15/05/2025"
-            android:textColor="@color/app_text_grey"
-            android:textSize="14sp"
-            android:visibility="gone"
-            app:layout_constraintStart_toStartOf="@id/titleInstituicao"
-            app:layout_constraintTop_toBottomOf="@id/textUrgencia" />
-
-        <!-- Endereço -->
-        <TextView
-            android:id="@+id/textEndereco"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Avenida do Pôr do Sol, 1200 - Vila Nova"
-            android:textColor="@color/app_text_grey"
-            android:textSize="12sp"
-            app:layout_constraintStart_toStartOf="@id/titleInstituicao"
-            app:layout_constraintTop_toBottomOf="@id/textAgendado"
-            app:layout_constraintEnd_toStartOf="@+id/btnDetalhes"
-            app:layout_constraintBottom_toBottomOf="parent"/>
-
-        <!-- Botão Detalhes -->
+        <!-- Botão Detalhes (Fixo à direita, centralizado verticalmente) -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnDetalhes"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Detalhes"
             android:backgroundTint="@android:color/holo_green_dark"
-            app:cornerRadius="16dp"
+            app:cornerRadius="12dp"
+            android:paddingHorizontal="16dp"
+            android:minHeight="48dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintVertical_bias="0.5"/>
+
+        <!--
+           PILHA VERTICAL:
+           A lógica é simples: Um fica debaixo do outro.
+           Se um fica invisível (GONE), o de baixo sobe.
+        -->
+
+        <!-- 1. Urgência (Pendente) -->
+        <TextView
+            android:id="@+id/textUrgencia"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Urgência: Alta"
+            android:textColor="@color/app_text_grey"
+            android:textSize="14sp"
+            android:layout_marginTop="6dp"
+            android:visibility="visible"
+            app:layout_constraintStart_toStartOf="@id/titleInstituicao"
+            app:layout_constraintTop_toBottomOf="@id/titleInstituicao"
+            app:layout_constraintEnd_toStartOf="@+id/btnDetalhes"
+            android:layout_marginEnd="8dp"/>
+
+        <!-- 2. Agendado (Pendente) -->
+        <TextView
+            android:id="@+id/textAgendado"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Agendado: 15/05/2025"
+            android:textColor="@color/app_text_grey"
+            android:textSize="14sp"
+            android:layout_marginTop="4dp"
+            android:visibility="visible"
+            app:layout_constraintStart_toStartOf="@id/titleInstituicao"
+            app:layout_constraintTop_toBottomOf="@id/textUrgencia"
+            app:layout_constraintEnd_toStartOf="@+id/btnDetalhes"
+            android:layout_marginEnd="8dp"/>
+
+        <!-- 3. Entregue (Concluído) -->
+        <TextView
+            android:id="@+id/textEntregue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Entregue: 15/05/2025"
+            android:textColor="@color/app_text_grey"
+            android:textSize="14sp"
+            android:layout_marginTop="4dp"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="@id/titleInstituicao"
+            app:layout_constraintTop_toBottomOf="@id/textAgendado"
+            app:layout_constraintEnd_toStartOf="@+id/btnDetalhes"
+            android:layout_marginEnd="8dp"/>
+
+        <!-- 4. Endereço (Sempre por último) -->
+        <!-- Note que ele fica abaixo de 'textEntregue'. Se 'textEntregue' sumir, ele gruda em 'textAgendado' e assim por diante. -->
+        <TextView
+            android:id="@+id/textEndereco"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Avenida do Pôr do Sol, 1200 - Vila Nova"
+            android:textColor="@color/white_60"
+            android:textSize="12sp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintStart_toStartOf="@id/titleInstituicao"
+            app:layout_constraintTop_toBottomOf="@id/textEntregue"
+            app:layout_constraintEnd_toStartOf="@+id/btnDetalhes"
+            android:layout_marginEnd="8dp"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

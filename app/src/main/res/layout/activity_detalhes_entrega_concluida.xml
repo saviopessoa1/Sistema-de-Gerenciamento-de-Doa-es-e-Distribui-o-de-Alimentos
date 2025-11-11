@@ -9,7 +9,7 @@
     android:background="@color/app_background_dark"
     tools:context=".ui.DetalhesEntregaConcluidaActivity">
 
-    <!-- Cabeçalho Fixo -->
+    <!-- Cabeçalho -->
     <ImageButton
         android:id="@+id/backButton"
         android:layout_width="wrap_content"
@@ -30,11 +30,12 @@
         android:textColor="@color/white"
         android:textSize="22sp"
         android:textStyle="bold"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@+id/backButton"
-        app:layout_constraintStart_toStartOf="@+id/backButton"/>
+        android:layout_marginStart="16dp"
+        app:layout_constraintStart_toEndOf="@id/backButton"
+        app:layout_constraintTop_toTopOf="@id/backButton"
+        app:layout_constraintBottom_toBottomOf="@id/backButton"/>
 
-    <!-- Rodapé Fixo -->
+    <!-- Botão OK (Fixo no Rodapé) -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/okButton"
         android:layout_width="0dp"
@@ -45,12 +46,13 @@
         app:cornerRadius="12dp"
         android:paddingVertical="14dp"
         android:textSize="16sp"
+        android:textStyle="bold"
         android:layout_margin="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Conteúdo Rolável -->
+    <!-- Conteúdo com Scroll -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -74,39 +76,49 @@
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/app_primary_light"
                 app:cardCornerRadius="12dp"
-                android:layout_marginBottom="8dp">
+                app:strokeColor="@color/white_60"
+                app:strokeWidth="1dp"
+                android:layout_marginBottom="12dp">
+
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="16dp">
+
                     <TextView
-                        android:id="@+id/titleInstituicao"
+                        android:id="@+id/textInstituicao"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="Creche Criança Feliz"
                         android:textColor="@color/white"
                         android:textStyle="bold"
-                        android:textSize="16sp"
+                        android:textSize="18sp"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/iconConcluido"/>
+                        app:layout_constraintEnd_toStartOf="@+id/iconSaved"/>
+
+                    <!-- Ícone de disquete/salvo (verde) -->
                     <ImageView
-                        android:id="@+id/iconConcluido"
+                        android:id="@+id/iconSaved"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:src="@android:drawable/ic_menu_save"
                         app:tint="@color/app_accent_green"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="@id/titleInstituicao"
-                        app:layout_constraintBottom_toBottomOf="@id/titleInstituicao"/>
+                        app:layout_constraintTop_toTopOf="parent"/>
+
                     <TextView
-                        android:id="@+id/textEntregue"
-                        android:layout_width="wrap_content"
+                        android:id="@+id/textEntregueData"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="Entregue: 15/05/2025"
                         android:textColor="@color/white_60"
+                        android:textSize="14sp"
+                        android:layout_marginTop="4dp"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/titleInstituicao" />
+                        app:layout_constraintTop_toBottomOf="@id/textInstituicao"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+
                     <TextView
                         android:id="@+id/textEndereco"
                         android:layout_width="0dp"
@@ -116,8 +128,9 @@
                         android:textSize="12sp"
                         android:layout_marginTop="4dp"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/textEntregue"
+                        app:layout_constraintTop_toBottomOf="@id/textEntregueData"
                         app:layout_constraintEnd_toEndOf="parent"/>
+
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -127,13 +140,17 @@
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/app_primary_light"
                 app:cardCornerRadius="12dp"
-                android:layout_marginBottom="8dp">
+                app:strokeColor="@color/white_60"
+                app:strokeWidth="1dp"
+                android:layout_marginBottom="12dp">
+
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="16dp">
+                    android:padding="12dp">
+
                     <ImageView
-                        android:id="@+id/iconVoluntario"
+                        android:id="@+id/iconUser"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_person"
@@ -141,37 +158,42 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintBottom_toBottomOf="parent"/>
+
                     <TextView
-                        android:id="@+id/textVoluntarioNome"
+                        android:id="@+id/textVoluntario"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="José Alencar"
+                        android:text="José\nAlencar"
                         android:textColor="@color/white"
                         android:textStyle="bold"
-                        android:textSize="16sp"
                         android:layout_marginStart="8dp"
-                        app:layout_constraintStart_toEndOf="@id/iconVoluntario"
+                        app:layout_constraintStart_toEndOf="@id/iconUser"
                         app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@+id/btnLigarVoluntario"/>
+
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnLigarVoluntario"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Ligar para Voluntário"
+                        android:textSize="12sp"
                         android:backgroundTint="@color/app_accent_green"
                         android:textColor="@color/app_primary_dark"
-                        app:cornerRadius="12dp"
+                        app:cornerRadius="8dp"
                         app:icon="@android:drawable/ic_menu_call"
                         app:iconTint="@color/app_primary_dark"
+                        app:iconSize="16dp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintBottom_toBottomOf="parent"/>
+
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Botão Observações -->
+            <!-- Botão Ver Observações -->
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/verObservacoesButton"
+                android:id="@+id/btnVerObservacoes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Ver Observações"
@@ -181,7 +203,7 @@
                 android:paddingVertical="12dp"
                 android:layout_marginBottom="16dp"/>
 
-            <!-- Seção Itens -->
+            <!-- Título Itens -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -197,13 +219,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                tools:listitem="@layout/item_detalhes_entrega"
-                tools:itemCount="5"/>
+                tools:itemCount="3"
+                tools:listitem="@layout/item_detalhes_entrega"/>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-
 

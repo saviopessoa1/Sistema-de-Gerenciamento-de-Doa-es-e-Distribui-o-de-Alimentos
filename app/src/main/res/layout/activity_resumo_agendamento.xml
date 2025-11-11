@@ -109,7 +109,7 @@
                             android:id="@+id/dataEditText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:drawableStart="@drawable/ic_home"
+                            android:drawableStart="@drawable/ic_calendar_today"
                             android:drawablePadding="8dp"
                             app:drawableTint="@color/white_60"
                             android:inputType="date"

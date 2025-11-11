@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/app_primary_dark"
@@ -93,18 +94,31 @@
             app:cornerRadius="12dp"/>
     </LinearLayout>
 
-    <!-- Lista com Scroll (Ocupa o resto da tela) -->
+    <!-- Barra de Navegação (FIXA NO FUNDO) -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigationView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/header_background_shape"
+        app:backgroundTint="@color/app_primary_light"
+        app:itemIconTint="@color/bottom_nav_color_selector"
+        app:itemTextColor="@color/bottom_nav_color_selector"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:menu="@menu/bottom_nav_menu" />
+
+    <!-- Lista com Scroll (PRESA NA BARRA DE NAVEGAÇÃO) -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/estoqueRecyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
         app:layout_constraintTop_toBottomOf="@+id/filterButtons"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         tools:listitem="@layout/item_estoque"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-
 

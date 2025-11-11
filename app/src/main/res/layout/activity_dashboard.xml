@@ -8,7 +8,7 @@
     android:fitsSystemWindows="true"
     tools:openDrawer="start">
 
-    <!-- Conteúdo Principal (Seu Painel) -->
+    <!-- Conteúdo Principal -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/main"
         android:layout_width="match_parent"
@@ -16,7 +16,37 @@
         android:background="@color/app_background_dark"
         tools:context=".ui.DashboardActivity">
 
-        <!-- Container que pode rolar (ScrollView) -->
+        <!-- Barra de Navegação (Fixa no fundo) -->
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottomNavigationView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/header_background_shape"
+            app:backgroundTint="@color/app_primary_light"
+            app:itemIconTint="@color/bottom_nav_color_selector"
+            app:itemTextColor="@color/bottom_nav_color_selector"
+            app:labelVisibilityMode="labeled"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:menu="@menu/bottom_nav_menu" />
+
+        <!-- Botão Flutuante (FAB) -->
+        <!-- Adicionei margem inferior para não grudar na barra -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabAdicionarDoacao"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:src="@drawable/ic_add"
+            app:backgroundTint="@color/app_accent_green"
+            app:tint="@color/app_primary_dark"
+            app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:fabSize="normal"
+            android:contentDescription="Registrar nova doação"/>
+
+        <!-- ScrollView para o conteúdo (Acima da barra) -->
         <androidx.core.widget.NestedScrollView
             android:id="@+id/contentScrollView"
             android:layout_width="0dp"
@@ -29,7 +59,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="16dp">
+                android:paddingBottom="80dp">
 
                 <!-- Fundo do Cabeçalho -->
                 <View
@@ -39,7 +69,7 @@
                     android:background="@drawable/header_background_shape"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <!-- Barra Superior (Menu e Título) -->
+                <!-- Barra Superior -->
                 <ImageButton
                     android:id="@+id/menuButton"
                     android:layout_width="wrap_content"
@@ -69,16 +99,13 @@
                 <!-- Card: Estoque -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardEstoque"
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
+                    android:layout_marginHorizontal="16dp"
                     android:layout_marginTop="24dp"
-                    android:layout_marginEnd="16dp"
                     app:cardBackgroundColor="@color/app_primary_light"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="4dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/textViewTitle">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
@@ -90,66 +117,66 @@
                             android:id="@+id/textViewEstoqueLabel"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Estoque"
+                            android:text="Estoque Total"
                             android:textColor="@color/white"
                             android:textSize="18sp"
                             android:textStyle="bold"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
 
-                        <!-- Placeholder para o Gráfico de Anel (151400) -->
+                        <!-- Gráfico Simulado -->
                         <FrameLayout
                             android:id="@+id/pieChartEstoqueContainer"
-                            android:layout_width="120dp"
-                            android:layout_height="120dp"
-                            android:layout_marginTop="8dp"
+                            android:layout_width="100dp"
+                            android:layout_height="100dp"
+                            android:layout_marginTop="16dp"
+                            android:background="@drawable/shape_circle_solid"
+                            android:backgroundTint="@color/app_background_dark"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@id/textViewEstoqueLabel">
 
-                            <!-- O gráfico será adicionado aqui via código Java -->
-                            <!-- Texto "151400" no centro -->
+                            <!-- Texto dentro do gráfico -->
                             <TextView
                                 android:id="@+id/textViewEstoqueTotal"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="151400"
                                 android:textColor="@color/white"
-                                android:textSize="20sp"
+                                android:textSize="16sp"
                                 android:textStyle="bold"
                                 android:layout_gravity="center"/>
-
                         </FrameLayout>
 
-                        <!-- Legenda do Gráfico -->
-                        <TextView
-                            android:id="@+id/legendaNaoPerecivel"
-                            android:layout_width="wrap_content"
+                        <!-- Legenda -->
+                        <LinearLayout
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:drawablePadding="8dp"
-                            android:gravity="center_vertical"
-                            android:text="Não Perecível"
-                            android:textColor="@color/white_80"
-                            app:drawableStartCompat="@drawable/shape_circle_solid"
-                            app:drawableTint="@color/app_accent_green"
-                            app:layout_constraintBottom_toTopOf="@id/legendaPerecivel"
+                            android:orientation="vertical"
+                            android:layout_marginStart="24dp"
                             app:layout_constraintStart_toEndOf="@id/pieChartEstoqueContainer"
+                            app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="@id/pieChartEstoqueContainer"
-                            app:layout_constraintVertical_chainStyle="packed" />
+                            app:layout_constraintBottom_toBottomOf="@id/pieChartEstoqueContainer">
 
-                        <TextView
-                            android:id="@+id/legendaPerecivel"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:drawablePadding="8dp"
-                            android:gravity="center_vertical"
-                            android:text="Perecível"
-                            android:textColor="@color/white_80"
-                            app:drawableStartCompat="@drawable/shape_circle_solid"
-                            app:drawableTint="@color/white_60"
-                            app:layout_constraintBottom_toBottomOf="@id/pieChartEstoqueContainer"
-                            app:layout_constraintStart_toStartOf="@id/legendaNaoPerecivel"
-                            app:layout_constraintTop_toBottomOf="@id/legendaNaoPerecivel" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Não Perecível"
+                                android:textColor="@color/white_80"
+                                android:drawableStart="@drawable/shape_circle_solid"
+                                android:drawableTint="@color/app_accent_green"
+                                android:drawablePadding="8dp"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Perecível"
+                                android:textColor="@color/white_80"
+                                android:drawableStart="@drawable/shape_circle_solid"
+                                android:drawableTint="@color/white_60"
+                                android:drawablePadding="8dp"
+                                android:layout_marginTop="8dp"/>
+                        </LinearLayout>
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -157,46 +184,44 @@
                 <!-- Card: Atenção -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardAtencao"
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
                     android:layout_marginTop="16dp"
                     app:cardBackgroundColor="@color/app_accent_yellow"
                     app:cardCornerRadius="16dp"
-                    app:cardElevation="4dp"
-                    app:layout_constraintEnd_toEndOf="@id/cardEstoque"
-                    app:layout_constraintStart_toStartOf="@id/cardEstoque"
+                    app:cardElevation="2dp"
                     app:layout_constraintTop_toBottomOf="@id/cardEstoque">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:drawablePadding="8dp"
+                        android:drawablePadding="12dp"
                         android:gravity="center_vertical"
-                        android:padding="12dp"
+                        android:padding="16dp"
                         android:text="Atenção: 15 itens vencem nesta semana"
                         android:textColor="@color/app_primary_dark"
                         android:textStyle="bold"
                         app:drawableStartCompat="@drawable/ic_warning"
                         app:drawableTint="@color/app_primary_dark" />
-
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Grid de Métricas (2 colunas) -->
-                <GridLayout
-                    android:id="@+id/metricsGrid"
-                    android:layout_width="0dp"
+                <!-- Grid de Métricas (LinearLayout Horizontal para dividir 50/50) -->
+                <LinearLayout
+                    android:id="@+id/metricsRow"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginHorizontal="16dp"
                     android:layout_marginTop="16dp"
-                    android:columnCount="2"
-                    app:layout_constraintEnd_toEndOf="@id/cardEstoque"
-                    app:layout_constraintStart_toStartOf="@id/cardEstoque"
+                    android:baselineAligned="false"
                     app:layout_constraintTop_toBottomOf="@id/cardAtencao">
 
-                    <!-- Card: Doações Recebidas -->
+                    <!-- Card: Doações -->
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
                         android:layout_marginEnd="8dp"
                         app:cardBackgroundColor="@color/app_primary_light"
                         app:cardCornerRadius="16dp">
@@ -210,8 +235,9 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Doações Recebidas Mês"
-                                android:textColor="@color/white_80" />
+                                android:text="Doações Mês"
+                                android:textColor="@color/white_80"
+                                android:textSize="14sp"/>
 
                             <TextView
                                 android:layout_width="wrap_content"
@@ -219,15 +245,16 @@
                                 android:text="1516"
                                 android:textColor="@color/white"
                                 android:textSize="32sp"
-                                android:textStyle="bold" />
+                                android:textStyle="bold"
+                                android:layout_marginTop="8dp"/>
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
                     <!-- Card: Próximas Entregas -->
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
                         android:layout_marginStart="8dp"
                         app:cardBackgroundColor="@color/app_primary_light"
                         app:cardCornerRadius="16dp">
@@ -241,48 +268,52 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Próximas Entregas"
-                                android:textColor="@color/white_80" />
+                                android:text="Próx. Entregas"
+                                android:textColor="@color/white_80"
+                                android:textSize="14sp"/>
 
+                            <!-- Lista simplificada -->
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Lar dos Idosos"
+                                android:text="• Lar dos Idosos"
                                 android:textColor="@color/white"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
+                                android:textSize="12sp"
+                                android:layout_marginTop="8dp"
+                                android:maxLines="1"
+                                android:ellipsize="end"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Creche Criança Feliz"
+                                android:text="• Creche Criança..."
                                 android:textColor="@color/white"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
+                                android:textSize="12sp"
+                                android:maxLines="1"
+                                android:ellipsize="end"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Sopão Comunitário"
+                                android:text="• Sopão Comunit..."
                                 android:textColor="@color/white"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
+                                android:textSize="12sp"
+                                android:maxLines="1"
+                                android:ellipsize="end"/>
 
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
 
-                </GridLayout>
-
-                <!-- Card: Doações do Mês (Gráfico) -->
+                <!-- Card: Doações do Mês (Gráfico Grande) -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardDoacoesMes"
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
                     android:layout_marginTop="16dp"
                     app:cardBackgroundColor="@color/app_primary_light"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="4dp"
-                    app:layout_constraintEnd_toEndOf="@id/cardEstoque"
-                    app:layout_constraintStart_toStartOf="@id/cardEstoque"
-                    app:layout_constraintTop_toBottomOf="@id/metricsGrid">
+                    app:layout_constraintTop_toBottomOf="@id/metricsRow">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -293,26 +324,24 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Doações do Mês"
+                            android:text="Histórico de Doações"
                             android:textColor="@color/white"
                             android:textSize="18sp"
                             android:textStyle="bold" />
 
-                        <!-- Placeholder para o Gráfico de Pizza -->
                         <FrameLayout
-                            android:id="@+id/pieChartDoacoesContainer"
                             android:layout_width="match_parent"
-                            android:layout_height="200dp"
-                            android:layout_marginTop="8dp">
+                            android:layout_height="150dp"
+                            android:layout_marginTop="16dp"
+                            android:background="@drawable/shape_rounded_corners"
+                            android:backgroundTint="@color/app_background_dark">
 
-                            <!-- O gráfico será adicionado aqui via código Java -->
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="[Placeholder Gráfico Pizza]"
+                                android:text="Gráfico de Barras (Em Breve)"
                                 android:textColor="@color/white_60"
                                 android:layout_gravity="center"/>
-
                         </FrameLayout>
 
                     </LinearLayout>
@@ -322,35 +351,9 @@
 
         </androidx.core.widget.NestedScrollView>
 
-        <!-- Barra de Navegação Inferior -->
-        <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/bottomNavigationView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/header_background_shape"
-            app:backgroundTint="@color/app_primary_light"
-            app:itemIconTint="@color/bottom_nav_color_selector"
-            app:itemTextColor="@color/bottom_nav_color_selector"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:menu="@menu/bottom_nav_menu" />
-
-        <!-- NOVO: Botão Flutuante (FAB) -->
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabAdicionarDoacao"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:src="@drawable/ic_add"
-            app:backgroundTint="@color/app_accent_green"
-            app:tint="@color/app_primary_dark"
-            app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:fabSize="normal"
-            android:contentDescription="Registrar nova doação"/>
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Gaveta de Navegação (Menu Lateral) -->
+    <!-- Menu Lateral -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
         android:layout_width="wrap_content"
@@ -363,4 +366,5 @@
         app:menu="@menu/drawer_menu" />
 
 </androidx.drawerlayout.widget.DrawerLayout>
+
 
