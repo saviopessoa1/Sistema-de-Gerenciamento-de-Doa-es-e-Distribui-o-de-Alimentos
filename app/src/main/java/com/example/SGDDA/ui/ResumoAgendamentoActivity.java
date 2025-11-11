@@ -148,13 +148,31 @@ public class ResumoAgendamentoActivity extends AppCompatActivity {
         btnConfirmarEntrega.setEnabled(false);
         Toast.makeText(this, "Processando entrega...", Toast.LENGTH_SHORT).show();
 
+        // =================================================================
+        // INÍCIO DA CORREÇÃO
+        // =================================================================
+
         // 2. Criar o objeto Entrega
-        Entrega novaEntrega = new Entrega(instituicao.getDocumentId(),
+        String dataCombinada = data + " às " + horario; // Combina data e horário
+
+        Entrega novaEntrega = new Entrega(
+                instituicao.getDocumentId(),
                 instituicao.getNome(),
                 instituicao.getEndereco(),
                 instituicao.getUrgencia(),
-                data, horario, voluntario, obs,
-                "Pendente", itensSelecionados);
+                voluntario, // voluntarioNome
+                dataCombinada, // dataEntrega
+                "Pendente", // status
+                itensSelecionados // itens
+        );
+
+        // Define as observações, já que não estão no construtor
+        novaEntrega.setObservacoes(obs);
+
+        // =================================================================
+        // FIM DA CORREÇÃO
+        // =================================================================
+
 
         // 3. EXECUTAR A TRANSAÇÃO (Salvar Entrega E Atualizar Estoque)
         db.runTransaction((Transaction.Function<Void>) transaction -> {
@@ -214,5 +232,3 @@ public class ResumoAgendamentoActivity extends AppCompatActivity {
         });
     }
 }
-
-

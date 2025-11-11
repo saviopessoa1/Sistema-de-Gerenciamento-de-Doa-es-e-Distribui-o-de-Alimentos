@@ -115,7 +115,7 @@
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView"
         android:layout_width="match_parent"
-        android.layout_height="wrap_content"
+        android:layout_height="wrap_content"
         android:background="@drawable/header_background_shape"
         app:backgroundTint="@color/app_primary_light"
         app:itemIconTint="@color/bottom_nav_color_selector"

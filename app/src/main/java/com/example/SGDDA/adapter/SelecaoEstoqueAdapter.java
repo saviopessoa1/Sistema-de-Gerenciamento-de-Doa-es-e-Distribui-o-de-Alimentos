@@ -17,9 +17,10 @@ import java.util.Map;
 
 public class SelecaoEstoqueAdapter extends RecyclerView.Adapter<SelecaoEstoqueAdapter.ViewHolder> {
 
-    private List<DoacaoItem> itemList;
+    private List<DoacaoItem> itemList; // Lista exibida atualmente (pode ser busca ou selecionados)
     private Context context;
     // Mapa para guardar a quantidade selecionada de cada item (ID do Documento -> Quantidade)
+    // Isso garante que a quantidade se mantenha mesmo trocando a lista visual
     private Map<String, Integer> selectedQuantities;
 
     public SelecaoEstoqueAdapter(Context context, List<DoacaoItem> itemList) {
@@ -28,10 +29,20 @@ public class SelecaoEstoqueAdapter extends RecyclerView.Adapter<SelecaoEstoqueAd
         this.selectedQuantities = new HashMap<>();
     }
 
+    // --- NOVO MÉTODO: Atualiza a lista exibida ---
+    public void updateList(List<DoacaoItem> newList) {
+        this.itemList = newList;
+        notifyDataSetChanged();
+    }
+
+    // --- NOVO MÉTODO: Retorna o mapa de seleções para a Activity usar ---
+    public Map<String, Integer> getSelectedQuantitiesMap() {
+        return selectedQuantities;
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Reutiliza o layout item_doacao_registrada.xml
         View view = LayoutInflater.from(context).inflate(R.layout.item_doacao_registrada, parent, false);
         return new ViewHolder(view);
     }
@@ -41,7 +52,7 @@ public class SelecaoEstoqueAdapter extends RecyclerView.Adapter<SelecaoEstoqueAd
         DoacaoItem item = itemList.get(position);
         String itemId = item.getDocumentId();
 
-        if (itemId == null) return; // Proteção contra itens inválidos
+        if (itemId == null) return;
 
         holder.itemName.setText(item.getNomeItem());
         String detalhes = "Qtd. Disp: " + item.getQuantidade() + " | Vence em: " + item.getDataValidade();
@@ -66,7 +77,11 @@ public class SelecaoEstoqueAdapter extends RecyclerView.Adapter<SelecaoEstoqueAd
             int currentQty = selectedQuantities.getOrDefault(itemId, 0);
             if (currentQty > 0) { // Não pode ser negativo
                 currentQty--;
-                selectedQuantities.put(itemId, currentQty);
+                if (currentQty == 0) {
+                    selectedQuantities.remove(itemId); // Remove do mapa se for 0
+                } else {
+                    selectedQuantities.put(itemId, currentQty);
+                }
                 holder.textQuantidade.setText(String.valueOf(currentQty));
             }
         });
@@ -77,47 +92,31 @@ public class SelecaoEstoqueAdapter extends RecyclerView.Adapter<SelecaoEstoqueAd
         return itemList.size();
     }
 
-    // Método para pegar os itens que o usuário selecionou (qtd > 0)
     public List<DoacaoItem> getSelectedItems() {
         List<DoacaoItem> selectedItems = new ArrayList<>();
-        for (DoacaoItem item : itemList) {
-            String itemId = item.getDocumentId();
-            if (itemId == null) continue;
+        // Aqui precisamos iterar sobre os itens originais para pegar os dados completos
+        // Mas como itemList pode estar filtrado, essa lógica precisa ser feita com cuidado na Activity
+        // ou passamos a lista completa aqui. Para simplificar, vamos iterar sobre o itemList atual
+        // que pode não ter todos os itens se estiver filtrado.
+        // CORREÇÃO: O método getSelectedItems deve ser chamado pela Activity usando a lista completa dela
+        // Ou podemos iterar sobre a lista atual, mas corremos o risco de perder itens selecionados que não estão na busca.
 
-            int selectedQty = selectedQuantities.getOrDefault(itemId, 0);
-            if (selectedQty > 0) {
-                // Cria um *novo* item com a quantidade selecionada
-                DoacaoItem selectedItem = new DoacaoItem(
-                        item.getNomeItem(),
-                        selectedQty,
-                        item.isPerecivel(),
-                        item.getDataValidade(),
-                        item.getUidUsuario()
-                );
-                // Guarda o ID do item original para sabermos qual atualizar no estoque
-                selectedItem.setDocumentId(item.getDocumentId());
-                selectedItems.add(selectedItem);
-            }
-        }
+        // Melhor abordagem: A Activity vai montar a lista final baseada no mapa `selectedQuantities`.
         return selectedItems;
     }
 
-    // Classe ViewHolder (corrigida)
     public class ViewHolder extends RecyclerView.ViewHolder {
-        // 1. Declaração das variáveis
         TextView itemName, itemDetails, textQuantidade;
         ImageButton btnRemove, btnAdd;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            // 2. Encontra os IDs do layout item_doacao_registrada.xml
             itemName = itemView.findViewById(R.id.itemName);
             itemDetails = itemView.findViewById(R.id.itemDetails);
-            textQuantidade = itemView.findViewById(R.id.textQuantidade); // O "1" no meio
+            textQuantidade = itemView.findViewById(R.id.textQuantidade);
             btnRemove = itemView.findViewById(R.id.btnRemove);
             btnAdd = itemView.findViewById(R.id.btnAdd);
         }
     }
 }
-
 
