@@ -33,8 +33,8 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_register);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> { // R.id.main agora deve ser encontrado
+        setContentView(R.layout.activity_register); // Usa o layout corrigido com ScrollView
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
@@ -89,7 +89,8 @@ public class RegisterActivity extends AppCompatActivity {
             Intent intent = new Intent(RegisterActivity.this, RegisterStep2Activity.class);
 
             // Passa os dados da Etapa 1 para a próxima tela
-            intent.putExtra("NOME", nome);
+            // ★★★ CORREÇÃO DO BUG ESTÁ AQUI ★★★
+            intent.putExtra("NOME_COMPLETO", nome); // Usava "NOME" e agora é "NOME_COMPLETO"
             intent.putExtra("EMAIL", email);
             intent.putExtra("SENHA", senha);
 
@@ -97,5 +98,3 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 }
-
-
