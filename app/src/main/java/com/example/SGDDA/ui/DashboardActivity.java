@@ -1,11 +1,14 @@
 package com.example.SGDDA.ui;
 
 import android.content.Intent;
+import android.graphics.Color; // NOVO
+import android.graphics.Typeface; // NOVO
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.LinearLayout; // NOVO
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -13,12 +16,19 @@ import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat; // NOVO
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.SGDDA.R;
+import com.example.SGDDA.model.DoacaoItem; // NOVO
+import com.example.SGDDA.model.Entrega; // NOVO
+import com.github.mikephil.charting.charts.PieChart; // NOVO
+import com.github.mikephil.charting.data.PieData; // NOVO
+import com.github.mikephil.charting.data.PieDataSet; // NOVO
+import com.github.mikephil.charting.data.PieEntry; // NOVO
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
@@ -26,6 +36,16 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query; // NOVO
+import com.google.firebase.firestore.QueryDocumentSnapshot; // NOVO
+
+import java.text.ParseException; // NOVO
+import java.text.SimpleDateFormat; // NOVO
+import java.util.ArrayList; // NOVO
+import java.util.Calendar; // NOVO
+import java.util.Date; // NOVO
+import java.util.List; // NOVO
+import java.util.Locale; // NOVO
 
 public class DashboardActivity extends AppCompatActivity {
 
@@ -37,6 +57,16 @@ public class DashboardActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
     private FloatingActionButton fabAdicionarDoacao;
     private TextView textViewTitle; // Adicionado para ajuste de margem se necessário
+
+    // --- NOVOS COMPONENTES DO DASHBOARD ---
+    private PieChart pieChartEstoque;
+    private TextView textViewAtencao;
+    private TextView textViewNaoPerecivelValor;
+    private TextView textViewPerecivelValor;
+    private TextView textViewDoacoesMes; // (Será o total de itens)
+    private LinearLayout layoutProximasEntregas;
+    private TextView textViewProximaEntrega1, textViewProximaEntrega2, textViewProximaEntrega3;
+    // --- FIM DOS NOVOS COMPONENTES ---
 
     // Firebase
     private FirebaseAuth mAuth;
@@ -74,12 +104,30 @@ public class DashboardActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         fabAdicionarDoacao = findViewById(R.id.fabAdicionarDoacao);
 
+        // --- ENCONTRAR NOVOS IDs ---
+        pieChartEstoque = findViewById(R.id.pieChartEstoque);
+        textViewAtencao = findViewById(R.id.textViewAtencao);
+        textViewNaoPerecivelValor = findViewById(R.id.textViewNaoPerecivelValor);
+        textViewPerecivelValor = findViewById(R.id.textViewPerecivelValor);
+        textViewDoacoesMes = findViewById(R.id.textViewDoacoesMes);
+        layoutProximasEntregas = findViewById(R.id.layoutProximasEntregas);
+        textViewProximaEntrega1 = findViewById(R.id.textViewProximaEntrega1);
+        textViewProximaEntrega2 = findViewById(R.id.textViewProximaEntrega2);
+        textViewProximaEntrega3 = findViewById(R.id.textViewProximaEntrega3);
+        // --- FIM DOS NOVOS IDs ---
+
+
         // Configurar Funções
         setupDrawer();
         setupLogout();
         loadUserData();
         setupFab();
         setupBottomNavigation();
+
+        // --- NOVAS FUNÇÕES CHAMADAS ---
+        setupPieChart();
+        loadDashboardData();
+        // --- FIM DAS NOVAS FUNÇÕES ---
     }
 
     private void setupFab() {
@@ -173,5 +221,156 @@ public class DashboardActivity extends AppCompatActivity {
             return true;
         });
     }
-}
 
+    // --- MÉTODOS NOVOS PARA O DASHBOARD ---
+
+    private void setupPieChart() {
+        pieChartEstoque.setUsePercentValues(false);
+        pieChartEstoque.getDescription().setEnabled(false);
+        pieChartEstoque.setDrawHoleEnabled(true);
+        pieChartEstoque.setHoleColor(Color.TRANSPARENT);
+        pieChartEstoque.setTransparentCircleRadius(0f);
+        pieChartEstoque.getLegend().setEnabled(false); // Desativa a legenda do gráfico
+        pieChartEstoque.setTouchEnabled(false); // Desativa toque
+        pieChartEstoque.setExtraOffsets(0, 0, 0, 0);
+
+        // --- ESTA É A CORREÇÃO ---
+        // Desabilita os rótulos ("Perecível", "Não Perecível") de dentro do gráfico
+        pieChartEstoque.setDrawEntryLabels(false);
+
+        // --- NOVA LINHA PARA REMOVER O TEXTO DO CENTRO ---
+        pieChartEstoque.setDrawCenterText(false);
+        // --- FIM DA NOVA LINHA ---
+
+        // Configuração do texto central (NÃO É MAIS NECESSÁRIA)
+        // pieChartEstoque.setCenterTextTypeface(Typeface.DEFAULT_BOLD);
+        // pieChartEstoque.setCenterTextColor(Color.WHITE);
+        // pieChartEstoque.setCenterTextSize(16f);
+    }
+
+    private void loadDashboardData() {
+        loadEstoqueData();
+        loadEntregasData();
+    }
+
+    private void loadEstoqueData() {
+        db.collection("estoque")
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        Log.w("Dashboard", "Erro ao carregar estoque", error);
+                        return;
+                    }
+
+                    long totalItens = 0;
+                    long totalPerecivel = 0;
+                    long totalNaoPerecivel = 0;
+                    int countVencendo = 0;
+
+                    // Data de hoje + 7 dias
+                    Calendar cal = Calendar.getInstance();
+                    cal.add(Calendar.DAY_OF_YEAR, 7);
+                    Date dataLimite = cal.getTime();
+                    // Define o formato esperado da data vinda do Firestore
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+
+
+                    if (value != null) {
+                        for (QueryDocumentSnapshot doc : value) {
+                            DoacaoItem item = doc.toObject(DoacaoItem.class);
+
+                            // 1. Soma Quantidade Total
+                            totalItens += item.getQuantidade();
+
+                            // 2. Soma Perecível vs Não Perecível
+                            if (item.isPerecivel()) {
+                                totalPerecivel += item.getQuantidade();
+                            } else {
+                                totalNaoPerecivel += item.getQuantidade();
+                            }
+
+                            // 3. Verifica Vencimento (apenas para perecíveis)
+                            if (item.isPerecivel() && item.getDataValidade() != null) {
+                                try {
+                                    Date dataValidade = sdf.parse(item.getDataValidade());
+                                    // Compara se a data de validade é ANTES da data limite (hoje + 7 dias)
+                                    // E se a data de validade é DEPOIS de ontem (para não contar itens já vencidos)
+                                    Calendar ontem = Calendar.getInstance();
+                                    ontem.add(Calendar.DAY_OF_YEAR, -1);
+
+                                    if (dataValidade != null && dataValidade.before(dataLimite) && dataValidade.after(ontem.getTime())) {
+                                        countVencendo++; // Conta por *tipo* de item, não por quantidade
+                                    }
+                                } catch (ParseException e) {
+                                    Log.e("Dashboard", "Erro ao parsear data: " + item.getDataValidade(), e);
+                                }
+                            }
+                        }
+                    }
+
+                    // 4. Atualiza a UI
+                    textViewAtencao.setText("Atenção: " + countVencendo + " itens vencem nesta semana");
+                    textViewNaoPerecivelValor.setText(String.valueOf(totalNaoPerecivel));
+                    textViewPerecivelValor.setText(String.valueOf(totalPerecivel));
+                    textViewDoacoesMes.setText(String.valueOf(totalItens)); // Usando total de itens aqui
+
+                    updatePieChart(totalNaoPerecivel, totalPerecivel, totalItens);
+                });
+    }
+
+    private void loadEntregasData() {
+        db.collection("entregas")
+                .whereIn("status", List.of("Pendente", "Em Coleta"))
+                .orderBy("dataEntrega", Query.Direction.ASCENDING)
+                .limit(3)
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        Log.w("Dashboard", "Erro ao carregar entregas", error);
+                        return;
+                    }
+
+                    List<Entrega> proximasEntregas = new ArrayList<>();
+                    if (value != null) {
+                        for (QueryDocumentSnapshot doc : value) {
+                            proximasEntregas.add(doc.toObject(Entrega.class));
+                        }
+                    }
+
+                    // Atualiza os TextViews
+                    textViewProximaEntrega1.setText(proximasEntregas.size() > 0 ? "• " + proximasEntregas.get(0).getInstituicaoNome() : "Nenhuma entrega pendente");
+                    textViewProximaEntrega2.setText(proximasEntregas.size() > 1 ? "• " + proximasEntregas.get(1).getInstituicaoNome() : "");
+                    textViewProximaEntrega3.setText(proximasEntregas.size() > 2 ? "• " + proximasEntregas.get(2).getInstituicaoNome() : "");
+
+                    // Esconde os TextViews se estiverem vazios
+                    textViewProximaEntrega2.setVisibility(proximasEntregas.size() > 1 ? View.VISIBLE : View.GONE);
+                    textViewProximaEntrega3.setVisibility(proximasEntregas.size() > 2 ? View.VISIBLE : View.GONE);
+                });
+    }
+
+    private void updatePieChart(long totalNaoPerecivel, long totalPerecivel, long totalItens) {
+        if (totalItens == 0) {
+            pieChartEstoque.clear();
+            // pieChartEstoque.setCenterText("0\nItens"); // LINHA REMOVIDA
+            pieChartEstoque.invalidate();
+            return;
+        }
+
+        List<PieEntry> entries = new ArrayList<>();
+        entries.add(new PieEntry(totalNaoPerecivel, "Não Perecível"));
+        entries.add(new PieEntry(totalPerecivel, "Perecível"));
+
+        PieDataSet dataSet = new PieDataSet(entries, "");
+        dataSet.setColors(
+                ContextCompat.getColor(this, R.color.app_accent_green),
+                ContextCompat.getColor(this, R.color.app_accent_blue)
+        );
+        dataSet.setDrawValues(false); // Não mostra valores no gráfico
+        dataSet.setDrawIcons(false);
+        dataSet.setSliceSpace(2f);
+
+        PieData data = new PieData(dataSet);
+        pieChartEstoque.setData(data);
+        // pieChartEstoque.setCenterText(totalItens + "\nItens"); // LINHA REMOVIDA
+        pieChartEstoque.invalidate(); // Atualiza o gráfico
+    }
+    // --- FIM DOS MÉTODOS NOVOS ---
+}

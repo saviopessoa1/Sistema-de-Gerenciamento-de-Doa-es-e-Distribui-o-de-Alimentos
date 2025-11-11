@@ -21,6 +21,12 @@ public class EstoqueAdapter extends RecyclerView.Adapter<EstoqueAdapter.ViewHold
         this.itemList = itemList;
     }
 
+    // NOVO: Método para atualizar a lista do adapter quando filtrarmos
+    public void updateList(List<DoacaoItem> newList) {
+        this.itemList = newList;
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -55,4 +61,3 @@ public class EstoqueAdapter extends RecyclerView.Adapter<EstoqueAdapter.ViewHold
         }
     }
 }
-

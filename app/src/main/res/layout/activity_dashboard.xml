@@ -124,28 +124,14 @@
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
 
-                        <!-- Gráfico Simulado -->
-                        <FrameLayout
-                            android:id="@+id/pieChartEstoqueContainer"
+                        <!-- Gráfico Real (Substituindo o FrameLayout) -->
+                        <com.github.mikephil.charting.charts.PieChart
+                            android:id="@+id/pieChartEstoque"
                             android:layout_width="100dp"
                             android:layout_height="100dp"
                             android:layout_marginTop="16dp"
-                            android:background="@drawable/shape_circle_solid"
-                            android:backgroundTint="@color/app_background_dark"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/textViewEstoqueLabel">
-
-                            <!-- Texto dentro do gráfico -->
-                            <TextView
-                                android:id="@+id/textViewEstoqueTotal"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="151400"
-                                android:textColor="@color/white"
-                                android:textSize="16sp"
-                                android:textStyle="bold"
-                                android:layout_gravity="center"/>
-                        </FrameLayout>
+                            app:layout_constraintTop_toBottomOf="@id/textViewEstoqueLabel"/>
 
                         <!-- Legenda -->
                         <LinearLayout
@@ -153,29 +139,67 @@
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
                             android:layout_marginStart="24dp"
-                            app:layout_constraintStart_toEndOf="@id/pieChartEstoqueContainer"
+                            app:layout_constraintStart_toEndOf="@id/pieChartEstoque"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="@id/pieChartEstoqueContainer"
-                            app:layout_constraintBottom_toBottomOf="@id/pieChartEstoqueContainer">
+                            app:layout_constraintTop_toTopOf="@id/pieChartEstoque"
+                            app:layout_constraintBottom_toBottomOf="@id/pieChartEstoque">
 
-                            <TextView
-                                android:layout_width="wrap_content"
+                            <!-- NOVO: Valores -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="Não Perecível"
-                                android:textColor="@color/white_80"
-                                android:drawableStart="@drawable/shape_circle_solid"
-                                android:drawableTint="@color/app_accent_green"
-                                android:drawablePadding="8dp"/>
+                                android:orientation="horizontal"
+                                android:layout_marginBottom="4dp">
 
-                            <TextView
-                                android:layout_width="wrap_content"
+                                <TextView
+                                    android:id="@+id/textViewNaoPerecivelValor"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
+                                    android:layout_height="wrap_content"
+                                    android:text="0"
+                                    android:textColor="@color/white"
+                                    android:textStyle="bold"
+                                    android:textSize="16sp"/>
+
+                                <TextView
+                                    android:id="@+id/textViewPerecivelValor"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
+                                    android:layout_height="wrap_content"
+                                    android:text="0"
+                                    android:textColor="@color/white"
+                                    android:textStyle="bold"
+                                    android:textSize="16sp"/>
+                            </LinearLayout>
+
+                            <!-- Labels -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="Perecível"
-                                android:textColor="@color/white_80"
-                                android:drawableStart="@drawable/shape_circle_solid"
-                                android:drawableTint="@color/white_60"
-                                android:drawablePadding="8dp"
-                                android:layout_marginTop="8dp"/>
+                                android:orientation="horizontal">
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
+                                    android:layout_height="wrap_content"
+                                    android:text="Não Perecível"
+                                    android:textColor="@color/white_80"
+                                    android:textSize="12sp"
+                                    android:drawableStart="@drawable/shape_circle_solid"
+                                    android:drawableTint="@color/app_accent_green"
+                                    android:drawablePadding="8dp"/>
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
+                                    android:layout_height="wrap_content"
+                                    android:text="Perecível"
+                                    android:textColor="@color/white_80"
+                                    android:textSize="12sp"
+                                    android:drawableStart="@drawable/shape_circle_solid"
+                                    android:drawableTint="@color/app_accent_blue"
+                                    android:drawablePadding="8dp"
+                                    android:layout_marginTop="0dp"/>
+                            </LinearLayout>
                         </LinearLayout>
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -194,12 +218,13 @@
                     app:layout_constraintTop_toBottomOf="@id/cardEstoque">
 
                     <TextView
+                        android:id="@+id/textViewAtencao"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:drawablePadding="12dp"
                         android:gravity="center_vertical"
                         android:padding="16dp"
-                        android:text="Atenção: 15 itens vencem nesta semana"
+                        android:text="Atenção: 0 itens vencem nesta semana"
                         android:textColor="@color/app_primary_dark"
                         android:textStyle="bold"
                         app:drawableStartCompat="@drawable/ic_warning"
@@ -240,9 +265,10 @@
                                 android:textSize="14sp"/>
 
                             <TextView
+                                android:id="@+id/textViewDoacoesMes"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="1516"
+                                android:text="0"
                                 android:textColor="@color/white"
                                 android:textSize="32sp"
                                 android:textStyle="bold"
@@ -260,6 +286,7 @@
                         app:cardCornerRadius="16dp">
 
                         <LinearLayout
+                            android:id="@+id/layoutProximasEntregas"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
@@ -274,26 +301,29 @@
 
                             <!-- Lista simplificada -->
                             <TextView
+                                android:id="@+id/textViewProximaEntrega1"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="• Lar dos Idosos"
+                                android:text="Buscando..."
                                 android:textColor="@color/white"
                                 android:textSize="12sp"
                                 android:layout_marginTop="8dp"
                                 android:maxLines="1"
                                 android:ellipsize="end"/>
                             <TextView
+                                android:id="@+id/textViewProximaEntrega2"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="• Creche Criança..."
+                                android:text=""
                                 android:textColor="@color/white"
                                 android:textSize="12sp"
                                 android:maxLines="1"
                                 android:ellipsize="end"/>
                             <TextView
+                                android:id="@+id/textViewProximaEntrega3"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="• Sopão Comunit..."
+                                android:text=""
                                 android:textColor="@color/white"
                                 android:textSize="12sp"
                                 android:maxLines="1"
@@ -324,25 +354,61 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Histórico de Doações"
+                            android:text="Histórico de Doações (Recentes)"
                             android:textColor="@color/white"
                             android:textSize="18sp"
                             android:textStyle="bold" />
 
-                        <FrameLayout
+                        <!-- ÁREA MODIFICADA: Substituí o FrameLayout por esta LinearLayout -->
+                        <LinearLayout
+                            android:id="@+id/layoutHistoricoContainer"
                             android:layout_width="match_parent"
-                            android:layout_height="150dp"
-                            android:layout_marginTop="16dp"
-                            android:background="@drawable/shape_rounded_corners"
-                            android:backgroundTint="@color/app_background_dark">
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:paddingTop="8dp"
+                            android:minHeight="100dp">
 
                             <TextView
+                                android:id="@+id/textViewHistorico1"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Gráfico de Barras (Em Breve)"
-                                android:textColor="@color/white_60"
-                                android:layout_gravity="center"/>
-                        </FrameLayout>
+                                android:text="Buscando..."
+                                android:textColor="@color/white"
+                                android:textSize="14sp"
+                                android:layout_marginTop="8dp"
+                                android:maxLines="1"
+                                android:ellipsize="end"
+                                android:drawablePadding="8dp"
+                                app:drawableTint="@color/app_accent_green"/>
+
+                            <TextView
+                                android:id="@+id/textViewHistorico2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text=""
+                                android:textColor="@color/white"
+                                android:textSize="14sp"
+                                android:layout_marginTop="8dp"
+                                android:maxLines="1"
+                                android:ellipsize="end"
+                                android:drawablePadding="8dp"
+                                app:drawableTint="@color/app_accent_green"/>
+
+                            <TextView
+                                android:id="@+id/textViewHistorico3"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text=""
+                                android:textColor="@color/white"
+                                android:textSize="14sp"
+                                android:layout_marginTop="8dp"
+                                android:maxLines="1"
+                                android:ellipsize="end"
+                                android:drawablePadding="8dp"
+                                app:drawableTint="@color/app_accent_green"/>
+
+                        </LinearLayout>
+                        <!-- FIM DA ÁREA MODIFICADA -->
 
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -366,5 +432,3 @@
         app:menu="@menu/drawer_menu" />
 
 </androidx.drawerlayout.widget.DrawerLayout>
-
-
