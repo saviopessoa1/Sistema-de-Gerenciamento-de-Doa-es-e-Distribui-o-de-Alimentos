@@ -15,7 +15,7 @@ import com.example.SGDDA.model.DoacaoItem;
 import java.util.List;
 
 // Este adapter é SIMPLES, só para MOSTRAR os itens na tela de detalhes.
-// Ele usa o layout item_detalhes_entrega.xml
+// Ele usa o layout item_detalhes_entrega.xml//
 public class DetalhesItemAdapter extends RecyclerView.Adapter<DetalhesItemAdapter.ViewHolder> {
 
     private List<DoacaoItem> itemList;
