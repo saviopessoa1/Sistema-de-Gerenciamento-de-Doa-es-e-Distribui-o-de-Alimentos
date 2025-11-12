@@ -137,47 +137,7 @@
                     android:textColor="@color/white" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Urgência (Campo do Modelo) -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Nível de Urgência *"
-                android:textColor="@color/white_60"
-                android:layout_marginTop="16dp"/>
-            <RadioGroup
-                android:id="@+id/radioGroupUrgencia"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="8dp">
-                <RadioButton
-                    android:id="@+id/radioAlta"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="Alta"
-                    android:textColor="@color/app_accent_red"
-                    android:buttonTint="@color/app_accent_red"/>
-                <RadioButton
-                    android:id="@+id/radioMedia"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="Média"
-                    android:textColor="@color/app_accent_yellow"
-                    android:buttonTint="@color/app_accent_yellow"/>
-                <RadioButton
-                    android:id="@+id/radioNormal"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="Normal"
-                    android:checked="true"
-                    android:textColor="@color/white"
-                    android:buttonTint="@color/white"/>
-            </RadioGroup>
-
-            <!-- Botão Salvar (Verde, como na sua imagem) -->
+            <!-- Botão Salvar -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/cadastrarButton"
                 android:layout_width="match_parent"
@@ -195,3 +155,5 @@
     </androidx.core.widget.NestedScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+

@@ -1,5 +1,6 @@
 package com.example.SGDDA.ui;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -11,6 +12,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -19,11 +21,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.SGDDA.R;
-import com.example.SGDDA.adapter.InstituicaoAdapter; // Import o novo adapter
-import com.example.SGDDA.model.Instituicao; // Import o modelo
+import com.example.SGDDA.adapter.InstituicaoAdapter;
+import com.example.SGDDA.model.Instituicao;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.chip.Chip;
-import com.google.android.material.chip.ChipGroup; // Import para os Chips
+import com.google.android.material.chip.ChipGroup;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -32,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class InstituicoesActivity extends AppCompatActivity {
+public class InstituicoesActivity extends AppCompatActivity implements InstituicaoAdapter.OnInstituicaoClickListener {
 
     private static final String TAG = "InstituicoesActivity";
 
@@ -43,7 +45,7 @@ public class InstituicoesActivity extends AppCompatActivity {
     private RecyclerView recyclerViewInstituicoes;
     private EditText searchBar;
     private ChipGroup chipGroupFilters;
-    private Chip chipAlta, chipMedia, chipNormal; // Adicionado
+    private Chip chipAlta, chipMedia, chipNormal;
 
     // Firebase e Listas
     private FirebaseFirestore db;
@@ -51,7 +53,7 @@ public class InstituicoesActivity extends AppCompatActivity {
     private List<Instituicao> listaTodasInstituicoes;
     private List<Instituicao> listaFiltrada;
 
-    private String filtroUrgenciaAtual = ""; // Armazena o filtro de urgência
+    private String filtroUrgenciaAtual = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,7 +87,8 @@ public class InstituicoesActivity extends AppCompatActivity {
 
 
         // Configurar RecyclerView
-        adapter = new InstituicaoAdapter(this, listaFiltrada);
+        // ★ CORREÇÃO AQUI: Adicionado o 4º parâmetro "Definir"
+        adapter = new InstituicaoAdapter(this, listaFiltrada, this, "Definir");
         recyclerViewInstituicoes.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewInstituicoes.setAdapter(adapter);
 
@@ -98,8 +101,8 @@ public class InstituicoesActivity extends AppCompatActivity {
         }
 
         setupBottomNavigation();
-        setupFiltrosListeners(); // Configura os listeners para busca e chips
-        loadInstituicoes(); // Carrega os dados
+        setupFiltrosListeners();
+        loadInstituicoes();
     }
 
     private void setupBottomNavigation() {
@@ -116,7 +119,7 @@ public class InstituicoesActivity extends AppCompatActivity {
                 finish();
                 return true;
             } else if (itemId == R.id.nav_instituicoes) {
-                return true; // Já estamos aqui
+                return true;
             } else if (itemId == R.id.nav_entregas) {
                 startActivity(new Intent(this, EntregasActivity.class));
                 finish();
@@ -128,39 +131,40 @@ public class InstituicoesActivity extends AppCompatActivity {
 
     private void loadInstituicoes() {
         db.collection("instituicoes")
-                .orderBy("urgencia", Query.Direction.DESCENDING) // Traz "Alta" primeiro
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    listaTodasInstituicoes.clear();
-                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        Instituicao instituicao = doc.toObject(Instituicao.class);
-                        instituicao.setDocumentId(doc.getId());
-                        listaTodasInstituicoes.add(instituicao);
+                .orderBy("nome", Query.Direction.ASCENDING)
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        Log.e(TAG, "Erro ao carregar instituições", error);
+                        Toast.makeText(this, "Erro ao carregar dados.", Toast.LENGTH_SHORT).show();
+                        return;
                     }
-                    aplicarFiltros(); // Aplica filtros (inicialmente vazios)
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Erro ao carregar instituições", e);
-                    Toast.makeText(this, "Erro ao carregar dados.", Toast.LENGTH_SHORT).show();
+
+                    listaTodasInstituicoes.clear();
+                    if (value != null) {
+                        for (QueryDocumentSnapshot doc : value) {
+                            Instituicao instituicao = doc.toObject(Instituicao.class);
+                            instituicao.setDocumentId(doc.getId());
+                            listaTodasInstituicoes.add(instituicao);
+                        }
+                    }
+                    aplicarFiltros();
                 });
     }
 
     private void setupFiltrosListeners() {
-        // Listener da Barra de Busca
         searchBar.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                aplicarFiltros(); // Filtra a cada letra digitada
+                aplicarFiltros();
             }
 
             @Override
             public void afterTextChanged(Editable s) {}
         });
 
-        // Listener dos Chips de Urgência
         chipGroupFilters.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == R.id.chipAlta) {
                 filtroUrgenciaAtual = "Alta";
@@ -168,17 +172,15 @@ public class InstituicoesActivity extends AppCompatActivity {
                 filtroUrgenciaAtual = "Média";
             } else if (checkedId == R.id.chipNormal) {
                 filtroUrgenciaAtual = "Normal";
-            } else { // Nenhum chip selecionado
+            } else {
                 filtroUrgenciaAtual = "";
             }
             aplicarFiltros();
         });
 
-        // Lógica para desmarcar chips (se você clicar no que já está selecionado)
         View.OnClickListener chipClickListener = v -> {
             Chip chip = (Chip) v;
             if (!chip.isChecked()) {
-                // Se o chip foi desmarcado (clicando nele de novo)
                 chipGroupFilters.clearCheck();
                 filtroUrgenciaAtual = "";
                 aplicarFiltros();
@@ -197,22 +199,60 @@ public class InstituicoesActivity extends AppCompatActivity {
             boolean matchBusca = true;
             boolean matchUrgencia = true;
 
-            // 1. Filtro de Busca (Nome)
             if (!queryBusca.isEmpty()) {
                 matchBusca = inst.getNome().toLowerCase(Locale.ROOT).contains(queryBusca);
             }
 
-            // 2. Filtro de Urgência
             if (!filtroUrgenciaAtual.isEmpty()) {
-                matchUrgencia = inst.getUrgencia().equalsIgnoreCase(filtroUrgenciaAtual);
+                String urgenciaInst = inst.getUrgencia() != null ? inst.getUrgencia() : "Normal";
+                matchUrgencia = urgenciaInst.equalsIgnoreCase(filtroUrgenciaAtual);
             }
 
-            // Adiciona na lista se der match em ambos os filtros
             if (matchBusca && matchUrgencia) {
                 listaFiltrada.add(inst);
             }
         }
 
-        adapter.updateList(listaFiltrada); // Atualiza o RecyclerView
+        adapter.updateList(listaFiltrada);
+    }
+
+    @Override
+    public void onInstituicaoClick(Instituicao instituicao) {
+        final String[] urgencias = {"Alta", "Média", "Normal"};
+        String urgenciaAtual = instituicao.getUrgencia() != null ? instituicao.getUrgencia() : "Normal";
+
+        int checkedItem = 2;
+        if ("Alta".equals(urgenciaAtual)) checkedItem = 0;
+        else if ("Média".equals(urgenciaAtual)) checkedItem = 1;
+
+        new AlertDialog.Builder(this)
+                .setTitle("Definir Urgência para:\n" + instituicao.getNome())
+                .setSingleChoiceItems(urgencias, checkedItem, null)
+                .setPositiveButton("Salvar", (dialog, which) -> {
+                    int selectedPosition = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
+                    String novaUrgencia = urgencias[selectedPosition];
+                    salvarUrgencia(instituicao, novaUrgencia);
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
+    }
+
+    private void salvarUrgencia(Instituicao instituicao, String novaUrgencia) {
+        if (instituicao.getDocumentId() == null) {
+            Toast.makeText(this, "Erro: ID da instituição não encontrado.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        db.collection("instituicoes").document(instituicao.getDocumentId())
+                .update("urgencia", novaUrgencia)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "Urgência atualizada!", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Erro ao atualizar.", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Erro ao salvar urgência", e);
+                });
     }
 }
+
+

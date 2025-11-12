@@ -185,11 +185,29 @@ public class DetalhesEntregaActivity extends AppCompatActivity {
                 .update("status", newStatus)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(this, "Status atualizado para: " + newStatus, Toast.LENGTH_SHORT).show();
+
+                    // ★ NOVO: Se a entrega foi "Concluída", reseta a urgência da instituição
+                    if ("Concluída".equals(newStatus) && currentEntrega != null && currentEntrega.getInstituicaoId() != null) {
+                        resetarUrgenciaInstituicao(currentEntrega.getInstituicaoId());
+                    }
                     // O SnapshotListener vai atualizar a UI automaticamente
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Erro ao atualizar status.", Toast.LENGTH_SHORT).show();
                     Log.e(TAG, "Error updating status", e);
+                });
+    }
+
+    // ★ NOVO: Método para setar a urgência da instituição para "Normal"
+    private void resetarUrgenciaInstituicao(String instituicaoId) {
+        db.collection("instituicoes").document(instituicaoId)
+                .update("urgencia", "Normal")
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Urgência da instituição " + instituicaoId + " resetada para 'Normal'.");
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Erro ao resetar urgência da instituição " + instituicaoId, e);
+                    // Não mostra Toast para não poluir a tela, mas loga o erro.
                 });
     }
 }

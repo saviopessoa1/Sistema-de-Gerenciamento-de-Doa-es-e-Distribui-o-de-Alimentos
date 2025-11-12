@@ -11,7 +11,7 @@ public class Instituicao implements Serializable {
 
     private String nome;
     private String endereco;
-    private String urgencia; // "Alta", "Média", "Normal"
+    private String urgencia; // ★ CAMPO ADICIONADO DE VOLTA
     private String responsavel;
     private String telefone;
 
@@ -29,8 +29,10 @@ public class Instituicao implements Serializable {
     public String getEndereco() { return endereco; }
     public void setEndereco(String endereco) { this.endereco = endereco; }
 
+    // ★ GETTER E SETTER ADICIONADOS DE VOLTA
     public String getUrgencia() { return urgencia; }
     public void setUrgencia(String urgencia) { this.urgencia = urgencia; }
+
 
     public String getResponsavel() { return responsavel; }
     public void setResponsavel(String responsavel) { this.responsavel = responsavel; }
@@ -38,4 +40,5 @@ public class Instituicao implements Serializable {
     public String getTelefone() { return telefone; }
     public void setTelefone(String telefone) { this.telefone = telefone; }
 }
+
 

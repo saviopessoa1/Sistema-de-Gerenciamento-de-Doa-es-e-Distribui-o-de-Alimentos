@@ -25,6 +25,8 @@
             android:icon="@drawable/ic_person"
             android:title="Perfil" />
 
+        <!-- ★★★ ITEM REMOVIDO DESTE MENU ★★★ -->
+
     </group>
 
     <item android:title="">
@@ -37,3 +39,5 @@
     </item>
 
 </menu>
+
+

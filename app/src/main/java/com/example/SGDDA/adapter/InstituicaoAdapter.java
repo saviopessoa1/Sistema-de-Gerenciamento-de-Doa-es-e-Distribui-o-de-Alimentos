@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -25,13 +24,29 @@ public class InstituicaoAdapter extends RecyclerView.Adapter<InstituicaoAdapter.
 
     private List<Instituicao> instituicaoList;
     private Context context;
+    private OnInstituicaoClickListener clickListener;
 
-    public InstituicaoAdapter(Context context, List<Instituicao> instituicaoList) {
+    // Variáveis para controlar a aparência
+    private String buttonTextDefault;
+    private String selectedId = null; // Guarda o ID da instituição selecionada
+
+    public InstituicaoAdapter(Context context, List<Instituicao> instituicaoList, OnInstituicaoClickListener listener, String buttonTextDefault) {
         this.context = context;
         this.instituicaoList = instituicaoList;
+        this.clickListener = listener;
+        this.buttonTextDefault = buttonTextDefault;
     }
 
-    // Método para atualizar a lista do adapter quando filtrarmos
+    public interface OnInstituicaoClickListener {
+        void onInstituicaoClick(Instituicao instituicao);
+    }
+
+    // Método para definir qual está selecionada
+    public void setSelectedId(String id) {
+        this.selectedId = id;
+        notifyDataSetChanged();
+    }
+
     public void updateList(List<Instituicao> newList) {
         this.instituicaoList = newList;
         notifyDataSetChanged();
@@ -40,7 +55,6 @@ public class InstituicaoAdapter extends RecyclerView.Adapter<InstituicaoAdapter.
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Usa o layout item_instituicao.xml que já criamos
         View view = LayoutInflater.from(context).inflate(R.layout.item_instituicao, parent, false);
         return new ViewHolder(view);
     }
@@ -54,11 +68,12 @@ public class InstituicaoAdapter extends RecyclerView.Adapter<InstituicaoAdapter.
         holder.textEndereco.setText(instituicao.getEndereco());
 
         String urgencia = instituicao.getUrgencia();
-        if (urgencia == null) urgencia = "Normal";
-
+        if (urgencia == null || urgencia.isEmpty()) {
+            urgencia = "Normal";
+        }
         holder.textUrgencia.setText("Urgência: " + urgencia);
 
-        // Lógica de cores e ícone de urgência
+        // Cores da Urgência
         switch (urgencia.toLowerCase(Locale.ROOT)) {
             case "alta":
                 holder.iconUrgencia.setVisibility(View.VISIBLE);
@@ -70,17 +85,33 @@ public class InstituicaoAdapter extends RecyclerView.Adapter<InstituicaoAdapter.
                 holder.iconUrgencia.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.app_accent_yellow)));
                 holder.textUrgencia.setTextColor(ContextCompat.getColor(context, R.color.app_accent_yellow));
                 break;
-            default: // "Normal" ou qualquer outro
+            default:
                 holder.iconUrgencia.setVisibility(View.GONE);
                 holder.textUrgencia.setTextColor(ContextCompat.getColor(context, R.color.white_60));
                 break;
         }
 
-        // Lógica do botão "Acessar" (apenas um exemplo)
-        holder.btnAcessar.setOnClickListener(v -> {
-            Toast.makeText(context, "Acessando " + instituicao.getNome(), Toast.LENGTH_SHORT).show();
-            // Aqui você poderia abrir uma tela de "Detalhes da Instituição"
-        });
+        // Lógica do Botão (Seleção)
+        boolean isSelected = instituicao.getDocumentId() != null && instituicao.getDocumentId().equals(selectedId);
+
+        if (isSelected) {
+            holder.btnAcessar.setText("Selecionado");
+            holder.btnAcessar.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.app_primary_light)));
+            holder.btnAcessar.setTextColor(ContextCompat.getColor(context, R.color.white_60));
+        } else {
+            holder.btnAcessar.setText(buttonTextDefault);
+            holder.btnAcessar.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.app_accent_green))); // Verde padrão
+            holder.btnAcessar.setTextColor(ContextCompat.getColor(context, R.color.app_primary_dark));
+        }
+
+        // Cliques
+        View.OnClickListener listener = v -> {
+            if (clickListener != null) {
+                clickListener.onInstituicaoClick(instituicao);
+            }
+        };
+        holder.btnAcessar.setOnClickListener(listener);
+        holder.itemView.setOnClickListener(listener);
     }
 
     @Override
@@ -95,7 +126,6 @@ public class InstituicaoAdapter extends RecyclerView.Adapter<InstituicaoAdapter.
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            // Encontra os IDs do layout item_instituicao.xml
             titleInstituicao = itemView.findViewById(R.id.titleInstituicao);
             textUrgencia = itemView.findViewById(R.id.textUrgencia);
             textEndereco = itemView.findViewById(R.id.textEndereco);
@@ -104,3 +134,5 @@ public class InstituicaoAdapter extends RecyclerView.Adapter<InstituicaoAdapter.
         }
     }
 }
+
+

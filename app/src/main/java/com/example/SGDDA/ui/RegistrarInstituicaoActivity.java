@@ -5,8 +5,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -18,6 +16,8 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.SGDDA.R;
 import com.example.SGDDA.model.Instituicao;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class RegistrarInstituicaoActivity extends AppCompatActivity {
@@ -27,11 +27,11 @@ public class RegistrarInstituicaoActivity extends AppCompatActivity {
     // Componentes do Layout
     private ImageButton backButton;
     private TextInputEditText nomeEditText, enderecoEditText, telefoneEditText, responsavelEditText;
-    private RadioGroup radioGroupUrgencia;
     private Button cadastrarButton;
 
     // Firebase
     private FirebaseFirestore db;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +48,7 @@ public class RegistrarInstituicaoActivity extends AppCompatActivity {
 
         // Inicializar Firebase
         db = FirebaseFirestore.getInstance();
+        mAuth = FirebaseAuth.getInstance();
 
         // Encontrar Componentes
         backButton = findViewById(R.id.backButton);
@@ -55,11 +56,44 @@ public class RegistrarInstituicaoActivity extends AppCompatActivity {
         enderecoEditText = findViewById(R.id.enderecoEditText);
         telefoneEditText = findViewById(R.id.telefoneEditText);
         responsavelEditText = findViewById(R.id.responsavelEditText);
-        radioGroupUrgencia = findViewById(R.id.radioGroupUrgencia);
         cadastrarButton = findViewById(R.id.cadastrarButton);
+
+        // Verificar Permissão de Admin
+        checkAdminPermission();
 
         // Configurar Listeners
         setupListeners();
+    }
+
+    private void checkAdminPermission() {
+        if (mAuth.getCurrentUser() == null) {
+            finish(); // Se não estiver logado, fecha a tela
+            return;
+        }
+
+        String uid = mAuth.getCurrentUser().getUid();
+        db.collection("usuarios").document(uid).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        boolean isAdmin = false;
+                        if (documentSnapshot.contains("isAdmin")) {
+                            Object adminField = documentSnapshot.get("isAdmin");
+                            if (adminField instanceof Boolean) {
+                                isAdmin = (Boolean) adminField;
+                            } else if (adminField instanceof String) {
+                                isAdmin = Boolean.parseBoolean((String) adminField);
+                            }
+                        }
+
+                        if (!isAdmin) {
+                            Toast.makeText(this, "Acesso negado: Requer privilégios de administrador.", Toast.LENGTH_LONG).show();
+                            finish(); // Fecha a activity se não for admin
+                        }
+                    } else {
+                        finish(); // Erro de integridade
+                    }
+                })
+                .addOnFailureListener(e -> finish());
     }
 
     private void setupListeners() {
@@ -80,25 +114,15 @@ public class RegistrarInstituicaoActivity extends AppCompatActivity {
             return;
         }
 
-        // 3. Pegar a Urgência
-        String urgencia = "Normal"; // Padrão
-        int selectedId = radioGroupUrgencia.getCheckedRadioButtonId();
-        if (selectedId == R.id.radioAlta) {
-            urgencia = "Alta";
-        } else if (selectedId == R.id.radioMedia) {
-            urgencia = "Média";
-        }
-
-        // 4. Criar o objeto Instituicao
+        // 3. Criar o objeto Instituicao (URGÊNCIA PADRÃO = "Normal")
         Instituicao instituicao = new Instituicao();
         instituicao.setNome(nome);
         instituicao.setEndereco(endereco);
         instituicao.setTelefone(telefone);
         instituicao.setResponsavel(responsavel);
-        instituicao.setUrgencia(urgencia);
+        instituicao.setUrgencia("Normal"); // Urgência inicia como Normal
 
-        // 5. Salvar no Firestore
-        // Usamos o NOME como ID do documento para evitar duplicatas
+        // 4. Salvar no Firestore
         db.collection("instituicoes").document(nome)
                 .set(instituicao)
                 .addOnSuccessListener(aVoid -> {
@@ -116,7 +140,6 @@ public class RegistrarInstituicaoActivity extends AppCompatActivity {
         enderecoEditText.setText("");
         telefoneEditText.setText("");
         responsavelEditText.setText("");
-        radioGroupUrgencia.check(R.id.radioNormal); // Volta ao padrão
-        nomeEditText.requestFocus(); // Foca no primeiro campo
+        nomeEditText.requestFocus();
     }
 }

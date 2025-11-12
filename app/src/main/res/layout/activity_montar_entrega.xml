@@ -41,194 +41,44 @@
             app:layout_constraintStart_toStartOf="@+id/backButton"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- CONTAINER INSTITUIÇÕES (Será escondido ao buscar) -->
-    <ScrollView
+    <!-- LISTA DE INSTITUIÇÕES (Dinâmica) -->
+    <LinearLayout
         android:id="@+id/institutionsContainer"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="0.8"
+        android:orientation="vertical"
         android:visibility="visible">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="16dp">
+            android:text="Selecione a Instituição"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:paddingHorizontal="16dp"
+            android:layout_marginBottom="8dp"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Instituições Prioritárias"
-                android:textColor="@color/white"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="8dp"/>
+        <!-- AQUI ESTÁ A MUDANÇA: RecyclerView em vez de cards fixos -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerInstituicoes"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="8dp"
+            tools:listitem="@layout/item_instituicao"/>
 
-            <!-- Card 1 -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/app_primary_light"
-                app:cardCornerRadius="12dp"
-                android:layout_marginBottom="8dp">
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp">
-                    <TextView
-                        android:id="@+id/titleLar"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:text="Lar dos Idosos"
-                        android:textColor="@color/white"
-                        android:textStyle="bold"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/btnSelecionarLar"/>
-                    <TextView
-                        android:id="@+id/labelUrgenciaLar"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Urgência: "
-                        android:textColor="@color/white_60"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/titleLar"/>
-                    <TextView
-                        android:id="@+id/textUrgenciaLar"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Alta"
-                        android:textColor="@color/app_accent_red"
-                        android:textStyle="bold"
-                        app:layout_constraintStart_toEndOf="@id/labelUrgenciaLar"
-                        app:layout_constraintTop_toTopOf="@id/labelUrgenciaLar" />
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnSelecionarLar"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Selecionar"
-                        android:backgroundTint="@color/app_accent_green"
-                        android:textColor="@color/app_primary_dark"
-                        app:cornerRadius="12dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent"/>
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
 
-            <!-- Card 2 -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/app_primary_light"
-                app:cardCornerRadius="12dp"
-                android:layout_marginBottom="8dp">
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp">
-                    <TextView
-                        android:id="@+id/titleCreche"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:text="Creche criança feliz"
-                        android:textColor="@color/white"
-                        android:textStyle="bold"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/btnSelecionarCreche"/>
-                    <TextView
-                        android:id="@+id/labelUrgenciaCreche"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Urgência: "
-                        android:textColor="@color/white_60"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/titleCreche"/>
-                    <TextView
-                        android:id="@+id/textUrgenciaCreche"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Média"
-                        android:textColor="@color/app_accent_yellow"
-                        android:textStyle="bold"
-                        app:layout_constraintStart_toEndOf="@id/labelUrgenciaCreche"
-                        app:layout_constraintTop_toTopOf="@id/labelUrgenciaCreche" />
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnSelecionarCreche"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Selecionar"
-                        android:backgroundTint="@color/app_accent_green"
-                        android:textColor="@color/app_primary_dark"
-                        app:cornerRadius="12dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent"/>
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Card 3 -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/app_primary_light"
-                app:cardCornerRadius="12dp"
-                android:layout_marginBottom="16dp">
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp">
-                    <TextView
-                        android:id="@+id/titleSopao"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:text="Sopão Comunitário"
-                        android:textColor="@color/white"
-                        android:textStyle="bold"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/btnSelecionarSopao"/>
-                    <TextView
-                        android:id="@+id/labelUrgenciaSopao"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Urgência: "
-                        android:textColor="@color/white_60"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/titleSopao"/>
-                    <TextView
-                        android:id="@+id/textUrgenciaSopao"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Normal"
-                        android:textColor="@color/white"
-                        android:textStyle="bold"
-                        app:layout_constraintStart_toEndOf="@id/labelUrgenciaSopao"
-                        app:layout_constraintTop_toTopOf="@id/labelUrgenciaSopao" />
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnSelecionarSopao"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Selecionar"
-                        android:backgroundTint="@color/app_accent_green"
-                        android:textColor="@color/app_primary_dark"
-                        app:cornerRadius="12dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent"/>
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-        </LinearLayout>
-    </ScrollView>
-
-    <!-- BARRA DE BUSCA + LISTA (Ocupa o resto da tela) -->
+    <!-- BARRA DE BUSCA DE ITENS + LISTA DE ESTOQUE -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:paddingHorizontal="16dp">
+        android:paddingHorizontal="16dp"
+        android:layout_marginTop="8dp">
 
         <TextView
             android:id="@+id/labelItens"
@@ -255,7 +105,6 @@
             android:drawablePadding="8dp"
             android:layout_marginBottom="8dp"/>
 
-        <!-- A LISTA AGORA TEM SCROLL PRÓPRIO E CRESCE/ENCOLHE -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/itensEstoqueRecyclerView"
             android:layout_width="match_parent"
@@ -316,5 +165,4 @@
     </com.google.android.material.card.MaterialCardView>
 
 </LinearLayout>
-
 

@@ -1,117 +1,150 @@
-package com.example.SGDDA.ui; // Atualizado para seu pacote
+package com.example.SGDDA.ui;
 
-// Imports necessários para fazer o app funcionar
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils; // Import para validar campos
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast; // Para feedback
-import androidx.appcompat.app.AppCompatActivity;
-import com.example.SGDDA.R; // Atualizado para seu pacote
+import android.widget.Toast;
 
-// Imports do Firebase
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.SGDDA.R;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.android.material.textfield.TextInputEditText; // Import para os campos
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity {
 
-    // 1. Declarar as variáveis para os componentes do seu XML
     private Button loginButton;
     private TextView linkForgotPassword;
     private TextView linkRegister;
-    private TextInputEditText emailEditText, passwordEditText; // Campos de login
+    private TextView linkCadastrarInstituicao;
+    private TextInputEditText emailEditText, passwordEditText;
 
-    // Declaração do Firebase Auth
     private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // 2. Conectar este código Java com o seu layout XML
         setContentView(R.layout.activity_main);
 
-        // Inicializa o Firebase Auth
         mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
-        // 3. Encontrar os componentes no XML pelos seus IDs
         loginButton = findViewById(R.id.loginButton);
         linkForgotPassword = findViewById(R.id.linkForgotPassword);
         linkRegister = findViewById(R.id.linkRegister);
-        emailEditText = findViewById(R.id.emailEditText); // ID do XML
-        passwordEditText = findViewById(R.id.passwordEditText); // ID do XML
+        emailEditText = findViewById(R.id.emailEditText);
+        passwordEditText = findViewById(R.id.passwordEditText);
+        linkCadastrarInstituicao = findViewById(R.id.linkCadastrarInstituicao);
 
-        // --- ESTA É A REGRA DE NEGÓCIO ---
-        // 4. Criar o "ouvinte" de clique para o link de Registro
-        linkRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 5. Quando clicado, criar uma "Intenção" de abrir a RegisterActivity
-                Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
+        // Inicialmente, esconde o link de admin
+        linkCadastrarInstituicao.setVisibility(View.GONE);
 
-                // 6. Executar a Intenção (abrir a nova tela)
-                startActivity(intent);
-            }
-        });
-
-        // 7. Lógica do botão de Login (AGORA COM FIREBASE)
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Pegar o email e senha dos EditTexts
-                String email = emailEditText.getText().toString().trim();
-                String password = passwordEditText.getText().toString().trim();
-
-                // Validação de campos
-                if (TextUtils.isEmpty(email)) {
-                    emailEditText.setError("Email é obrigatório.");
-                    return;
-                }
-                if (TextUtils.isEmpty(password)) {
-                    passwordEditText.setError("Senha é obrigatória.");
-                    return;
-                }
-
-                // Fazer login com Firebase
-                mAuth.signInWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(MainActivity.this, task -> {
-                            if (task.isSuccessful()) {
-                                // Login com sucesso, vai para o Dashboard
-                                Toast.makeText(MainActivity.this, "Login efetuado com sucesso.", Toast.LENGTH_SHORT).show();
-                                abrirDashboard();
-                            } else {
-                                // Se falhar, mostra uma mensagem
-                                Toast.makeText(MainActivity.this, "Falha na autenticação: " + task.getException().getMessage(),
-                                        Toast.LENGTH_LONG).show();
-                            }
-                        });
-            }
-        });
-
-        // (Aqui você pode adicionar a lógica para o linkForgotPassword)
+        setupListeners();
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        // Verifica se o usuário já está logado
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
-            // Se sim, vai direto para o Dashboard
-            abrirDashboard();
+            checkUserTypeAndRedirect(currentUser);
         }
+    }
+
+    private void setupListeners() {
+        linkRegister.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, RegisterActivity.class));
+        });
+
+        linkCadastrarInstituicao.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, RegistrarInstituicaoActivity.class));
+        });
+
+        loginButton.setOnClickListener(v -> {
+            String email = emailEditText.getText().toString().trim();
+            String password = passwordEditText.getText().toString().trim();
+
+            if (TextUtils.isEmpty(email)) {
+                emailEditText.setError("Email é obrigatório.");
+                return;
+            }
+            if (TextUtils.isEmpty(password)) {
+                passwordEditText.setError("Senha é obrigatória.");
+                return;
+            }
+
+            loginUser(email, password);
+        });
+    }
+
+    private void loginUser(String email, String password) {
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        Toast.makeText(MainActivity.this, "Login realizado com sucesso.", Toast.LENGTH_SHORT).show();
+                        checkUserTypeAndRedirect(user);
+                    } else {
+                        Toast.makeText(MainActivity.this, "Falha na autenticação: " + task.getException().getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void checkUserTypeAndRedirect(FirebaseUser user) {
+        if (user == null) return;
+
+        // Busca os dados do usuário no Firestore para verificar se é admin
+        db.collection("usuarios").document(user.getUid())
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            // Verifica o campo 'isAdmin' (pode ser boolean ou string, vamos tratar ambos)
+                            boolean isAdmin = false;
+                            if (document.contains("isAdmin")) {
+                                Object adminField = document.get("isAdmin");
+                                if (adminField instanceof Boolean) {
+                                    isAdmin = (Boolean) adminField;
+                                } else if (adminField instanceof String) {
+                                    isAdmin = Boolean.parseBoolean((String) adminField);
+                                }
+                            }
+
+                            if (isAdmin) {
+                                // Se for admin, mostra o link especial
+                                linkCadastrarInstituicao.setVisibility(View.VISIBLE);
+                                // E também redireciona para o Dashboard (ou fica na tela se preferir dar a opção)
+                                // Por padrão, vamos para o Dashboard, mas o admin pode voltar e ver o link
+                                abrirDashboard();
+                            } else {
+                                // Se não for admin, garante que o link está oculto e vai para o Dashboard
+                                linkCadastrarInstituicao.setVisibility(View.GONE);
+                                abrirDashboard();
+                            }
+                        } else {
+                            // Usuário sem cadastro no banco (erro de integridade), manda pro dashboard como user comum
+                            abrirDashboard();
+                        }
+                    } else {
+                        // Erro ao buscar, assume usuário comum por segurança
+                        abrirDashboard();
+                    }
+                });
     }
 
     private void abrirDashboard() {
         Intent intent = new Intent(MainActivity.this, DashboardActivity.class);
-        // Limpa o histórico para que o usuário não volte para a tela de login
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
     }
 }
-
-
