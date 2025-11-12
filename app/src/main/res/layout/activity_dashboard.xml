@@ -39,18 +39,7 @@
              BOTÃO FLUTUANTE (FAB)
              Fixo acima da barra de navegação.
         -->
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabAdicionarDoacao"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:src="@drawable/ic_add"
-            app:backgroundTint="@color/app_accent_green"
-            app:tint="@color/app_primary_dark"
-            app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:fabSize="normal"
-            android:contentDescription="Registrar nova doação"/>
+
 
         <!--
              CONTEÚDO COM SCROLL

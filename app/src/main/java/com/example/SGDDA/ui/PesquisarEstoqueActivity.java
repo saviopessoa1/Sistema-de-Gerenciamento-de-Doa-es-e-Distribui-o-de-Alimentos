@@ -101,7 +101,10 @@ public class PesquisarEstoqueActivity extends AppCompatActivity {
         setupBottomNavigation();
         setupFiltrosListeners(); // NOVO
         loadEstoqueData();
+        setupFab();
+
     }
+
 
     private void setupBottomNavigation() {
         bottomNavigationView.setSelectedItemId(R.id.nav_estoque);
@@ -127,6 +130,12 @@ public class PesquisarEstoqueActivity extends AppCompatActivity {
                 return true;
             }
             return false;
+        });
+    }
+    private void setupFab() {
+        fabAdicionarDoacao.setOnClickListener(v -> {
+            Intent intent = new Intent(PesquisarEstoqueActivity.this, RegistrarDoacaoActivity.class);
+            startActivity(intent);
         });
     }
 
@@ -183,13 +192,6 @@ public class PesquisarEstoqueActivity extends AppCompatActivity {
             aplicarFiltros();
         });
     }
-    private void setupFab() {
-        fabAdicionarDoacao.setOnClickListener(v -> {
-            Intent intent = new Intent(PesquisarEstoqueActivity.this, RegistrarDoacaoActivity.class);
-            startActivity(intent);
-        });
-    }
-
     private void aplicarFiltros() {
         listaFiltrada.clear();
         String queryBusca = searchBar.getText().toString().toLowerCase(Locale.ROOT).trim();

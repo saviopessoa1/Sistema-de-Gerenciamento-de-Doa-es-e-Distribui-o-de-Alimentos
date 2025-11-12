@@ -114,7 +114,6 @@ public class DashboardActivity extends AppCompatActivity {
         // Configurar Funções
         setupDrawer();
         setupBottomNavigation();
-        setupFab();
         setupPieChart();
 
         // Carregar Dados (só se o usuário estiver logado)
@@ -129,13 +128,6 @@ public class DashboardActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
-    }
-
-    private void setupFab() {
-        fabAdicionarDoacao.setOnClickListener(v -> {
-            Intent intent = new Intent(DashboardActivity.this, RegistrarDoacaoActivity.class);
-            startActivity(intent);
-        });
     }
 
     private void setupBottomNavigation() {
