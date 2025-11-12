@@ -11,6 +11,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat; // Import necessário
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -41,7 +42,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-public class ResumoAgendamentoActivity extends AppCompatActivity {
+// ★ PASSO 1: Implementar a interface do adapter
+public class ResumoAgendamentoActivity extends AppCompatActivity implements ResumoItemAdapter.OnItemRemovedListener {
 
     private static final String TAG = "ResumoAgendamento";
 
@@ -104,11 +106,16 @@ public class ResumoAgendamentoActivity extends AppCompatActivity {
         if (itensSelecionados == null) {
             itensSelecionados = new ArrayList<>();
         }
-        adapter = new ResumoItemAdapter(this, itensSelecionados);
+
+        // ★ PASSO 2: Passar 'this' (a Activity) como listener para o adapter
+        adapter = new ResumoItemAdapter(this, itensSelecionados, this);
         resumoRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         resumoRecyclerView.setAdapter(adapter);
 
         setupListeners();
+
+        // ★ PASSO 3: Checar o estado inicial do botão
+        checkIfListIsEmpty();
     }
 
     private void setupListeners() {
@@ -150,11 +157,37 @@ public class ResumoAgendamentoActivity extends AppCompatActivity {
         picker.show(getSupportFragmentManager(), "TIME_PICKER");
     }
 
+    // ★ PASSO 4: Implementar o método da interface
+    @Override
+    public void onListEmpty() {
+        checkIfListIsEmpty();
+    }
+
+    // ★ PASSO 5: Criar método helper para centralizar a lógica do botão
+    private void checkIfListIsEmpty() {
+        if (itensSelecionados.isEmpty()) {
+            btnConfirmarEntrega.setEnabled(false);
+            btnConfirmarEntrega.setBackgroundColor(ContextCompat.getColor(this, R.color.app_primary_light));
+            btnConfirmarEntrega.setText("Adicione itens para continuar");
+        } else {
+            btnConfirmarEntrega.setEnabled(true);
+            btnConfirmarEntrega.setBackgroundColor(ContextCompat.getColor(this, R.color.app_accent_green));
+            btnConfirmarEntrega.setText("Confirmar Entrega");
+        }
+    }
+
     private void confirmarEntrega() {
         String data = dataEditText.getText().toString().trim();
         String horario = horarioEditText.getText().toString().trim();
         String voluntario = voluntarioEditText.getText().toString().trim();
         String obs = obsEditText.getText().toString().trim();
+
+        // ★ PASSO 6: Validação principal (redundância de segurança)
+        if (itensSelecionados.isEmpty()) {
+            Toast.makeText(this, "Não é possível agendar uma entrega vazia.", Toast.LENGTH_SHORT).show();
+            checkIfListIsEmpty(); // Garante que o botão esteja desabilitado
+            return;
+        }
 
         if (TextUtils.isEmpty(data) || TextUtils.isEmpty(horario) || TextUtils.isEmpty(voluntario)) {
             Toast.makeText(this, "Preencha Data, Horário e Voluntário.", Toast.LENGTH_SHORT).show();
@@ -182,7 +215,6 @@ public class ResumoAgendamentoActivity extends AppCompatActivity {
         db.runTransaction((Transaction.Function<Void>) transaction -> {
 
             // 1. LEITURAS (READS)
-            // Vamos armazenar as operações que faremos depois
             Map<DocumentReference, Long> atualizacoesEstoque = new HashMap<>();
             List<DocumentReference> remocoesEstoque = new ArrayList<>();
 
@@ -191,8 +223,6 @@ public class ResumoAgendamentoActivity extends AppCompatActivity {
                 DocumentSnapshot snapshot = transaction.get(estoqueItemRef); // LEITURA
 
                 if (!snapshot.exists()) {
-                    // Item não existe mais no estoque? Ignoramos ou lançamos erro.
-                    // Aqui vamos ignorar para não falhar a entrega inteira
                     continue;
                 }
 
@@ -215,15 +245,13 @@ public class ResumoAgendamentoActivity extends AppCompatActivity {
                 }
             }
 
-            // 2. ESCRITAS (WRITES) - Só agora alteramos o banco
+            // 2. ESCRITAS (WRITES)
             DocumentReference entregaRef = db.collection("entregas").document();
             transaction.set(entregaRef, novaEntrega); // Salva a entrega
 
-            // Atualiza os estoques
             for (Map.Entry<DocumentReference, Long> entry : atualizacoesEstoque.entrySet()) {
                 transaction.update(entry.getKey(), "quantidade", entry.getValue());
             }
-            // Remove itens zerados
             for (DocumentReference ref : remocoesEstoque) {
                 transaction.delete(ref);
             }

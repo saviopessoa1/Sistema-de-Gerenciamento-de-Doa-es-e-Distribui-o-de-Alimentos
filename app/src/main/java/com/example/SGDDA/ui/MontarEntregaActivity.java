@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log; // Importar Log
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -32,8 +33,13 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.io.Serializable;
+import java.text.ParseException; // Importar ParseException
+import java.text.SimpleDateFormat; // Importar SimpleDateFormat
 import java.util.ArrayList;
+import java.util.Calendar; // Importar Calendar
+import java.util.Date; // Importar Date
 import java.util.List;
+import java.util.Locale; // Importar Locale
 import java.util.Map;
 
 public class MontarEntregaActivity extends AppCompatActivity implements InstituicaoAdapter.OnInstituicaoClickListener {
@@ -115,7 +121,7 @@ public class MontarEntregaActivity extends AppCompatActivity implements Institui
 
         // Carregar Dados
         loadInstituicoes();
-        loadEstoque();
+        loadEstoque(); // Esta função será modificada
 
         setupListeners();
         setupSearch();
@@ -139,18 +145,53 @@ public class MontarEntregaActivity extends AppCompatActivity implements Institui
                 });
     }
 
+    // ★★★ FUNÇÃO MODIFICADA PARA FILTRAR VENCIDOS ★★★
     private void loadEstoque() {
         db.collection("estoque")
                 .orderBy("dataValidade", Query.Direction.ASCENDING)
                 .addSnapshotListener((value, error) -> {
-                    if (error != null) return;
+                    if (error != null) {
+                        Log.e(TAG, "Erro ao carregar estoque", error);
+                        return;
+                    }
 
                     listaEstoqueCompleta.clear();
+
+                    // Configuração da data de hoje (para comparação)
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                    Calendar calHoje = Calendar.getInstance();
+                    calHoje.set(Calendar.HOUR_OF_DAY, 0);
+                    calHoje.set(Calendar.MINUTE, 0);
+                    calHoje.set(Calendar.SECOND, 0);
+                    calHoje.set(Calendar.MILLISECOND, 0);
+                    Date dataHojeZerada = calHoje.getTime(); // Hoje, meia-noite
+
                     if (value != null) {
                         for (QueryDocumentSnapshot doc : value) {
                             DoacaoItem item = doc.toObject(DoacaoItem.class);
                             item.setDocumentId(doc.getId());
-                            listaEstoqueCompleta.add(item);
+
+                            // ★ INÍCIO DA VERIFICAÇÃO DE VALIDADE ★
+                            if (item.getDataValidade() == null || item.getDataValidade().isEmpty()) {
+                                // Se não tem data (ex: sal, não perecível), adiciona.
+                                listaEstoqueCompleta.add(item);
+                                continue;
+                            }
+
+                            try {
+                                Date validade = sdf.parse(item.getDataValidade());
+
+                                // Se a data de validade NÃO É ANTES de hoje (ou seja, é hoje ou no futuro)
+                                if (validade != null && !validade.before(dataHojeZerada)) {
+                                    listaEstoqueCompleta.add(item);
+                                } else {
+                                    // Item vencido (data é anterior a hoje), não adiciona
+                                    Log.d(TAG, "Item VENCIDO filtrado: " + item.getNomeItem() + " (Vence: " + item.getDataValidade() + ")");
+                                }
+                            } catch (ParseException e) {
+                                Log.e(TAG, "Formato de data inválido, item ignorado: " + item.getNomeItem());
+                            }
+                            // ★ FIM DA VERIFICAÇÃO ★
                         }
                         atualizarListaVisual(searchBar.getText().toString());
                     }
@@ -254,5 +295,3 @@ public class MontarEntregaActivity extends AppCompatActivity implements Institui
         startActivity(intent);
     }
 }
-
-

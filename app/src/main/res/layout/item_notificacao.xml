@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginBottom="12dp"
+    app:cardBackgroundColor="@color/app_primary_light"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="0dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- Ícone com Círculo Colorido -->
+        <FrameLayout
+            android:id="@+id/iconBackground"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/shape_circle_solid"
+            android:backgroundTint="@color/app_accent_yellow"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/iconNotificacao"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_warning"
+                app:tint="@color/app_primary_dark" />
+        </FrameLayout>
+
+        <!-- Título da Notificação -->
+        <TextView
+            android:id="@+id/textTitulo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="Alerta de Vencimento"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/iconBackground"
+            app:layout_constraintTop_toTopOf="@id/iconBackground"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Descrição -->
+        <TextView
+            android:id="@+id/textDescricao"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="3 itens estão vencendo esta semana."
+            android:textColor="@color/white_80"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@id/textTitulo"
+            app:layout_constraintTop_toBottomOf="@id/textTitulo"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Timestamp (Horário) -->
+        <TextView
+            android:id="@+id/textTimestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="agora"
+            android:textColor="@color/white_60"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:visibility="gone"/> <!-- Oculto por enquanto -->
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

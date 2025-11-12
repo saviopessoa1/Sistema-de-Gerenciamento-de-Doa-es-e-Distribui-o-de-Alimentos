@@ -12,14 +12,13 @@
             android:id="@+id/nav_relatorios"
             android:icon="@drawable/ic_analytics"
             android:title="Relatórios" />
-        <item
-            android:id="@+id/nav_mensagens"
-            android:icon="@drawable/ic_message"
-            android:title="Mensagens" />
+
+        <!-- ITEM "MENSAGENS" REMOVIDO -->
+
         <item
             android:id="@+id/nav_notificacoes"
             android:icon="@drawable/ic_notifications"
-            android:title="Notificações" />
+            android:title="Notificações" /> <!-- Este item agora abre a nova tela -->
         <item
             android:id="@+id/nav_instituicoes"
             android:icon="@drawable/ic_domain"
@@ -28,6 +27,13 @@
             android:id="@+id/nav_perfil"
             android:icon="@drawable/ic_person"
             android:title="Perfil" />
+
+        <!-- Item visível apenas para Admins (controlado via código) -->
+        <item
+            android:id="@+id/nav_cadastrar_instituicao"
+            android:icon="@drawable/ic_add"
+            android:title="Cadastrar Instituição"
+            android:visible="false" />
     </group>
 
     <item android:title="">
@@ -40,5 +46,3 @@
     </item>
 
 </menu>
-
-

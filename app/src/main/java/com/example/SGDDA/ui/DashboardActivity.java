@@ -214,6 +214,11 @@ public class DashboardActivity extends AppCompatActivity {
                 startActivity(new Intent(DashboardActivity.this, InstituicoesActivity.class));
                 overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             }
+            else if (itemId == R.id.nav_notificacoes) {
+                // Abre a nova tela de Notificações
+                startActivity(new Intent(DashboardActivity.this, NotificacoesActivity.class));
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out); // Opcional
+            }
 
             drawerLayout.closeDrawer(navigationView);
             return true;
