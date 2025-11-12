@@ -25,11 +25,6 @@
             android:icon="@drawable/ic_person"
             android:title="Perfil" />
 
-        <!-- ★★★ ITEM ADICIONADO PARA O ADMIN ★★★ -->
-        <item
-            android:id="@+id/nav_cadastrar_instituicao"
-            android:icon="@drawable/ic_add"
-            android:title="Cadastrar Instituição" />
     </group>
 
     <item android:title="">

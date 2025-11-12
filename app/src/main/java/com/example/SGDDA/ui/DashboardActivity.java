@@ -181,19 +181,7 @@ public class DashboardActivity extends AppCompatActivity {
                 if (navUserName != null) navUserName.setText(nome);
                 if (navUserEmail != null) navUserEmail.setText(email);
 
-                // ★★★ LÓGICA DO ADMIN AQUI ★★★
-                Menu navMenu = navigationView.getMenu();
-                // Agora R.id.nav_cadastrar_instituicao existe
-                MenuItem navCadastrarInst = navMenu.findItem(R.id.nav_cadastrar_instituicao);
-
-                if (navCadastrarInst != null) {
-                    // Verifica se o email logado é o email do Admin
-                    if (email != null && email.equalsIgnoreCase(ADMIN_EMAIL)) {
-                        navCadastrarInst.setVisible(true); // Se for admin, mostra
-                    } else {
-                        navCadastrarInst.setVisible(false); // Se não for, esconde
-                    }
-                }
+                // ★★★ LÓGICA DO ADMIN FOI REMOVIDA DAQUI ★★★
 
             } else {
                 Log.d("Dashboard", "Documento do usuário não encontrado.");
@@ -228,10 +216,7 @@ public class DashboardActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
             }
-            // Clique para a nova tela de Admin
-            else if (itemId == R.id.nav_cadastrar_instituicao) {
-                startActivity(new Intent(DashboardActivity.this, RegistrarInstituicaoActivity.class));
-            }
+            // ★★★ LÓGICA DO ADMIN FOI REMOVIDA DAQUI ★★★
 
             drawerLayout.closeDrawer(navigationView);
             return true;
@@ -404,5 +389,3 @@ public class DashboardActivity extends AppCompatActivity {
                 });
     }
 }
-
-
