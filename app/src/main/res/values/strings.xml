@@ -3,4 +3,7 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
 
+    <!-- ★★★ ADICIONE ESTA LINHA ★★★ -->
+    <string name="alerta_vencimento_dinamico">Atenção: %d itens vencem nesta semana</string>
+
 </resources>

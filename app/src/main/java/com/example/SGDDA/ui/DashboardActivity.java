@@ -2,15 +2,10 @@ package com.example.SGDDA.ui;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Bundle;
-import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.RelativeSizeSpan;
-import android.text.style.StyleSpan;
 import android.util.Log;
-import android.view.Menu; // Importe a classe Menu
-import android.view.MenuItem; // Importe a classe MenuItem
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -18,7 +13,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -56,7 +50,7 @@ public class DashboardActivity extends AppCompatActivity {
 
     private static final String TAG = "DashboardActivity";
     // ★★★ DEFINA SEU E-MAIL DE ADMIN AQUI ★★★
-    private static final String ADMIN_EMAIL = "seu-email-aqui@gmail.com";
+    private static final String ADMIN_EMAIL = "saviopessoa345@gmail.com"; // Troque pelo seu e-mail
 
     // Componentes do Layout
     private DrawerLayout drawerLayout;
@@ -106,18 +100,18 @@ public class DashboardActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         fabAdicionarDoacao = findViewById(R.id.fabAdicionarDoacao);
 
-        // Componentes do Card
+        // Componentes do Card (IDs Corrigidos)
         pieChartEstoque = findViewById(R.id.pieChartEstoque);
-        textLegendaNaoPerecivelQtd = findViewById(R.id.textLegendaNaoPerecivelQtd);
-        textLegendaPerecivelQtd = findViewById(R.id.textLegendaPerecivelQtd);
-        textAlertaVencimentoQtd = findViewById(R.id.textAlertaVencimentoQtd);
-        textProximaEntrega1 = findViewById(R.id.textProximaEntrega1);
-        textProximaEntrega2 = findViewById(R.id.textProximaEntrega2);
-        textProximaEntrega3 = findViewById(R.id.textProximaEntrega3);
-        textHistorico1 = findViewById(R.id.textHistorico1);
-        textHistorico2 = findViewById(R.id.textHistorico2);
-        textHistorico3 = findViewById(R.id.textHistorico3);
-        historicoContainer = findViewById(R.id.historicoContainer);
+        textLegendaNaoPerecivelQtd = findViewById(R.id.textViewNaoPerecivelValor);
+        textLegendaPerecivelQtd = findViewById(R.id.textViewPerecivelValor);
+        textAlertaVencimentoQtd = findViewById(R.id.textViewAtencao);
+        textProximaEntrega1 = findViewById(R.id.textViewProximaEntrega1);
+        textProximaEntrega2 = findViewById(R.id.textViewProximaEntrega2);
+        textProximaEntrega3 = findViewById(R.id.textViewProximaEntrega3);
+        textHistorico1 = findViewById(R.id.textViewHistorico1);
+        textHistorico2 = findViewById(R.id.textViewHistorico2);
+        textHistorico3 = findViewById(R.id.textViewHistorico3);
+        historicoContainer = findViewById(R.id.layoutHistoricoContainer);
 
         // Configurar Funções
         setupDrawer();
@@ -188,9 +182,8 @@ public class DashboardActivity extends AppCompatActivity {
                 if (navUserEmail != null) navUserEmail.setText(email);
 
                 // ★★★ LÓGICA DO ADMIN AQUI ★★★
-                // Pega o menu da navigationView
                 Menu navMenu = navigationView.getMenu();
-                // Encontra o item específico que queremos esconder/mostrar
+                // Agora R.id.nav_cadastrar_instituicao existe
                 MenuItem navCadastrarInst = navMenu.findItem(R.id.nav_cadastrar_instituicao);
 
                 if (navCadastrarInst != null) {
@@ -235,12 +228,10 @@ public class DashboardActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
             }
-            // ★★★ CLIQUE DO NOVO BOTÃO ADMIN ★★★
+            // Clique para a nova tela de Admin
             else if (itemId == R.id.nav_cadastrar_instituicao) {
                 startActivity(new Intent(DashboardActivity.this, RegistrarInstituicaoActivity.class));
             }
-            // Adicione outros itens (Perfil, Mensagens) aqui...
-            // else if (itemId == R.id.nav_perfil) { ... }
 
             drawerLayout.closeDrawer(navigationView);
             return true;
@@ -325,6 +316,7 @@ public class DashboardActivity extends AppCompatActivity {
                     // 2. Atualizar Legendas e Alertas
                     textLegendaNaoPerecivelQtd.setText(String.valueOf(naoPereciveis));
                     textLegendaPerecivelQtd.setText(String.valueOf(pereciveis));
+                    // Esta linha depende da string 'alerta_vencimento_dinamico' estar no strings.xml
                     textAlertaVencimentoQtd.setText(getString(R.string.alerta_vencimento_dinamico, vencendoEm7Dias));
                 });
     }
@@ -403,12 +395,14 @@ public class DashboardActivity extends AppCompatActivity {
                         textHistorico3.setVisibility(View.VISIBLE);
                     }
 
-                    // Se não houver histórico, mostra uma mensagem
+                    // Se não houver histórico, mostra uma mensagem (opcional)
                     if (historico.isEmpty()) {
-                        historicoContainer.setVisibility(View.GONE);
+                        if (historicoContainer != null) historicoContainer.setVisibility(View.GONE);
                     } else {
-                        historicoContainer.setVisibility(View.VISIBLE);
+                        if (historicoContainer != null) historicoContainer.setVisibility(View.VISIBLE);
                     }
                 });
     }
 }
+
+
