@@ -26,6 +26,7 @@ import com.example.SGDDA.R;
 import com.example.SGDDA.adapter.EstoqueAdapter;
 import com.example.SGDDA.model.DoacaoItem;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query; // Import para Query
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -44,10 +45,13 @@ public class PesquisarEstoqueActivity extends AppCompatActivity {
 
     // --- NOVOS COMPONENTES ---
     private EditText searchBar;
+    private FloatingActionButton fabAdicionarDoacao;
+
     private Button btnPerecivel, btnNaoPerecivel;
     private Button btnFiltros; // Botão de filtros avançados (sem uso por enquanto)
 
     private FirebaseFirestore db;
+
     private EstoqueAdapter adapter;
 
     // --- NOVAS LISTAS E VARIÁVEIS DE FILTRO ---
@@ -80,6 +84,7 @@ public class PesquisarEstoqueActivity extends AppCompatActivity {
         searchBar = findViewById(R.id.searchBar);
         btnPerecivel = findViewById(R.id.btnPerecivel);
         btnNaoPerecivel = findViewById(R.id.btnNaoPerecivel);
+        fabAdicionarDoacao = findViewById(R.id.fabAdicionarDoacao);
         btnFiltros = findViewById(R.id.btnFiltros); // (Opcional)
 
         // Inicializar listas
@@ -176,6 +181,12 @@ public class PesquisarEstoqueActivity extends AppCompatActivity {
             }
             updateFilterButtons();
             aplicarFiltros();
+        });
+    }
+    private void setupFab() {
+        fabAdicionarDoacao.setOnClickListener(v -> {
+            Intent intent = new Intent(PesquisarEstoqueActivity.this, RegistrarDoacaoActivity.class);
+            startActivity(intent);
         });
     }
 

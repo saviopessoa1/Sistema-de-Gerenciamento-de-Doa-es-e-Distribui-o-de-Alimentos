@@ -3,9 +3,9 @@ package com.example.SGDDA.ui;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -99,6 +99,8 @@ public class RelatoriosActivity extends AppCompatActivity {
         barChartDistribuicao.setDrawBarShadow(false);
         barChartDistribuicao.setDrawBorders(false);
         barChartDistribuicao.getLegend().setEnabled(false);
+        barChartDistribuicao.setNoDataText("Carregando dados...");
+        barChartDistribuicao.setNoDataTextColor(Color.WHITE);
 
         // Eixo X (Meses)
         XAxis xAxis = barChartDistribuicao.getXAxis();
@@ -106,10 +108,12 @@ public class RelatoriosActivity extends AppCompatActivity {
         xAxis.setGranularity(1f);
         xAxis.setTextColor(Color.WHITE);
         xAxis.setDrawGridLines(false);
+        xAxis.setLabelCount(6); // Limita a quantidade de labels para não ficar poluído
 
         // Eixos Y
         barChartDistribuicao.getAxisLeft().setTextColor(Color.WHITE);
-        barChartDistribuicao.getAxisRight().setEnabled(false);
+        barChartDistribuicao.getAxisLeft().setAxisMinimum(0f); // Começa do 0
+        barChartDistribuicao.getAxisRight().setEnabled(false); // Desativa eixo direito
     }
 
     private void carregarDadosDesperdicio() {
@@ -117,14 +121,6 @@ public class RelatoriosActivity extends AppCompatActivity {
         db.collection("estoque").get().addOnSuccessListener(queryDocumentSnapshots -> {
             listaVencidos.clear();
             int totalItensVencidos = 0;
-            Date hoje = new Date();
-
-            // Para comparar apenas DATA (ignorando hora), zeramos a hora de 'hoje'
-            // Mas 'new Date()' pega hora atual. Se o item vence hoje (23:59), 'before' pode dar falso positivo dependendo da hora.
-            // Vamos assumir que a validade é até o fim do dia.
-            // O SimpleDateFormat parseia para 00:00:00 do dia.
-            // Se hoje for 14:00, 00:00 é "before" 14:00. Então itens que vencem HOJE apareceriam como vencidos se usarmos 'before' direto.
-            // O ideal é zerar a hora de 'hoje' para comparar.
 
             Calendar calHoje = Calendar.getInstance();
             // Zera hora para comparar apenas datas
@@ -138,9 +134,6 @@ public class RelatoriosActivity extends AppCompatActivity {
 
             for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                 DoacaoItem item = doc.toObject(DoacaoItem.class);
-
-                // REMOVIDO: if (item.isPerecivel())
-                // Agora verifica a data para TODOS os itens
 
                 if (item.getDataValidade() != null && !item.getDataValidade().isEmpty()) {
                     try {
@@ -172,7 +165,9 @@ public class RelatoriosActivity extends AppCompatActivity {
                     int totalAtendimentos = queryDocumentSnapshots.size();
                     textDemandasAtendidas.setText(String.valueOf(totalAtendimentos));
 
+                    // Mapa: "MM/yyyy" -> Quantidade de Itens
                     Map<String, Integer> distribuicaoPorMes = new HashMap<>();
+                    // Mapa auxiliar para ordenação: Date -> "MM/yyyy"
                     Map<Date, String> ordemMeses = new TreeMap<>();
 
                     SimpleDateFormat sdfDoc = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
@@ -189,24 +184,26 @@ public class RelatoriosActivity extends AppCompatActivity {
                         }
 
                         try {
-                            Date data = sdfDoc.parse(dataString);
-                            if (data != null) {
-                                Calendar cal = Calendar.getInstance();
-                                cal.setTime(data);
-                                cal.set(Calendar.DAY_OF_MONTH, 1);
-                                Date mesDate = cal.getTime();
+                            if (dataString != null) {
+                                Date data = sdfDoc.parse(dataString);
+                                if (data != null) {
+                                    Calendar cal = Calendar.getInstance();
+                                    cal.setTime(data);
+                                    cal.set(Calendar.DAY_OF_MONTH, 1);
+                                    Date mesDate = cal.getTime();
 
-                                String chaveMes = sdfMes.format(data);
+                                    String chaveMes = sdfMes.format(data);
 
-                                int qtdItensEntrega = 0;
-                                if (entrega.getItens() != null) {
-                                    for (DoacaoItem item : entrega.getItens()) {
-                                        qtdItensEntrega += item.getQuantidade();
+                                    int qtdItensEntrega = 0;
+                                    if (entrega.getItens() != null) {
+                                        for (DoacaoItem item : entrega.getItens()) {
+                                            qtdItensEntrega += item.getQuantidade();
+                                        }
                                     }
-                                }
 
-                                distribuicaoPorMes.put(chaveMes, distribuicaoPorMes.getOrDefault(chaveMes, 0) + qtdItensEntrega);
-                                ordemMeses.put(mesDate, chaveMes);
+                                    distribuicaoPorMes.put(chaveMes, distribuicaoPorMes.getOrDefault(chaveMes, 0) + qtdItensEntrega);
+                                    ordemMeses.put(mesDate, chaveMes);
+                                }
                             }
                         } catch (Exception e) {
                             Log.e(TAG, "Erro data gráfico: " + dataString);
@@ -233,15 +230,21 @@ public class RelatoriosActivity extends AppCompatActivity {
                         dataSet.setValueTextSize(12f);
 
                         BarData barData = new BarData(dataSet);
+                        // Configura a largura das barras para ficarem bonitas
+                        barData.setBarWidth(0.5f);
+
                         barChartDistribuicao.setData(barData);
                         barChartDistribuicao.getXAxis().setValueFormatter(new IndexAxisValueFormatter(labels));
-                        barChartDistribuicao.invalidate();
-                        barChartDistribuicao.animateY(1000);
+                        barChartDistribuicao.invalidate(); // Redesenha
+                        barChartDistribuicao.animateY(1000); // Animação de subida
                     } else {
                         barChartDistribuicao.clear(); // Limpa se não tiver dados
+                        barChartDistribuicao.setNoDataText("Sem dados de entregas ainda.");
                     }
 
                 })
                 .addOnFailureListener(e -> Log.e(TAG, "Erro ao buscar entregas", e));
     }
 }
+
+

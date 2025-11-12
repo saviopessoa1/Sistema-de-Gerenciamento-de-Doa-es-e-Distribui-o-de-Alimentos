@@ -4,8 +4,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -49,8 +47,8 @@ import java.util.Locale;
 public class DashboardActivity extends AppCompatActivity {
 
     private static final String TAG = "DashboardActivity";
-    private static final String ADMIN_EMAIL = "saviopessoa345@gmail.com";
 
+    // Componentes do Layout
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private ImageButton menuButton;
@@ -58,12 +56,15 @@ public class DashboardActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
     private FloatingActionButton fabAdicionarDoacao;
 
+    // Componentes do Dashboard
     private PieChart pieChartEstoque;
     private TextView textLegendaNaoPerecivelQtd, textLegendaPerecivelQtd, textAlertaVencimentoQtd;
     private TextView textProximaEntrega1, textProximaEntrega2, textProximaEntrega3;
-    private TextView textHistorico1, textHistorico2, textHistorico3;
-    private LinearLayout historicoContainer;
+    private TextView textHistorico1, textHistorico2, textHistorico3; // Para Histórico
+    private LinearLayout historicoContainer; // Para Histórico
+    private TextView textViewDoacoesMes; // Contador de Doações
 
+    // Firebase
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private FirebaseUser currentUser;
@@ -74,6 +75,7 @@ public class DashboardActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_dashboard);
 
+        // Ajuste de Padding
         View mainContent = findViewById(R.id.main);
         if (mainContent != null) {
             ViewCompat.setOnApplyWindowInsetsListener(mainContent, (v, insets) -> {
@@ -83,16 +85,19 @@ public class DashboardActivity extends AppCompatActivity {
             });
         }
 
+        // Inicializar Firebase
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         currentUser = mAuth.getCurrentUser();
 
+        // Encontrar Componentes
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
         menuButton = findViewById(R.id.menuButton);
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         fabAdicionarDoacao = findViewById(R.id.fabAdicionarDoacao);
 
+        // Componentes do Card
         pieChartEstoque = findViewById(R.id.pieChartEstoque);
         textLegendaNaoPerecivelQtd = findViewById(R.id.textViewNaoPerecivelValor);
         textLegendaPerecivelQtd = findViewById(R.id.textViewPerecivelValor);
@@ -104,17 +109,20 @@ public class DashboardActivity extends AppCompatActivity {
         textHistorico2 = findViewById(R.id.textViewHistorico2);
         textHistorico3 = findViewById(R.id.textViewHistorico3);
         historicoContainer = findViewById(R.id.layoutHistoricoContainer);
+        textViewDoacoesMes = findViewById(R.id.textViewDoacoesMes);
 
+        // Configurar Funções
         setupDrawer();
         setupBottomNavigation();
         setupFab();
         setupPieChart();
 
+        // Carregar Dados (só se o usuário estiver logado)
         if (currentUser != null) {
-            loadUserData();
-            loadEstoqueData();
-            loadEntregasData();
-            loadHistoricoData();
+            loadUserData(); // Carrega dados do usuário
+            loadEstoqueData(); // Carrega dados do gráfico, alertas e total de doações
+            loadEntregasData(); // Carrega próximas entregas
+            loadHistoricoData(); // Carrega histórico
         } else {
             Intent intent = new Intent(DashboardActivity.this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -136,12 +144,11 @@ public class DashboardActivity extends AppCompatActivity {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
 
-            // ★★★ REMOVE ANIMAÇÃO DE TRANSIÇÃO AQUI ★★★
             if (itemId == R.id.nav_painel) {
                 return true;
             } else if (itemId == R.id.nav_estoque) {
                 startActivity(new Intent(DashboardActivity.this, PesquisarEstoqueActivity.class));
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out); // Animação suave sem slide
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                 return true;
             } else if (itemId == R.id.nav_instituicoes) {
                 startActivity(new Intent(DashboardActivity.this, InstituicoesActivity.class));
@@ -156,8 +163,6 @@ public class DashboardActivity extends AppCompatActivity {
         });
     }
 
-    // ... (resto do código sem alterações)
-
     private void loadUserData() {
         if (currentUser == null) return;
 
@@ -169,14 +174,15 @@ public class DashboardActivity extends AppCompatActivity {
                 String nome = documentSnapshot.getString("nomeCompleto");
                 String email = documentSnapshot.getString("email");
 
+                // A lógica de isAdmin foi removida daqui, pois o cadastro de instituição
+                // agora é feito apenas via MainActivity (Login Admin)
+
                 View headerView = navigationView.getHeaderView(0);
                 TextView navUserName = headerView.findViewById(R.id.navHeaderUserName);
                 TextView navUserEmail = headerView.findViewById(R.id.navHeaderUserEmail);
 
-                if (navUserName != null) navUserName.setText(nome);
-                if (navUserEmail != null) navUserEmail.setText(email);
-            } else {
-                Log.d("Dashboard", "Documento do usuário não encontrado.");
+                if (navUserName != null) navUserName.setText(nome != null ? nome : "Usuário");
+                if (navUserEmail != null) navUserEmail.setText(email != null ? email : "");
             }
         }).addOnFailureListener(e -> {
             Log.e("Dashboard", "Erro ao buscar dados do usuário", e);
@@ -196,7 +202,6 @@ public class DashboardActivity extends AppCompatActivity {
             }
         });
 
-        // Listener para os cliques nos itens do menu lateral
         navigationView.setNavigationItemSelectedListener(item -> {
             int itemId = item.getItemId();
 
@@ -208,11 +213,11 @@ public class DashboardActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
             }
+            // O item de cadastrar instituição foi removido daqui
             else if (itemId == R.id.nav_relatorios) {
                 startActivity(new Intent(DashboardActivity.this, RelatoriosActivity.class));
                 overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             }
-            // Adicionei lógica para outros itens se necessário
             else if (itemId == R.id.nav_instituicoes) {
                 startActivity(new Intent(DashboardActivity.this, InstituicoesActivity.class));
                 overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
@@ -263,9 +268,11 @@ public class DashboardActivity extends AppCompatActivity {
                             if (item.isPerecivel()) {
                                 pereciveis += qtd;
                                 try {
-                                    Date dataValidade = sdf.parse(item.getDataValidade());
-                                    if (dataValidade != null && dataValidade.before(dataLimite)) {
-                                        vencendoEm7Dias += qtd;
+                                    if (item.getDataValidade() != null) {
+                                        Date dataValidade = sdf.parse(item.getDataValidade());
+                                        if (dataValidade != null && dataValidade.before(dataLimite)) {
+                                            vencendoEm7Dias += qtd;
+                                        }
                                     }
                                 } catch (ParseException e) {
                                     Log.e(TAG, "Formato de data inválido: " + item.getDataValidade());
@@ -276,13 +283,19 @@ public class DashboardActivity extends AppCompatActivity {
                         }
                     }
 
+                    // 1. Atualizar o Gráfico
                     ArrayList<PieEntry> entries = new ArrayList<>();
-                    entries.add(new PieEntry(naoPereciveis, "Não Perecível"));
-                    entries.add(new PieEntry(pereciveis, "Perecível"));
+                    if (naoPereciveis > 0) entries.add(new PieEntry(naoPereciveis, "Não Perecível"));
+                    if (pereciveis > 0) entries.add(new PieEntry(pereciveis, "Perecível"));
+                    if (totalItens == 0) entries.add(new PieEntry(1, "Vazio"));
 
                     ArrayList<Integer> colors = new ArrayList<>();
-                    colors.add(ContextCompat.getColor(this, R.color.app_accent_green));
-                    colors.add(ContextCompat.getColor(this, R.color.app_accent_blue));
+                    if (totalItens > 0) {
+                        if (naoPereciveis > 0) colors.add(ContextCompat.getColor(this, R.color.app_accent_green));
+                        if (pereciveis > 0) colors.add(ContextCompat.getColor(this, R.color.app_accent_blue));
+                    } else {
+                        colors.add(Color.DKGRAY);
+                    }
 
                     PieDataSet dataSet = new PieDataSet(entries, "");
                     dataSet.setColors(colors);
@@ -292,16 +305,23 @@ public class DashboardActivity extends AppCompatActivity {
                     pieChartEstoque.setData(data);
                     pieChartEstoque.invalidate();
 
+                    // 2. Atualizar Textos do Gráfico e Alerta
                     textLegendaNaoPerecivelQtd.setText(String.valueOf(naoPereciveis));
                     textLegendaPerecivelQtd.setText(String.valueOf(pereciveis));
-                    textAlertaVencimentoQtd.setText(getString(R.string.alerta_vencimento_dinamico, vencendoEm7Dias));
+
+                    String alertaTexto = "Atenção: " + vencendoEm7Dias + " itens vencem nesta semana";
+                    textAlertaVencimentoQtd.setText(alertaTexto);
+
+                    // 3. Atualizar "Doações Mês" com o Total
+                    if (textViewDoacoesMes != null) {
+                        textViewDoacoesMes.setText(String.valueOf(totalItens));
+                    }
                 });
     }
 
     private void loadEntregasData() {
         db.collection("entregas")
-                .whereIn("status", List.of("Pendente", "Em Coleta"))
-                .orderBy("dataEntrega", Query.Direction.ASCENDING)
+                .whereNotEqualTo("status", "Concluída")
                 .limit(3)
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
@@ -338,7 +358,6 @@ public class DashboardActivity extends AppCompatActivity {
     private void loadHistoricoData() {
         db.collection("entregas")
                 .whereEqualTo("status", "Concluída")
-                .orderBy("dataEntrega", Query.Direction.DESCENDING)
                 .limit(3)
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
@@ -378,3 +397,5 @@ public class DashboardActivity extends AppCompatActivity {
                 });
     }
 }
+
+

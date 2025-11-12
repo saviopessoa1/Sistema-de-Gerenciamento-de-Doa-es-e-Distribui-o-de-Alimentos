@@ -109,6 +109,19 @@
         app:menu="@menu/bottom_nav_menu"
         android:elevation="8dp"/>
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAdicionarDoacao"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_add"
+        app:backgroundTint="@color/app_accent_green"
+        app:tint="@color/app_primary_dark"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:fabSize="normal"
+        android:contentDescription="Registrar nova doação"/>
+
     <!-- Lista com Scroll (PRESA NA BARRA DE NAVEGAÇÃO) -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/estoqueRecyclerView"

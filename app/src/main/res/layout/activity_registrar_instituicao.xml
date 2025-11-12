@@ -137,18 +137,30 @@
                     android:textColor="@color/white" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Botão Salvar -->
+            <!-- Botão Cadastrar (Salva e Limpa) -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/cadastrarButton"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="32dp"
                 android:text="Cadastrar Instituição"
                 android:backgroundTint="@color/app_accent_green"
                 android:textColor="@color/app_primary_dark"
                 android:textStyle="bold"
                 app:icon="@drawable/ic_add"
                 app:iconTint="@color/app_primary_dark"
+                app:cornerRadius="16dp" />
+
+            <!-- NOVO: Botão Finalizar (Sai da tela) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/finalizarButton"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginTop="16dp"
+                android:text="Concluir e Voltar"
+                android:textColor="@color/app_accent_red"
+                app:strokeColor="@color/app_accent_red"
                 app:cornerRadius="16dp" />
 
         </LinearLayout>

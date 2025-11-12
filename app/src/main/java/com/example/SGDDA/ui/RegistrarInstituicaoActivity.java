@@ -16,8 +16,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.SGDDA.R;
 import com.example.SGDDA.model.Instituicao;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.auth.FirebaseAuth; // Import necessário
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class RegistrarInstituicaoActivity extends AppCompatActivity {
@@ -28,10 +27,11 @@ public class RegistrarInstituicaoActivity extends AppCompatActivity {
     private ImageButton backButton;
     private TextInputEditText nomeEditText, enderecoEditText, telefoneEditText, responsavelEditText;
     private Button cadastrarButton;
+    private Button finalizarButton;
 
     // Firebase
     private FirebaseFirestore db;
-    private FirebaseAuth mAuth;
+    private FirebaseAuth mAuth; // Instância do Auth para fazer logout
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +48,7 @@ public class RegistrarInstituicaoActivity extends AppCompatActivity {
 
         // Inicializar Firebase
         db = FirebaseFirestore.getInstance();
-        mAuth = FirebaseAuth.getInstance();
+        mAuth = FirebaseAuth.getInstance(); // Inicializa Auth
 
         // Encontrar Componentes
         backButton = findViewById(R.id.backButton);
@@ -57,48 +57,28 @@ public class RegistrarInstituicaoActivity extends AppCompatActivity {
         telefoneEditText = findViewById(R.id.telefoneEditText);
         responsavelEditText = findViewById(R.id.responsavelEditText);
         cadastrarButton = findViewById(R.id.cadastrarButton);
-
-        // Verificar Permissão de Admin
-        checkAdminPermission();
+        finalizarButton = findViewById(R.id.finalizarButton);
 
         // Configurar Listeners
         setupListeners();
     }
 
-    private void checkAdminPermission() {
-        if (mAuth.getCurrentUser() == null) {
-            finish(); // Se não estiver logado, fecha a tela
-            return;
-        }
-
-        String uid = mAuth.getCurrentUser().getUid();
-        db.collection("usuarios").document(uid).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        boolean isAdmin = false;
-                        if (documentSnapshot.contains("isAdmin")) {
-                            Object adminField = documentSnapshot.get("isAdmin");
-                            if (adminField instanceof Boolean) {
-                                isAdmin = (Boolean) adminField;
-                            } else if (adminField instanceof String) {
-                                isAdmin = Boolean.parseBoolean((String) adminField);
-                            }
-                        }
-
-                        if (!isAdmin) {
-                            Toast.makeText(this, "Acesso negado: Requer privilégios de administrador.", Toast.LENGTH_LONG).show();
-                            finish(); // Fecha a activity se não for admin
-                        }
-                    } else {
-                        finish(); // Erro de integridade
-                    }
-                })
-                .addOnFailureListener(e -> finish());
-    }
-
     private void setupListeners() {
-        backButton.setOnClickListener(v -> finish());
+        // Botão Voltar (Seta) - Também deve deslogar para segurança
+        backButton.setOnClickListener(v -> {
+            mAuth.signOut();
+            finish();
+        });
+
+        // Botão Cadastrar - Salva e limpa para o próximo (mantém logado)
         cadastrarButton.setOnClickListener(v -> salvarInstituicao());
+
+        // Botão Finalizar - Desloga e sai
+        finalizarButton.setOnClickListener(v -> {
+            mAuth.signOut(); // ★ O SEGREDO ESTÁ AQUI ★
+            Toast.makeText(this, "Saindo do modo Admin...", Toast.LENGTH_SHORT).show();
+            finish();
+        });
     }
 
     private void salvarInstituicao() {
@@ -114,19 +94,22 @@ public class RegistrarInstituicaoActivity extends AppCompatActivity {
             return;
         }
 
-        // 3. Criar o objeto Instituicao (URGÊNCIA PADRÃO = "Normal")
+        // 3. Urgência padrão
+        String urgencia = "Normal";
+
+        // 4. Criar o objeto Instituicao
         Instituicao instituicao = new Instituicao();
         instituicao.setNome(nome);
         instituicao.setEndereco(endereco);
         instituicao.setTelefone(telefone);
         instituicao.setResponsavel(responsavel);
-        instituicao.setUrgencia("Normal"); // Urgência inicia como Normal
+        instituicao.setUrgencia(urgencia);
 
-        // 4. Salvar no Firestore
+        // 5. Salvar no Firestore
         db.collection("instituicoes").document(nome)
                 .set(instituicao)
                 .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(RegistrarInstituicaoActivity.this, "Instituição cadastrada!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegistrarInstituicaoActivity.this, "Instituição '" + nome + "' cadastrada!", Toast.LENGTH_SHORT).show();
                     limparCampos();
                 })
                 .addOnFailureListener(e -> {

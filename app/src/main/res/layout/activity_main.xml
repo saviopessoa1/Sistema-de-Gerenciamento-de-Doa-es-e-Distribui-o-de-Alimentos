@@ -116,22 +116,23 @@
         app:layout_constraintStart_toStartOf="@id/passwordLayout"
         app:layout_constraintTop_toBottomOf="@id/linkForgotPassword" />
 
-    <!-- Link Admin para Cadastrar Instituição -->
+    <!-- Link Admin para Cadastrar Instituição (RODAPÉ) -->
+    <!-- Removi o 'visibility=gone' que estava escondendo ele -->
     <TextView
         android:id="@+id/linkCadastrarInstituicao"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
-        android:padding="8dp"
+        android:padding="12dp"
         android:text="Cadastrar Instituição (Admin)"
         android:textColor="@color/app_accent_yellow"
+        android:textStyle="bold"
         android:textSize="14sp"
-        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Link de Registro -->
+    <!-- Link de Registro (ACIMA DO ADMIN) -->
     <TextView
         android:id="@+id/linkRegisterHint"
         android:layout_width="wrap_content"
@@ -140,7 +141,7 @@
         android:text="Don't have account?"
         android:textColor="@color/white_60"
         android:textSize="14sp"
-        app:layout_constraintBottom_toTopOf="@id/linkCadastrarInstituicao"
+        app:layout_constraintBottom_toTopOf="@+id/linkCadastrarInstituicao"
         app:layout_constraintEnd_toStartOf="@+id/linkRegister"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent" />
