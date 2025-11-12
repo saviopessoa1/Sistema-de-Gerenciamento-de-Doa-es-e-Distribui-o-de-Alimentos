@@ -9,6 +9,10 @@
             android:icon="@drawable/ic_home"
             android:title="Início" />
         <item
+            android:id="@+id/nav_relatorios"
+            android:icon="@drawable/ic_analytics"
+            android:title="Relatórios" />
+        <item
             android:id="@+id/nav_mensagens"
             android:icon="@drawable/ic_message"
             android:title="Mensagens" />
@@ -24,9 +28,6 @@
             android:id="@+id/nav_perfil"
             android:icon="@drawable/ic_person"
             android:title="Perfil" />
-
-        <!-- ★★★ ITEM REMOVIDO DESTE MENU ★★★ -->
-
     </group>
 
     <item android:title="">

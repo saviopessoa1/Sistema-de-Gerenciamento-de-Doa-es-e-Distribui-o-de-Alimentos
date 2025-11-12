@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SistemaDeGerenciamentoDeDoaçõesEDistribuiçãoDeAlimentos">
         <activity
+            android:name=".ui.RelatoriosActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.RegistrarInstituicaoActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />

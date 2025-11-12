@@ -106,25 +106,29 @@ public class EntregasActivity extends AppCompatActivity {
             updateFilterButtons(filtroAtual);
         });
 
-        bottomNavigationView.setOnItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.nav_painel) {
-                startActivity(new Intent(this, DashboardActivity.class));
-                return true;
-            } else if (itemId == R.id.nav_estoque) {
-                startActivity(new Intent(this, PesquisarEstoqueActivity.class));
-                return true;
-            } else if (itemId == R.id.nav_instituicoes) {
-                startActivity(new Intent(this, InstituicoesActivity.class));
-                return true;
-            } else if (itemId == R.id.nav_entregas) {
-                return true;
-            }
-            return false;
-        });
-    }
+            bottomNavigationView.setOnItemSelectedListener(item -> {
+                int itemId = item.getItemId();
+                if (itemId == R.id.nav_painel) {
+                    startActivity(new Intent(this, DashboardActivity.class));
+                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out); // ADICIONADO
+                    return true;
+                } else if (itemId == R.id.nav_estoque) {
+                    startActivity(new Intent(this, PesquisarEstoqueActivity.class));
+                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out); // ADICIONADO
+                    return true;
+                } else if (itemId == R.id.nav_instituicoes) {
+                    startActivity(new Intent(this, InstituicoesActivity.class));
+                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out); // ADICIONADO
+                    return true;
+                } else if (itemId == R.id.nav_entregas) {
+                    return true;
+                }
+                return false;
+            });
+        }
 
-    private void loadEntregas(String filtro) {
+
+        private void loadEntregas(String filtro) {
         Log.d(TAG, "Carregando entregas com filtro: " + filtro);
 
         Query query;

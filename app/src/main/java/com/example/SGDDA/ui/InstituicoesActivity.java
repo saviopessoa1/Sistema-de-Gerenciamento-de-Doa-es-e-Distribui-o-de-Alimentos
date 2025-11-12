@@ -112,16 +112,19 @@ public class InstituicoesActivity extends AppCompatActivity implements Instituic
             int itemId = item.getItemId();
             if (itemId == R.id.nav_painel) {
                 startActivity(new Intent(this, DashboardActivity.class));
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out); // ADICIONADO
                 finish();
                 return true;
             } else if (itemId == R.id.nav_estoque) {
                 startActivity(new Intent(this, PesquisarEstoqueActivity.class));
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out); // ADICIONADO
                 finish();
                 return true;
             } else if (itemId == R.id.nav_instituicoes) {
                 return true;
             } else if (itemId == R.id.nav_entregas) {
                 startActivity(new Intent(this, EntregasActivity.class));
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out); // ADICIONADO
                 finish();
                 return true;
             }

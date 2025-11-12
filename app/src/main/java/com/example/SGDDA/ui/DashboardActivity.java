@@ -49,10 +49,8 @@ import java.util.Locale;
 public class DashboardActivity extends AppCompatActivity {
 
     private static final String TAG = "DashboardActivity";
-    // ★★★ DEFINA SEU E-MAIL DE ADMIN AQUI ★★★
-    private static final String ADMIN_EMAIL = "saviopessoa345@gmail.com"; // Troque pelo seu e-mail
+    private static final String ADMIN_EMAIL = "saviopessoa345@gmail.com";
 
-    // Componentes do Layout
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private ImageButton menuButton;
@@ -60,14 +58,12 @@ public class DashboardActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
     private FloatingActionButton fabAdicionarDoacao;
 
-    // Componentes do Dashboard
     private PieChart pieChartEstoque;
     private TextView textLegendaNaoPerecivelQtd, textLegendaPerecivelQtd, textAlertaVencimentoQtd;
     private TextView textProximaEntrega1, textProximaEntrega2, textProximaEntrega3;
-    private TextView textHistorico1, textHistorico2, textHistorico3; // Para Histórico
-    private LinearLayout historicoContainer; // Para Histórico
+    private TextView textHistorico1, textHistorico2, textHistorico3;
+    private LinearLayout historicoContainer;
 
-    // Firebase
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private FirebaseUser currentUser;
@@ -78,7 +74,6 @@ public class DashboardActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_dashboard);
 
-        // Ajuste de Padding
         View mainContent = findViewById(R.id.main);
         if (mainContent != null) {
             ViewCompat.setOnApplyWindowInsetsListener(mainContent, (v, insets) -> {
@@ -88,19 +83,16 @@ public class DashboardActivity extends AppCompatActivity {
             });
         }
 
-        // Inicializar Firebase
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         currentUser = mAuth.getCurrentUser();
 
-        // Encontrar Componentes
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
         menuButton = findViewById(R.id.menuButton);
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         fabAdicionarDoacao = findViewById(R.id.fabAdicionarDoacao);
 
-        // Componentes do Card (IDs Corrigidos)
         pieChartEstoque = findViewById(R.id.pieChartEstoque);
         textLegendaNaoPerecivelQtd = findViewById(R.id.textViewNaoPerecivelValor);
         textLegendaPerecivelQtd = findViewById(R.id.textViewPerecivelValor);
@@ -113,20 +105,17 @@ public class DashboardActivity extends AppCompatActivity {
         textHistorico3 = findViewById(R.id.textViewHistorico3);
         historicoContainer = findViewById(R.id.layoutHistoricoContainer);
 
-        // Configurar Funções
         setupDrawer();
         setupBottomNavigation();
         setupFab();
         setupPieChart();
 
-        // Carregar Dados (só se o usuário estiver logado)
         if (currentUser != null) {
-            loadUserData(); // Carrega dados do usuário (e verifica se é admin)
-            loadEstoqueData(); // Carrega dados do gráfico e alertas
-            loadEntregasData(); // Carrega próximas entregas
-            loadHistoricoData(); // Carrega histórico
+            loadUserData();
+            loadEstoqueData();
+            loadEntregasData();
+            loadHistoricoData();
         } else {
-            // Se por algum motivo o usuário não estiver logado, volta ao Login
             Intent intent = new Intent(DashboardActivity.this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
@@ -147,21 +136,27 @@ public class DashboardActivity extends AppCompatActivity {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
 
+            // ★★★ REMOVE ANIMAÇÃO DE TRANSIÇÃO AQUI ★★★
             if (itemId == R.id.nav_painel) {
                 return true;
             } else if (itemId == R.id.nav_estoque) {
                 startActivity(new Intent(DashboardActivity.this, PesquisarEstoqueActivity.class));
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out); // Animação suave sem slide
                 return true;
             } else if (itemId == R.id.nav_instituicoes) {
                 startActivity(new Intent(DashboardActivity.this, InstituicoesActivity.class));
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                 return true;
             } else if (itemId == R.id.nav_entregas) {
                 startActivity(new Intent(DashboardActivity.this, EntregasActivity.class));
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                 return true;
             }
             return false;
         });
     }
+
+    // ... (resto do código sem alterações)
 
     private void loadUserData() {
         if (currentUser == null) return;
@@ -180,9 +175,6 @@ public class DashboardActivity extends AppCompatActivity {
 
                 if (navUserName != null) navUserName.setText(nome);
                 if (navUserEmail != null) navUserEmail.setText(email);
-
-                // ★★★ LÓGICA DO ADMIN FOI REMOVIDA DAQUI ★★★
-
             } else {
                 Log.d("Dashboard", "Documento do usuário não encontrado.");
             }
@@ -216,14 +208,20 @@ public class DashboardActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
             }
-            // ★★★ LÓGICA DO ADMIN FOI REMOVIDA DAQUI ★★★
+            else if (itemId == R.id.nav_relatorios) {
+                startActivity(new Intent(DashboardActivity.this, RelatoriosActivity.class));
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            }
+            // Adicionei lógica para outros itens se necessário
+            else if (itemId == R.id.nav_instituicoes) {
+                startActivity(new Intent(DashboardActivity.this, InstituicoesActivity.class));
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            }
 
             drawerLayout.closeDrawer(navigationView);
             return true;
         });
     }
-
-    // --- Lógica dos Cards do Dashboard ---
 
     private void setupPieChart() {
         pieChartEstoque.getDescription().setEnabled(false);
@@ -231,11 +229,11 @@ public class DashboardActivity extends AppCompatActivity {
         pieChartEstoque.setDrawHoleEnabled(true);
         pieChartEstoque.setHoleColor(Color.TRANSPARENT);
         pieChartEstoque.setTransparentCircleRadius(0f);
-        pieChartEstoque.setHoleRadius(75f); // Raio do buraco
+        pieChartEstoque.setHoleRadius(75f);
         pieChartEstoque.setRotationEnabled(false);
         pieChartEstoque.setTouchEnabled(false);
-        pieChartEstoque.setDrawEntryLabels(false); // Remove "Perecível" de dentro
-        pieChartEstoque.setDrawCenterText(false); // Remove o texto do centro
+        pieChartEstoque.setDrawEntryLabels(false);
+        pieChartEstoque.setDrawCenterText(false);
     }
 
     private void loadEstoqueData() {
@@ -252,7 +250,6 @@ public class DashboardActivity extends AppCompatActivity {
                     int vencendoEm7Dias = 0;
 
                     if (value != null) {
-                        // Data de hoje + 7 dias para o alerta
                         Calendar cal7Dias = Calendar.getInstance();
                         cal7Dias.add(Calendar.DAY_OF_YEAR, 7);
                         Date dataLimite = cal7Dias.getTime();
@@ -265,8 +262,6 @@ public class DashboardActivity extends AppCompatActivity {
 
                             if (item.isPerecivel()) {
                                 pereciveis += qtd;
-
-                                // Tenta verificar a data de validade
                                 try {
                                     Date dataValidade = sdf.parse(item.getDataValidade());
                                     if (dataValidade != null && dataValidade.before(dataLimite)) {
@@ -281,7 +276,6 @@ public class DashboardActivity extends AppCompatActivity {
                         }
                     }
 
-                    // 1. Atualizar o Gráfico
                     ArrayList<PieEntry> entries = new ArrayList<>();
                     entries.add(new PieEntry(naoPereciveis, "Não Perecível"));
                     entries.add(new PieEntry(pereciveis, "Perecível"));
@@ -292,16 +286,14 @@ public class DashboardActivity extends AppCompatActivity {
 
                     PieDataSet dataSet = new PieDataSet(entries, "");
                     dataSet.setColors(colors);
-                    dataSet.setDrawValues(false); // Não mostrar valores (ex: 70%) no gráfico
+                    dataSet.setDrawValues(false);
 
                     PieData data = new PieData(dataSet);
                     pieChartEstoque.setData(data);
-                    pieChartEstoque.invalidate(); // Redesenha o gráfico
+                    pieChartEstoque.invalidate();
 
-                    // 2. Atualizar Legendas e Alertas
                     textLegendaNaoPerecivelQtd.setText(String.valueOf(naoPereciveis));
                     textLegendaPerecivelQtd.setText(String.valueOf(pereciveis));
-                    // Esta linha depende da string 'alerta_vencimento_dinamico' estar no strings.xml
                     textAlertaVencimentoQtd.setText(getString(R.string.alerta_vencimento_dinamico, vencendoEm7Dias));
                 });
     }
@@ -324,7 +316,6 @@ public class DashboardActivity extends AppCompatActivity {
                         }
                     }
 
-                    // Preencher os TextViews
                     textProximaEntrega1.setVisibility(View.GONE);
                     textProximaEntrega2.setVisibility(View.GONE);
                     textProximaEntrega3.setVisibility(View.GONE);
@@ -347,7 +338,7 @@ public class DashboardActivity extends AppCompatActivity {
     private void loadHistoricoData() {
         db.collection("entregas")
                 .whereEqualTo("status", "Concluída")
-                .orderBy("dataEntrega", Query.Direction.DESCENDING) // Mais recentes primeiro
+                .orderBy("dataEntrega", Query.Direction.DESCENDING)
                 .limit(3)
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
@@ -362,7 +353,6 @@ public class DashboardActivity extends AppCompatActivity {
                         }
                     }
 
-                    // Preencher os TextViews
                     textHistorico1.setVisibility(View.GONE);
                     textHistorico2.setVisibility(View.GONE);
                     textHistorico3.setVisibility(View.GONE);
@@ -380,7 +370,6 @@ public class DashboardActivity extends AppCompatActivity {
                         textHistorico3.setVisibility(View.VISIBLE);
                     }
 
-                    // Se não houver histórico, mostra uma mensagem (opcional)
                     if (historico.isEmpty()) {
                         if (historicoContainer != null) historicoContainer.setVisibility(View.GONE);
                     } else {
@@ -389,5 +378,3 @@ public class DashboardActivity extends AppCompatActivity {
                 });
     }
 }
-
-

@@ -16,7 +16,10 @@
         android:background="@color/app_background_dark"
         tools:context=".ui.DashboardActivity">
 
-        <!-- Barra de Navegação (Fixa no fundo) -->
+        <!--
+             BARRA DE NAVEGAÇÃO (FIXA NO FUNDO)
+             Ela deve ser o âncora para o conteúdo acima.
+        -->
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNavigationView"
             android:layout_width="match_parent"
@@ -29,10 +32,13 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:menu="@menu/bottom_nav_menu" />
+            app:menu="@menu/bottom_nav_menu"
+            android:elevation="8dp"/> <!-- Adicionado elevação para garantir que fique sobre o fundo -->
 
-        <!-- Botão Flutuante (FAB) -->
-        <!-- Adicionei margem inferior para não grudar na barra -->
+        <!--
+             BOTÃO FLUTUANTE (FAB)
+             Fixo acima da barra de navegação.
+        -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabAdicionarDoacao"
             android:layout_width="wrap_content"
@@ -46,20 +52,25 @@
             app:fabSize="normal"
             android:contentDescription="Registrar nova doação"/>
 
-        <!-- ScrollView para o conteúdo (Acima da barra) -->
+        <!--
+             CONTEÚDO COM SCROLL
+             O segredo é: layout_constraintBottom_toTopOf="@id/bottomNavigationView"
+             Isso impede que o scroll passe "por baixo" ou empurre a barra.
+        -->
         <androidx.core.widget.NestedScrollView
             android:id="@+id/contentScrollView"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:fillViewport="true"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"> <!-- AQUI -->
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="80dp">
+                android:paddingBottom="16dp"> <!-- Padding interno para não cortar o último card -->
 
                 <!-- Fundo do Cabeçalho -->
                 <View
@@ -124,7 +135,6 @@
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
 
-                        <!-- Gráfico Real (Substituindo o FrameLayout) -->
                         <com.github.mikephil.charting.charts.PieChart
                             android:id="@+id/pieChartEstoque"
                             android:layout_width="100dp"
@@ -133,7 +143,6 @@
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@id/textViewEstoqueLabel"/>
 
-                        <!-- Legenda -->
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -144,7 +153,6 @@
                             app:layout_constraintTop_toTopOf="@id/pieChartEstoque"
                             app:layout_constraintBottom_toBottomOf="@id/pieChartEstoque">
 
-                            <!-- NOVO: Valores -->
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
@@ -172,7 +180,6 @@
                                     android:textSize="16sp"/>
                             </LinearLayout>
 
-                            <!-- Labels -->
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
@@ -231,7 +238,7 @@
                         app:drawableTint="@color/app_primary_dark" />
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Grid de Métricas (LinearLayout Horizontal para dividir 50/50) -->
+                <!-- Grid de Métricas -->
                 <LinearLayout
                     android:id="@+id/metricsRow"
                     android:layout_width="match_parent"
@@ -242,7 +249,6 @@
                     android:baselineAligned="false"
                     app:layout_constraintTop_toBottomOf="@id/cardAtencao">
 
-                    <!-- Card: Doações -->
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
@@ -276,7 +282,6 @@
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
-                    <!-- Card: Próximas Entregas -->
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
@@ -299,7 +304,6 @@
                                 android:textColor="@color/white_80"
                                 android:textSize="14sp"/>
 
-                            <!-- Lista simplificada -->
                             <TextView
                                 android:id="@+id/textViewProximaEntrega1"
                                 android:layout_width="wrap_content"
@@ -333,7 +337,7 @@
                     </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
 
-                <!-- Card: Doações do Mês (Gráfico Grande) -->
+                <!-- Card: Histórico -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardDoacoesMes"
                     android:layout_width="match_parent"
@@ -359,7 +363,6 @@
                             android:textSize="18sp"
                             android:textStyle="bold" />
 
-                        <!-- ÁREA MODIFICADA: Substituí o FrameLayout por esta LinearLayout -->
                         <LinearLayout
                             android:id="@+id/layoutHistoricoContainer"
                             android:layout_width="match_parent"
@@ -408,7 +411,6 @@
                                 app:drawableTint="@color/app_accent_green"/>
 
                         </LinearLayout>
-                        <!-- FIM DA ÁREA MODIFICADA -->
 
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -432,3 +434,4 @@
         app:menu="@menu/drawer_menu" />
 
 </androidx.drawerlayout.widget.DrawerLayout>
+

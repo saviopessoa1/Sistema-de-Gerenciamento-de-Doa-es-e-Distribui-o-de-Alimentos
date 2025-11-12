@@ -105,16 +105,19 @@ public class PesquisarEstoqueActivity extends AppCompatActivity {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_painel) {
                 startActivity(new Intent(this, DashboardActivity.class));
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out); // ADICIONADO
                 finish();
                 return true;
             } else if (itemId == R.id.nav_estoque) {
                 return true;
             } else if (itemId == R.id.nav_instituicoes) {
                 startActivity(new Intent(this, InstituicoesActivity.class));
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out); // ADICIONADO
                 finish();
                 return true;
             } else if (itemId == R.id.nav_entregas) {
                 startActivity(new Intent(this, EntregasActivity.class));
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out); // ADICIONADO
                 finish();
                 return true;
             }
