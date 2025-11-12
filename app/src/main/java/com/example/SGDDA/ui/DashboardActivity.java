@@ -1,12 +1,16 @@
 package com.example.SGDDA.ui;
 
 import android.content.Intent;
-import android.content.res.ColorStateList; // NOVO
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
+import android.text.style.StyleSpan;
 import android.util.Log;
-import android.view.MenuItem;
+import android.view.Menu; // Importe a classe Menu
+import android.view.MenuItem; // Importe a classe MenuItem
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -50,6 +54,10 @@ import java.util.Locale;
 
 public class DashboardActivity extends AppCompatActivity {
 
+    private static final String TAG = "DashboardActivity";
+    // ★★★ DEFINA SEU E-MAIL DE ADMIN AQUI ★★★
+    private static final String ADMIN_EMAIL = "seu-email-aqui@gmail.com";
+
     // Componentes do Layout
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
@@ -57,24 +65,18 @@ public class DashboardActivity extends AppCompatActivity {
     private ActionBarDrawerToggle drawerToggle;
     private BottomNavigationView bottomNavigationView;
     private FloatingActionButton fabAdicionarDoacao;
-    private TextView textViewTitle; // Adicionado para ajuste de margem se necessário
 
-    // --- NOVOS COMPONENTES DO DASHBOARD ---
+    // Componentes do Dashboard
     private PieChart pieChartEstoque;
-    private TextView textViewAtencao;
-    private TextView textViewNaoPerecivelValor;
-    private TextView textViewPerecivelValor;
-    private TextView textViewDoacoesMes; // (Será o total de itens)
-    private LinearLayout layoutProximasEntregas;
-    private TextView textViewProximaEntrega1, textViewProximaEntrega2, textViewProximaEntrega3;
-    // --- NOVOS TEXTVIEWS PARA HISTÓRICO ---
-    private LinearLayout layoutHistoricoContainer;
-    private TextView textViewHistorico1, textViewHistorico2, textViewHistorico3;
-    // --- FIM DOS NOVOS COMPONENTES ---
+    private TextView textLegendaNaoPerecivelQtd, textLegendaPerecivelQtd, textAlertaVencimentoQtd;
+    private TextView textProximaEntrega1, textProximaEntrega2, textProximaEntrega3;
+    private TextView textHistorico1, textHistorico2, textHistorico3; // Para Histórico
+    private LinearLayout historicoContainer; // Para Histórico
 
     // Firebase
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
+    private FirebaseUser currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,15 +84,11 @@ public class DashboardActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_dashboard);
 
-        // CORREÇÃO: Ajuste de Padding para a Barra de Status
-        // Em vez de aplicar no drawer_layout (que afeta tudo), vamos aplicar no container principal
-        // ou ajustar as margens dos elementos do topo.
-        View mainContent = findViewById(R.id.main); // O ConstraintLayout principal dentro do Drawer
-
+        // Ajuste de Padding
+        View mainContent = findViewById(R.id.main);
         if (mainContent != null) {
             ViewCompat.setOnApplyWindowInsetsListener(mainContent, (v, insets) -> {
                 Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-                // Aplica padding no topo para empurrar o conteúdo para baixo da barra de status
                 v.setPadding(0, systemBars.top, 0, 0);
                 return insets;
             });
@@ -99,44 +97,47 @@ public class DashboardActivity extends AppCompatActivity {
         // Inicializar Firebase
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+        currentUser = mAuth.getCurrentUser();
 
         // Encontrar Componentes
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
         menuButton = findViewById(R.id.menuButton);
-        textViewTitle = findViewById(R.id.textViewTitle);
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         fabAdicionarDoacao = findViewById(R.id.fabAdicionarDoacao);
 
-        // --- ENCONTRAR NOVOS IDs ---
+        // Componentes do Card
         pieChartEstoque = findViewById(R.id.pieChartEstoque);
-        textViewAtencao = findViewById(R.id.textViewAtencao);
-        textViewNaoPerecivelValor = findViewById(R.id.textViewNaoPerecivelValor);
-        textViewPerecivelValor = findViewById(R.id.textViewPerecivelValor);
-        textViewDoacoesMes = findViewById(R.id.textViewDoacoesMes);
-        layoutProximasEntregas = findViewById(R.id.layoutProximasEntregas);
-        textViewProximaEntrega1 = findViewById(R.id.textViewProximaEntrega1);
-        textViewProximaEntrega2 = findViewById(R.id.textViewProximaEntrega2);
-        textViewProximaEntrega3 = findViewById(R.id.textViewProximaEntrega3);
-        // --- ENCONTRAR NOVOS IDs DE HISTÓRICO ---
-        layoutHistoricoContainer = findViewById(R.id.layoutHistoricoContainer);
-        textViewHistorico1 = findViewById(R.id.textViewHistorico1);
-        textViewHistorico2 = findViewById(R.id.textViewHistorico2);
-        textViewHistorico3 = findViewById(R.id.textViewHistorico3);
-        // --- FIM DOS NOVOS IDs ---
-
+        textLegendaNaoPerecivelQtd = findViewById(R.id.textLegendaNaoPerecivelQtd);
+        textLegendaPerecivelQtd = findViewById(R.id.textLegendaPerecivelQtd);
+        textAlertaVencimentoQtd = findViewById(R.id.textAlertaVencimentoQtd);
+        textProximaEntrega1 = findViewById(R.id.textProximaEntrega1);
+        textProximaEntrega2 = findViewById(R.id.textProximaEntrega2);
+        textProximaEntrega3 = findViewById(R.id.textProximaEntrega3);
+        textHistorico1 = findViewById(R.id.textHistorico1);
+        textHistorico2 = findViewById(R.id.textHistorico2);
+        textHistorico3 = findViewById(R.id.textHistorico3);
+        historicoContainer = findViewById(R.id.historicoContainer);
 
         // Configurar Funções
         setupDrawer();
-        setupLogout();
-        loadUserData();
-        setupFab();
         setupBottomNavigation();
-
-        // --- NOVAS FUNÇÕES CHAMADAS ---
+        setupFab();
         setupPieChart();
-        loadDashboardData();
-        // --- FIM DAS NOVAS FUNÇÕES ---
+
+        // Carregar Dados (só se o usuário estiver logado)
+        if (currentUser != null) {
+            loadUserData(); // Carrega dados do usuário (e verifica se é admin)
+            loadEstoqueData(); // Carrega dados do gráfico e alertas
+            loadEntregasData(); // Carrega próximas entregas
+            loadHistoricoData(); // Carrega histórico
+        } else {
+            // Se por algum motivo o usuário não estiver logado, volta ao Login
+            Intent intent = new Intent(DashboardActivity.this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        }
     }
 
     private void setupFab() {
@@ -156,7 +157,6 @@ public class DashboardActivity extends AppCompatActivity {
                 return true;
             } else if (itemId == R.id.nav_estoque) {
                 startActivity(new Intent(DashboardActivity.this, PesquisarEstoqueActivity.class));
-                // Não finalizamos o Dashboard para ele ser a "base", mas depende da sua navegação
                 return true;
             } else if (itemId == R.id.nav_instituicoes) {
                 startActivity(new Intent(DashboardActivity.this, InstituicoesActivity.class));
@@ -170,34 +170,47 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     private void loadUserData() {
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            String userId = currentUser.getUid();
-            DocumentReference userRef = db.collection("usuarios").document(userId);
+        if (currentUser == null) return;
 
-            userRef.get().addOnSuccessListener(documentSnapshot -> {
-                if (documentSnapshot.exists()) {
-                    String nome = documentSnapshot.getString("nomeCompleto");
-                    String email = documentSnapshot.getString("email");
+        String userId = currentUser.getUid();
+        DocumentReference userRef = db.collection("usuarios").document(userId);
 
-                    View headerView = navigationView.getHeaderView(0);
-                    TextView navUserName = headerView.findViewById(R.id.navHeaderUserName);
-                    TextView navUserEmail = headerView.findViewById(R.id.navHeaderUserEmail);
+        userRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                String nome = documentSnapshot.getString("nomeCompleto");
+                String email = documentSnapshot.getString("email");
 
-                    if (navUserName != null) navUserName.setText(nome);
-                    if (navUserEmail != null) navUserEmail.setText(email);
+                View headerView = navigationView.getHeaderView(0);
+                TextView navUserName = headerView.findViewById(R.id.navHeaderUserName);
+                TextView navUserEmail = headerView.findViewById(R.id.navHeaderUserEmail);
 
-                } else {
-                    Log.d("Dashboard", "Documento não encontrado.");
+                if (navUserName != null) navUserName.setText(nome);
+                if (navUserEmail != null) navUserEmail.setText(email);
+
+                // ★★★ LÓGICA DO ADMIN AQUI ★★★
+                // Pega o menu da navigationView
+                Menu navMenu = navigationView.getMenu();
+                // Encontra o item específico que queremos esconder/mostrar
+                MenuItem navCadastrarInst = navMenu.findItem(R.id.nav_cadastrar_instituicao);
+
+                if (navCadastrarInst != null) {
+                    // Verifica se o email logado é o email do Admin
+                    if (email != null && email.equalsIgnoreCase(ADMIN_EMAIL)) {
+                        navCadastrarInst.setVisible(true); // Se for admin, mostra
+                    } else {
+                        navCadastrarInst.setVisible(false); // Se não for, esconde
+                    }
                 }
-            }).addOnFailureListener(e -> {
-                Log.e("Dashboard", "Erro ao buscar dados", e);
-            });
-        }
+
+            } else {
+                Log.d("Dashboard", "Documento do usuário não encontrado.");
+            }
+        }).addOnFailureListener(e -> {
+            Log.e("Dashboard", "Erro ao buscar dados do usuário", e);
+        });
     }
 
     private void setupDrawer() {
-        // Configuração básica do Drawer (sem alterar a cor do ícone via código, já está no XML)
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
@@ -209,9 +222,8 @@ public class DashboardActivity extends AppCompatActivity {
                 drawerLayout.openDrawer(navigationView);
             }
         });
-    }
 
-    private void setupLogout() {
+        // Listener para os cliques nos itens do menu lateral
         navigationView.setNavigationItemSelectedListener(item -> {
             int itemId = item.getItemId();
 
@@ -222,108 +234,98 @@ public class DashboardActivity extends AppCompatActivity {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
                 finish();
-                return true;
             }
-            // Adicione outros itens do menu lateral aqui se precisar
+            // ★★★ CLIQUE DO NOVO BOTÃO ADMIN ★★★
+            else if (itemId == R.id.nav_cadastrar_instituicao) {
+                startActivity(new Intent(DashboardActivity.this, RegistrarInstituicaoActivity.class));
+            }
+            // Adicione outros itens (Perfil, Mensagens) aqui...
+            // else if (itemId == R.id.nav_perfil) { ... }
 
             drawerLayout.closeDrawer(navigationView);
             return true;
         });
     }
 
-    // --- MÉTODOS NOVOS PARA O DASHBOARD ---
+    // --- Lógica dos Cards do Dashboard ---
 
     private void setupPieChart() {
-        pieChartEstoque.setUsePercentValues(false);
         pieChartEstoque.getDescription().setEnabled(false);
+        pieChartEstoque.getLegend().setEnabled(false);
         pieChartEstoque.setDrawHoleEnabled(true);
         pieChartEstoque.setHoleColor(Color.TRANSPARENT);
         pieChartEstoque.setTransparentCircleRadius(0f);
-        pieChartEstoque.getLegend().setEnabled(false); // Desativa a legenda do gráfico
-        pieChartEstoque.setTouchEnabled(false); // Desativa toque
-        pieChartEstoque.setExtraOffsets(0, 0, 0, 0);
-
-        // --- ESTA É A CORREÇÃO ---
-        // Desabilita os rótulos ("Perecível", "Não Perecível") de dentro do gráfico
-        pieChartEstoque.setDrawEntryLabels(false);
-
-        // --- NOVA LINHA PARA REMOVER O TEXTO DO CENTRO ---
-        pieChartEstoque.setDrawCenterText(false);
-        // --- FIM DA NOVA LINHA ---
-
-        // Configuração do texto central (NÃO É MAIS NECESSÁRIA)
-        // pieChartEstoque.setCenterTextTypeface(Typeface.DEFAULT_BOLD);
-        // pieChartEstoque.setCenterTextColor(Color.WHITE);
-        // pieChartEstoque.setCenterTextSize(16f);
-    }
-
-    private void loadDashboardData() {
-        loadEstoqueData();
-        loadEntregasData();
-        loadHistoricoData(); // <-- CHAMADA DA NOVA FUNÇÃO
+        pieChartEstoque.setHoleRadius(75f); // Raio do buraco
+        pieChartEstoque.setRotationEnabled(false);
+        pieChartEstoque.setTouchEnabled(false);
+        pieChartEstoque.setDrawEntryLabels(false); // Remove "Perecível" de dentro
+        pieChartEstoque.setDrawCenterText(false); // Remove o texto do centro
     }
 
     private void loadEstoqueData() {
         db.collection("estoque")
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
-                        Log.w("Dashboard", "Erro ao carregar estoque", error);
+                        Log.e(TAG, "Erro ao carregar estoque", error);
                         return;
                     }
 
-                    long totalItens = 0;
-                    long totalPerecivel = 0;
-                    long totalNaoPerecivel = 0;
-                    int countVencendo = 0;
-
-                    // Data de hoje + 7 dias
-                    Calendar cal = Calendar.getInstance();
-                    cal.add(Calendar.DAY_OF_YEAR, 7);
-                    Date dataLimite = cal.getTime();
-                    // Define o formato esperado da data vinda do Firestore
-                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-
+                    int totalItens = 0;
+                    int pereciveis = 0;
+                    int naoPereciveis = 0;
+                    int vencendoEm7Dias = 0;
 
                     if (value != null) {
+                        // Data de hoje + 7 dias para o alerta
+                        Calendar cal7Dias = Calendar.getInstance();
+                        cal7Dias.add(Calendar.DAY_OF_YEAR, 7);
+                        Date dataLimite = cal7Dias.getTime();
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+
                         for (QueryDocumentSnapshot doc : value) {
                             DoacaoItem item = doc.toObject(DoacaoItem.class);
+                            int qtd = item.getQuantidade();
+                            totalItens += qtd;
 
-                            // 1. Soma Quantidade Total
-                            totalItens += item.getQuantidade();
-
-                            // 2. Soma Perecível vs Não Perecível
                             if (item.isPerecivel()) {
-                                totalPerecivel += item.getQuantidade();
-                            } else {
-                                totalNaoPerecivel += item.getQuantidade();
-                            }
+                                pereciveis += qtd;
 
-                            // 3. Verifica Vencimento (apenas para perecíveis)
-                            if (item.isPerecivel() && item.getDataValidade() != null) {
+                                // Tenta verificar a data de validade
                                 try {
                                     Date dataValidade = sdf.parse(item.getDataValidade());
-                                    // Compara se a data de validade é ANTES da data limite (hoje + 7 dias)
-                                    // E se a data de validade é DEPOIS de ontem (para não contar itens já vencidos)
-                                    Calendar ontem = Calendar.getInstance();
-                                    ontem.add(Calendar.DAY_OF_YEAR, -1);
-
-                                    if (dataValidade != null && dataValidade.before(dataLimite) && dataValidade.after(ontem.getTime())) {
-                                        countVencendo++; // Conta por *tipo* de item, não por quantidade
+                                    if (dataValidade != null && dataValidade.before(dataLimite)) {
+                                        vencendoEm7Dias += qtd;
                                     }
                                 } catch (ParseException e) {
-                                    Log.e("Dashboard", "Erro ao parsear data: " + item.getDataValidade(), e);
+                                    Log.e(TAG, "Formato de data inválido: " + item.getDataValidade());
                                 }
+                            } else {
+                                naoPereciveis += qtd;
                             }
                         }
                     }
 
-                    // 4. Atualiza a UI
-                    textViewAtencao.setText("Atenção: " + countVencendo + " itens vencem nesta semana");
-                    textViewNaoPerecivelValor.setText(String.valueOf(totalNaoPerecivel));
-                    textViewPerecivelValor.setText(String.valueOf(totalPerecivel));
-                    textViewDoacoesMes.setText(String.valueOf(totalItens)); // Usando total de itens aqui
+                    // 1. Atualizar o Gráfico
+                    ArrayList<PieEntry> entries = new ArrayList<>();
+                    entries.add(new PieEntry(naoPereciveis, "Não Perecível"));
+                    entries.add(new PieEntry(pereciveis, "Perecível"));
 
-                    updatePieChart(totalNaoPerecivel, totalPerecivel, totalItens);
+                    ArrayList<Integer> colors = new ArrayList<>();
+                    colors.add(ContextCompat.getColor(this, R.color.app_accent_green));
+                    colors.add(ContextCompat.getColor(this, R.color.app_accent_blue));
+
+                    PieDataSet dataSet = new PieDataSet(entries, "");
+                    dataSet.setColors(colors);
+                    dataSet.setDrawValues(false); // Não mostrar valores (ex: 70%) no gráfico
+
+                    PieData data = new PieData(dataSet);
+                    pieChartEstoque.setData(data);
+                    pieChartEstoque.invalidate(); // Redesenha o gráfico
+
+                    // 2. Atualizar Legendas e Alertas
+                    textLegendaNaoPerecivelQtd.setText(String.valueOf(naoPereciveis));
+                    textLegendaPerecivelQtd.setText(String.valueOf(pereciveis));
+                    textAlertaVencimentoQtd.setText(getString(R.string.alerta_vencimento_dinamico, vencendoEm7Dias));
                 });
     }
 
@@ -334,7 +336,7 @@ public class DashboardActivity extends AppCompatActivity {
                 .limit(3)
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
-                        Log.w("Dashboard", "Erro ao carregar entregas", error);
+                        Log.e(TAG, "Erro ao carregar entregas", error);
                         return;
                     }
 
@@ -345,96 +347,68 @@ public class DashboardActivity extends AppCompatActivity {
                         }
                     }
 
-                    // Atualiza os TextViews
-                    textViewProximaEntrega1.setText(proximasEntregas.size() > 0 ? "• " + proximasEntregas.get(0).getInstituicaoNome() : "Nenhuma entrega pendente");
-                    textViewProximaEntrega2.setText(proximasEntregas.size() > 1 ? "• " + proximasEntregas.get(1).getInstituicaoNome() : "");
-                    textViewProximaEntrega3.setText(proximasEntregas.size() > 2 ? "• " + proximasEntregas.get(2).getInstituicaoNome() : "");
+                    // Preencher os TextViews
+                    textProximaEntrega1.setVisibility(View.GONE);
+                    textProximaEntrega2.setVisibility(View.GONE);
+                    textProximaEntrega3.setVisibility(View.GONE);
 
-                    // Esconde os TextViews se estiverem vazios
-                    textViewProximaEntrega2.setVisibility(proximasEntregas.size() > 1 ? View.VISIBLE : View.GONE);
-                    textViewProximaEntrega3.setVisibility(proximasEntregas.size() > 2 ? View.VISIBLE : View.GONE);
+                    if (proximasEntregas.size() > 0) {
+                        textProximaEntrega1.setText("• " + proximasEntregas.get(0).getInstituicaoNome());
+                        textProximaEntrega1.setVisibility(View.VISIBLE);
+                    }
+                    if (proximasEntregas.size() > 1) {
+                        textProximaEntrega2.setText("• " + proximasEntregas.get(1).getInstituicaoNome());
+                        textProximaEntrega2.setVisibility(View.VISIBLE);
+                    }
+                    if (proximasEntregas.size() > 2) {
+                        textProximaEntrega3.setText("• " + proximasEntregas.get(2).getInstituicaoNome());
+                        textProximaEntrega3.setVisibility(View.VISIBLE);
+                    }
                 });
     }
 
-    // --- FUNÇÃO NOVA PARA O HISTÓRICO ---
     private void loadHistoricoData() {
         db.collection("entregas")
-                .whereEqualTo("status", "Concluída") // Busca apenas entregas Concluídas
+                .whereEqualTo("status", "Concluída")
                 .orderBy("dataEntrega", Query.Direction.DESCENDING) // Mais recentes primeiro
-                .limit(3) // Pega só as 3 últimas
+                .limit(3)
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
-                        Log.w("Dashboard", "Erro ao carregar histórico", error);
+                        Log.e(TAG, "Erro ao carregar histórico", error);
                         return;
                     }
 
-                    List<Entrega> historicoEntregas = new ArrayList<>();
+                    List<Entrega> historico = new ArrayList<>();
                     if (value != null) {
                         for (QueryDocumentSnapshot doc : value) {
-                            historicoEntregas.add(doc.toObject(Entrega.class));
+                            historico.add(doc.toObject(Entrega.class));
                         }
                     }
 
-                    // Prepara o ícone de checkmark
-                    int checkIcon = R.drawable.ic_menu_save; // Usando o ícone de salvar que já temos
-                    int checkColor = ContextCompat.getColor(this, R.color.app_accent_green);
+                    // Preencher os TextViews
+                    textHistorico1.setVisibility(View.GONE);
+                    textHistorico2.setVisibility(View.GONE);
+                    textHistorico3.setVisibility(View.GONE);
 
-                    // Atualiza os TextViews
-                    if (historicoEntregas.size() > 0) {
-                        textViewHistorico1.setText(historicoEntregas.get(0).getInstituicaoNome());
-                        textViewHistorico1.setCompoundDrawablesWithIntrinsicBounds(checkIcon, 0, 0, 0);
-                        textViewHistorico1.setCompoundDrawableTintList(ColorStateList.valueOf(checkColor));
-                    } else {
-                        textViewHistorico1.setText("Nenhuma entrega concluída");
-                        textViewHistorico1.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0); // Remove o ícone
+                    if (historico.size() > 0) {
+                        textHistorico1.setText(historico.get(0).getInstituicaoNome());
+                        textHistorico1.setVisibility(View.VISIBLE);
+                    }
+                    if (historico.size() > 1) {
+                        textHistorico2.setText(historico.get(1).getInstituicaoNome());
+                        textHistorico2.setVisibility(View.VISIBLE);
+                    }
+                    if (historico.size() > 2) {
+                        textHistorico3.setText(historico.get(2).getInstituicaoNome());
+                        textHistorico3.setVisibility(View.VISIBLE);
                     }
 
-                    if (historicoEntregas.size() > 1) {
-                        textViewHistorico2.setText(historicoEntregas.get(1).getInstituicaoNome());
-                        textViewHistorico2.setCompoundDrawablesWithIntrinsicBounds(checkIcon, 0, 0, 0);
-                        textViewHistorico2.setCompoundDrawableTintList(ColorStateList.valueOf(checkColor));
-                        textViewHistorico2.setVisibility(View.VISIBLE);
+                    // Se não houver histórico, mostra uma mensagem
+                    if (historico.isEmpty()) {
+                        historicoContainer.setVisibility(View.GONE);
                     } else {
-                        textViewHistorico2.setVisibility(View.GONE);
-                    }
-
-                    if (historicoEntregas.size() > 2) {
-                        textViewHistorico3.setText(historicoEntregas.get(2).getInstituicaoNome());
-                        textViewHistorico3.setCompoundDrawablesWithIntrinsicBounds(checkIcon, 0, 0, 0);
-                        textViewHistorico3.setCompoundDrawableTintList(ColorStateList.valueOf(checkColor));
-                        textViewHistorico3.setVisibility(View.VISIBLE);
-                    } else {
-                        textViewHistorico3.setVisibility(View.GONE);
+                        historicoContainer.setVisibility(View.VISIBLE);
                     }
                 });
     }
-
-
-    private void updatePieChart(long totalNaoPerecivel, long totalPerecivel, long totalItens) {
-        if (totalItens == 0) {
-            pieChartEstoque.clear();
-            // pieChartEstoque.setCenterText("0\nItens"); // LINHA REMOVIDA
-            pieChartEstoque.invalidate();
-            return;
-        }
-
-        List<PieEntry> entries = new ArrayList<>();
-        entries.add(new PieEntry(totalNaoPerecivel, "Não Perecível"));
-        entries.add(new PieEntry(totalPerecivel, "Perecível"));
-
-        PieDataSet dataSet = new PieDataSet(entries, "");
-        dataSet.setColors(
-                ContextCompat.getColor(this, R.color.app_accent_green),
-                ContextCompat.getColor(this, R.color.app_accent_blue)
-        );
-        dataSet.setDrawValues(false); // Não mostra valores no gráfico
-        dataSet.setDrawIcons(false);
-        dataSet.setSliceSpace(2f);
-
-        PieData data = new PieData(dataSet);
-        pieChartEstoque.setData(data);
-        // pieChartEstoque.setCenterText(totalItens + "\nItens"); // LINHA REMOVIDA
-        pieChartEstoque.invalidate(); // Atualiza o gráfico
-    }
-    // --- FIM DOS MÉTODOS NOVOS ---
 }
