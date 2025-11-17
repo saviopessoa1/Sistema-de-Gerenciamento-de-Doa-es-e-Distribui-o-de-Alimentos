@@ -51,6 +51,18 @@ dependencies {
 
     // NOVA DEPENDÊNCIA DO GRÁFICO
     implementation libs.mpandroidchart
-}
 
+    android.applicationVariants.all { variant ->
+        if (variant.name == 'release') { // Ou 'debug' se preferir
+            task "exportJar${variant.name.capitalize()}"(type: Jar) {            from(variant.javaCompileProvider.get().destinationDirectory)
+                // LINHA CORRIGIDA: use destinationDir
+                from(variant.processJavaResourcesProvider.get().destinationDir)
+
+                archiveFileName = "SGDDA_Executavel_${variant.name}.jar"
+                // LINHA CORRIGIDA: use destinationDirectory.set()
+                destinationDirectory.set(file("$buildDir/outputs/jar"))
+            }
+        }
+    }
+}
 
