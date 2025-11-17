@@ -1,23 +1,23 @@
 package com.example.SGDDA.model;
 
 import com.google.firebase.firestore.Exclude;
-import java.io.Serializable; // Importar
+import java.io.Serializable; 
 
-// Adicionar "implements Serializable"
+
 public class DoacaoItem implements Serializable {
 
     @Exclude
-    private String documentId; // Para guardar o ID do Firestore
+    private String documentId; 
     private String nomeItem;
     private int quantidade;
     private boolean perecivel;
     private String dataValidade;
     private String uidUsuario;
 
-    // Construtor vazio (Necessário para o Firestore)
+    
     public DoacaoItem() {}
 
-    // Construtor usado no app
+    
     public DoacaoItem(String nomeItem, int quantidade, boolean perecivel, String dataValidade, String uidUsuario) {
         this.nomeItem = nomeItem;
         this.quantidade = quantidade;
@@ -26,8 +26,8 @@ public class DoacaoItem implements Serializable {
         this.uidUsuario = uidUsuario;
     }
 
-    // --- Getters e Setters ---
-    // (O Firestore precisa deles para funcionar)
+    
+    
 
     public String getDocumentId() { return documentId; }
     public void setDocumentId(String documentId) { this.documentId = documentId; }

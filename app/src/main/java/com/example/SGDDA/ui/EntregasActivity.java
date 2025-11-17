@@ -28,25 +28,25 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
-import java.util.Arrays; // Import necessário para Arrays.asList
+import java.util.Arrays; 
 import java.util.List;
 
 public class EntregasActivity extends AppCompatActivity {
 
     private static final String TAG = "EntregasActivity";
 
-    // Componentes
+    
     private RecyclerView recyclerViewEntregas;
     private ImageButton menuButton;
     private Button buttonPendentes, buttonConcluidos, buttonMontarEntrega;
     private BottomNavigationView bottomNavigationView;
 
-    // Firebase e Adapter
+    
     private FirebaseFirestore db;
     private EntregaAdapter adapter;
     private List<Entrega> entregaList;
 
-    // Estado atual do filtro (Pendente ou Concluída)
+    
     private String filtroAtual = "Pendente";
 
     @Override
@@ -110,15 +110,15 @@ public class EntregasActivity extends AppCompatActivity {
                 int itemId = item.getItemId();
                 if (itemId == R.id.nav_painel) {
                     startActivity(new Intent(this, DashboardActivity.class));
-                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out); // ADICIONADO
+                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out); 
                     return true;
                 } else if (itemId == R.id.nav_estoque) {
                     startActivity(new Intent(this, PesquisarEstoqueActivity.class));
-                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out); // ADICIONADO
+                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out); 
                     return true;
                 } else if (itemId == R.id.nav_instituicoes) {
                     startActivity(new Intent(this, InstituicoesActivity.class));
-                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out); // ADICIONADO
+                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out); 
                     return true;
                 } else if (itemId == R.id.nav_entregas) {
                     return true;
@@ -134,16 +134,16 @@ public class EntregasActivity extends AppCompatActivity {
         Query query;
 
         if (filtro.equals("Pendente")) {
-            // Se o filtro for "Pendente", queremos mostrar: "Pendente" E "Em Coleta"
+            
             query = db.collection("entregas")
                     .whereIn("status", Arrays.asList("Pendente", "Em Coleta"));
         } else {
-            // Se for "Concluída", mostramos apenas as concluídas
+            
             query = db.collection("entregas")
                     .whereEqualTo("status", "Concluída");
         }
 
-        // Removido orderBy temporariamente para evitar erro de índice composto com 'whereIn'
+        
         query.addSnapshotListener((value, error) -> {
             if (error != null) {
                 Log.w(TAG, "Listen failed.", error);

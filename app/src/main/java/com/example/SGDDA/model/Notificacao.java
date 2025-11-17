@@ -4,7 +4,7 @@ import java.util.Comparator;
 
 public class Notificacao {
 
-    private String tipo; // "VENCIMENTO", "URGENCIA", "ENTREGA"
+    private String tipo; 
     private String titulo;
     private String descricao;
     private long timestamp;
@@ -21,6 +21,6 @@ public class Notificacao {
     public String getDescricao() { return descricao; }
     public long getTimestamp() { return timestamp; }
 
-    // Comparador para ordenar do mais novo para o mais antigo
+    
     public static Comparator<Notificacao> TimestampComparator = (n1, n2) -> Long.compare(n2.getTimestamp(), n1.getTimestamp());
 }

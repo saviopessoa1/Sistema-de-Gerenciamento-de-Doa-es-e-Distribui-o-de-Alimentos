@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log; // Importar Log
+import android.util.Log; 
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -33,13 +33,13 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.io.Serializable;
-import java.text.ParseException; // Importar ParseException
-import java.text.SimpleDateFormat; // Importar SimpleDateFormat
+import java.text.ParseException; 
+import java.text.SimpleDateFormat; 
 import java.util.ArrayList;
-import java.util.Calendar; // Importar Calendar
-import java.util.Date; // Importar Date
+import java.util.Calendar; 
+import java.util.Date; 
 import java.util.List;
-import java.util.Locale; // Importar Locale
+import java.util.Locale; 
 import java.util.Map;
 
 public class MontarEntregaActivity extends AppCompatActivity implements InstituicaoAdapter.OnInstituicaoClickListener {
@@ -52,17 +52,17 @@ public class MontarEntregaActivity extends AppCompatActivity implements Institui
     private EditText searchBar;
     private LinearLayout institutionsContainer;
 
-    // Listas
+    
     private RecyclerView recyclerInstituicoes;
     private RecyclerView itensEstoqueRecyclerView;
 
     private FirebaseFirestore db;
 
-    // Adapters
+    
     private SelecaoEstoqueAdapter adapterEstoque;
     private InstituicaoAdapter adapterInstituicao;
 
-    // Dados
+    
     private List<DoacaoItem> listaEstoqueCompleta;
     private List<DoacaoItem> listaParaAdapterEstoque;
     private List<Instituicao> listaInstituicoes;
@@ -85,7 +85,7 @@ public class MontarEntregaActivity extends AppCompatActivity implements Institui
 
         db = FirebaseFirestore.getInstance();
 
-        // Encontrar Views
+        
         backButton = findViewById(R.id.backButton);
         textInstituicaoSelecionada = findViewById(R.id.textInstituicaoSelecionada);
         btnProximo = findViewById(R.id.btnProximo);
@@ -95,18 +95,18 @@ public class MontarEntregaActivity extends AppCompatActivity implements Institui
         recyclerInstituicoes = findViewById(R.id.recyclerInstituicoes);
         itensEstoqueRecyclerView = findViewById(R.id.itensEstoqueRecyclerView);
 
-        // Inicializar Listas
+        
         listaEstoqueCompleta = new ArrayList<>();
         listaParaAdapterEstoque = new ArrayList<>();
         listaInstituicoes = new ArrayList<>();
 
-        // Configurar Adapter de Instituições (Horizontal ou Vertical, aqui vertical pois é uma lista de seleção)
-        // Usamos "Selecionar" como texto do botão
+        
+        
         adapterInstituicao = new InstituicaoAdapter(this, listaInstituicoes, this, "Selecionar");
         recyclerInstituicoes.setLayoutManager(new LinearLayoutManager(this));
         recyclerInstituicoes.setAdapter(adapterInstituicao);
 
-        // Configurar Adapter de Estoque
+        
         adapterEstoque = new SelecaoEstoqueAdapter(this, listaParaAdapterEstoque, itemClicado -> {
             searchBar.setText("");
             searchBar.clearFocus();
@@ -119,9 +119,9 @@ public class MontarEntregaActivity extends AppCompatActivity implements Institui
         itensEstoqueRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         itensEstoqueRecyclerView.setAdapter(adapterEstoque);
 
-        // Carregar Dados
+        
         loadInstituicoes();
-        loadEstoque(); // Esta função será modificada
+        loadEstoque(); 
 
         setupListeners();
         setupSearch();
@@ -129,7 +129,7 @@ public class MontarEntregaActivity extends AppCompatActivity implements Institui
 
     private void loadInstituicoes() {
         db.collection("instituicoes")
-                .orderBy("urgencia", Query.Direction.ASCENDING) // Pode ordenar como preferir
+                .orderBy("urgencia", Query.Direction.ASCENDING) 
                 .addSnapshotListener((value, error) -> {
                     if (error != null) return;
 
@@ -145,7 +145,7 @@ public class MontarEntregaActivity extends AppCompatActivity implements Institui
                 });
     }
 
-    // ★★★ FUNÇÃO MODIFICADA PARA FILTRAR VENCIDOS ★★★
+    
     private void loadEstoque() {
         db.collection("estoque")
                 .orderBy("dataValidade", Query.Direction.ASCENDING)
@@ -157,23 +157,23 @@ public class MontarEntregaActivity extends AppCompatActivity implements Institui
 
                     listaEstoqueCompleta.clear();
 
-                    // Configuração da data de hoje (para comparação)
+                    
                     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
                     Calendar calHoje = Calendar.getInstance();
                     calHoje.set(Calendar.HOUR_OF_DAY, 0);
                     calHoje.set(Calendar.MINUTE, 0);
                     calHoje.set(Calendar.SECOND, 0);
                     calHoje.set(Calendar.MILLISECOND, 0);
-                    Date dataHojeZerada = calHoje.getTime(); // Hoje, meia-noite
+                    Date dataHojeZerada = calHoje.getTime(); 
 
                     if (value != null) {
                         for (QueryDocumentSnapshot doc : value) {
                             DoacaoItem item = doc.toObject(DoacaoItem.class);
                             item.setDocumentId(doc.getId());
 
-                            // ★ INÍCIO DA VERIFICAÇÃO DE VALIDADE ★
+                            
                             if (item.getDataValidade() == null || item.getDataValidade().isEmpty()) {
-                                // Se não tem data (ex: sal, não perecível), adiciona.
+                                
                                 listaEstoqueCompleta.add(item);
                                 continue;
                             }
@@ -181,32 +181,32 @@ public class MontarEntregaActivity extends AppCompatActivity implements Institui
                             try {
                                 Date validade = sdf.parse(item.getDataValidade());
 
-                                // Se a data de validade NÃO É ANTES de hoje (ou seja, é hoje ou no futuro)
+                                
                                 if (validade != null && !validade.before(dataHojeZerada)) {
                                     listaEstoqueCompleta.add(item);
                                 } else {
-                                    // Item vencido (data é anterior a hoje), não adiciona
+                                    
                                     Log.d(TAG, "Item VENCIDO filtrado: " + item.getNomeItem() + " (Vence: " + item.getDataValidade() + ")");
                                 }
                             } catch (ParseException e) {
                                 Log.e(TAG, "Formato de data inválido, item ignorado: " + item.getNomeItem());
                             }
-                            // ★ FIM DA VERIFICAÇÃO ★
+                            
                         }
                         atualizarListaVisual(searchBar.getText().toString());
                     }
                 });
     }
 
-    // Implementação do clique na instituição (Interface do Adapter)
+    
     @Override
     public void onInstituicaoClick(Instituicao instituicao) {
         this.instituicaoSelecionada = instituicao;
 
-        // Atualiza UI
+        
         textInstituicaoSelecionada.setText(instituicao.getNome());
 
-        // Atualiza o Adapter para destacar a seleção
+        
         adapterInstituicao.setSelectedId(instituicao.getDocumentId());
     }
 

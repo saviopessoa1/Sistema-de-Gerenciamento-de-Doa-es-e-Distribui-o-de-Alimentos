@@ -8,7 +8,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.SGDDA.R;
-import com.example.SGDDA.model.DoacaoItem; // Reutilizamos o mesmo modelo
+import com.example.SGDDA.model.DoacaoItem; 
 import java.util.List;
 
 public class EstoqueAdapter extends RecyclerView.Adapter<EstoqueAdapter.ViewHolder> {
@@ -21,7 +21,7 @@ public class EstoqueAdapter extends RecyclerView.Adapter<EstoqueAdapter.ViewHold
         this.itemList = itemList;
     }
 
-    // NOVO: Método para atualizar a lista do adapter quando filtrarmos
+    
     public void updateList(List<DoacaoItem> newList) {
         this.itemList = newList;
         notifyDataSetChanged();
@@ -30,7 +30,7 @@ public class EstoqueAdapter extends RecyclerView.Adapter<EstoqueAdapter.ViewHold
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Usa o layout item_estoque.xml que você já criou
+        
         View view = LayoutInflater.from(context).inflate(R.layout.item_estoque, parent, false);
         return new ViewHolder(view);
     }
@@ -55,7 +55,7 @@ public class EstoqueAdapter extends RecyclerView.Adapter<EstoqueAdapter.ViewHold
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            // Encontra os IDs do layout item_estoque.xml
+            
             itemName = itemView.findViewById(R.id.itemName);
             itemDetails = itemView.findViewById(R.id.itemDetails);
         }

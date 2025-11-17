@@ -56,7 +56,7 @@ public class SelecaoEstoqueAdapter extends RecyclerView.Adapter<SelecaoEstoqueAd
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // USA O NOVO LAYOUT MAIS SIMPLES
+        
         View view = LayoutInflater.from(context).inflate(R.layout.item_selecao_estoque, parent, false);
         return new ViewHolder(view);
     }
@@ -72,25 +72,25 @@ public class SelecaoEstoqueAdapter extends RecyclerView.Adapter<SelecaoEstoqueAd
 
         int currentQty = selectedQuantities.getOrDefault(itemId, 0);
 
-        // Configura a aparência do botão baseado se já foi selecionado ou não
+        
         if (currentQty > 0) {
             holder.btnSelecionar.setText("Qtd: " + currentQty);
-            // Fica VERDE para indicar selecionado
+            
             holder.btnSelecionar.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.app_accent_green)));
             holder.btnSelecionar.setTextColor(ContextCompat.getColor(context, R.color.app_primary_dark));
         } else {
             holder.btnSelecionar.setText("Selecionar");
-            // Fica AZUL (Padrão)
+            
             holder.btnSelecionar.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.app_accent_blue)));
             holder.btnSelecionar.setTextColor(ContextCompat.getColor(context, R.color.white));
         }
 
-        // Clique no Botão -> Abre Dialog de Quantidade
+        
         holder.btnSelecionar.setOnClickListener(v -> {
             showQuantityDialog(item, itemId, holder);
         });
 
-        // Clique no Item -> Também abre o Dialog (para facilitar)
+        
         holder.itemView.setOnClickListener(v -> {
             showQuantityDialog(item, itemId, holder);
         });
@@ -103,15 +103,15 @@ public class SelecaoEstoqueAdapter extends RecyclerView.Adapter<SelecaoEstoqueAd
 
         final EditText input = new EditText(context);
         input.setInputType(InputType.TYPE_CLASS_NUMBER);
-        // Se já tem quantidade, mostra ela. Se não, deixa vazio ou 1.
+        
         int current = selectedQuantities.getOrDefault(itemId, 0);
         input.setText(current > 0 ? String.valueOf(current) : "");
         input.setHint("Digite a quantidade");
 
-        // Adiciona margem ao redor do input para ficar bonito
+        
         android.widget.FrameLayout container = new android.widget.FrameLayout(context);
         android.widget.FrameLayout.LayoutParams params = new  android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.leftMargin = 50; // Margem lateral
+        params.leftMargin = 50; 
         params.rightMargin = 50;
         input.setLayoutParams(params);
         container.addView(input);
@@ -125,7 +125,7 @@ public class SelecaoEstoqueAdapter extends RecyclerView.Adapter<SelecaoEstoqueAd
                     if (newQty <= item.getQuantidade() && newQty >= 0) {
                         if (newQty == 0) {
                             selectedQuantities.remove(itemId);
-                            // Se estava na lista de carrinho e removeu, atualize a lista
+                            
                             if (!isSearchMode) {
                                 int pos = holder.getAdapterPosition();
                                 if (pos != RecyclerView.NO_POSITION) {
@@ -135,12 +135,12 @@ public class SelecaoEstoqueAdapter extends RecyclerView.Adapter<SelecaoEstoqueAd
                             }
                         } else {
                             selectedQuantities.put(itemId, newQty);
-                            // Se estava buscando, notifica para limpar a busca (opcional, mas bom fluxo)
+                            
                             if (isSearchMode && listener != null) {
                                 listener.onItemClick(item);
                             }
                         }
-                        // Atualiza o visual do botão imediatamente
+                        
                         notifyItemChanged(holder.getAdapterPosition());
                     } else {
                         Toast.makeText(context, "Quantidade inválida (Máx: " + item.getQuantidade() + ")", Toast.LENGTH_SHORT).show();
@@ -152,7 +152,7 @@ public class SelecaoEstoqueAdapter extends RecyclerView.Adapter<SelecaoEstoqueAd
         });
         builder.setNegativeButton("Cancelar", (dialog, which) -> dialog.cancel());
 
-        // Mostra o Dialog e foca no campo de texto, abrindo o teclado automaticamente
+        
         AlertDialog dialog = builder.create();
         dialog.getWindow().setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         dialog.show();
@@ -166,7 +166,7 @@ public class SelecaoEstoqueAdapter extends RecyclerView.Adapter<SelecaoEstoqueAd
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView itemName, itemDetails;
-        Button btnSelecionar; // Botão Único
+        Button btnSelecionar; 
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);

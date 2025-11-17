@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // ★ Lógica do Link Admin: Abre Dialog de Autenticação ★
+        
         linkCadastrarInstituicao.setOnClickListener(v -> showAdminLoginDialog());
 
         loginButton.setOnClickListener(v -> {
@@ -97,13 +97,13 @@ public class MainActivity extends AppCompatActivity {
         finish();
     }
 
-    // ★ Método para mostrar o Dialog de Login do Admin ★
+    
     private void showAdminLoginDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Acesso Administrativo");
         builder.setMessage("Entre com suas credenciais de Admin para cadastrar instituições.");
 
-        // Layout do Dialog
+        
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setPadding(50, 20, 50, 20);
@@ -120,16 +120,16 @@ public class MainActivity extends AppCompatActivity {
 
         builder.setView(layout);
 
-        // Botões do Dialog
+        
         builder.setPositiveButton("Acessar", (dialog, which) -> {
-            // Não faz nada aqui, vamos sobrescrever o botão depois para validar sem fechar se der erro
+            
         });
         builder.setNegativeButton("Cancelar", (dialog, which) -> dialog.cancel());
 
         AlertDialog dialog = builder.create();
         dialog.show();
 
-        // Sobrescreve o botão para validar
+        
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             String email = inputEmail.getText().toString().trim();
             String password = inputPassword.getText().toString().trim();
@@ -139,14 +139,14 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            // 1. Autentica no Firebase (sem mudar o usuário atual da Activity principal se possível,
-            // mas como o Firebase Auth é global, vamos autenticar e depois deslogar se for o caso,
-            // ou melhor: autenticamos para permitir o acesso e deixamos ele logado se quiser).
-            // Para este fluxo "setup", vamos autenticar.
+            
+            
+            
+            
 
             mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-                    // 2. Verifica se é Admin
+                    
                     String uid = mAuth.getCurrentUser().getUid();
                     db.collection("usuarios").document(uid).get().addOnCompleteListener(taskDoc -> {
                         if (taskDoc.isSuccessful()) {
@@ -154,15 +154,15 @@ public class MainActivity extends AppCompatActivity {
                             Boolean isAdmin = document.getBoolean("isAdmin");
 
                             if (isAdmin != null && isAdmin) {
-                                // 3. É Admin! Abre a tela de cadastro
+                                
                                 Toast.makeText(MainActivity.this, "Acesso Admin concedido.", Toast.LENGTH_SHORT).show();
                                 Intent intent = new Intent(MainActivity.this, RegistrarInstituicaoActivity.class);
                                 startActivity(intent);
                                 dialog.dismiss();
                             } else {
-                                // Não é admin
+                                
                                 Toast.makeText(MainActivity.this, "Acesso negado. Usuário não é administrador.", Toast.LENGTH_LONG).show();
-                                mAuth.signOut(); // Desloga pois não era admin
+                                mAuth.signOut(); 
                             }
                         } else {
                             Toast.makeText(MainActivity.this, "Erro ao verificar permissões.", Toast.LENGTH_SHORT).show();

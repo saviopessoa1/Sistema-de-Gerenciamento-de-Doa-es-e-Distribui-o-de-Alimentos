@@ -19,7 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.SGDDA.R;
-import com.example.SGDDA.adapter.DetalhesItemAdapter; // Importa o adapter NOVO
+import com.example.SGDDA.adapter.DetalhesItemAdapter; 
 import com.example.SGDDA.model.DoacaoItem;
 import com.example.SGDDA.model.Entrega;
 import com.google.firebase.firestore.DocumentReference;
@@ -32,13 +32,13 @@ public class DetalhesEntregaActivity extends AppCompatActivity {
 
     private static final String TAG = "DetalhesEntrega";
 
-    // Componentes
+    
     private ImageButton backButton;
     private TextView textInstituicao, textEndereco, textVoluntario;
     private Button btnLigarVoluntario, btnConfirmarColeta, btnConfirmarEntrega;
     private RecyclerView itensRecyclerView;
 
-    // Firebase e Dados
+    
     private FirebaseFirestore db;
     private DetalhesItemAdapter adapter;
     private List<DoacaoItem> itemList;
@@ -51,7 +51,7 @@ public class DetalhesEntregaActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_detalhes_entrega);
 
-        // Ajuste de layout (EdgeToEdge)
+        
         View mainView = findViewById(R.id.main);
         if (mainView != null) {
             ViewCompat.setOnApplyWindowInsetsListener(mainView, (v, insets) -> {
@@ -61,7 +61,7 @@ public class DetalhesEntregaActivity extends AppCompatActivity {
             });
         }
 
-        // Pegar o ID da Entrega (vindo do EntregaAdapter)
+        
         if (getIntent().hasExtra("ENTREGA_ID")) {
             entregaId = getIntent().getStringExtra("ENTREGA_ID");
         } else {
@@ -70,12 +70,12 @@ public class DetalhesEntregaActivity extends AppCompatActivity {
             return;
         }
 
-        // Inicializar
+        
         db = FirebaseFirestore.getInstance();
         itemList = new ArrayList<>();
         adapter = new DetalhesItemAdapter(this, itemList);
 
-        // Encontrar Componentes
+        
         backButton = findViewById(R.id.backButton);
         textInstituicao = findViewById(R.id.textInstituicao);
         textEndereco = findViewById(R.id.textEndereco);
@@ -85,11 +85,11 @@ public class DetalhesEntregaActivity extends AppCompatActivity {
         btnConfirmarEntrega = findViewById(R.id.btnConfirmarEntrega);
         itensRecyclerView = findViewById(R.id.itensRecyclerView);
 
-        // Configurar RecyclerView
+        
         itensRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         itensRecyclerView.setAdapter(adapter);
 
-        // Carregar Dados e Configurar Cliques
+        
         loadEntregaDetails();
         setupListeners();
     }
@@ -107,19 +107,19 @@ public class DetalhesEntregaActivity extends AppCompatActivity {
                     if (snapshot != null && snapshot.exists()) {
                         currentEntrega = snapshot.toObject(Entrega.class);
                         if (currentEntrega != null) {
-                            // Preenche os campos
+                            
                             textInstituicao.setText(currentEntrega.getInstituicaoNome());
                             textEndereco.setText(currentEntrega.getInstituicaoEndereco());
                             textVoluntario.setText(currentEntrega.getVoluntarioNome());
 
-                            // Atualiza a lista de itens
+                            
                             itemList.clear();
                             if (currentEntrega.getItens() != null) {
                                 itemList.addAll(currentEntrega.getItens());
                             }
                             adapter.notifyDataSetChanged();
 
-                            // Atualiza o estado dos botões
+                            
                             updateButtonStates(currentEntrega.getStatus());
                         }
                     } else {
@@ -130,7 +130,7 @@ public class DetalhesEntregaActivity extends AppCompatActivity {
                 });
     }
 
-    // Controla quais botões estão ativos
+    
     private void updateButtonStates(String status) {
         if ("Pendente".equals(status)) {
             btnConfirmarColeta.setEnabled(true);
@@ -153,31 +153,31 @@ public class DetalhesEntregaActivity extends AppCompatActivity {
     private void setupListeners() {
         backButton.setOnClickListener(v -> finish());
 
-        // TODO: Adicionar lógica para buscar o telefone do voluntário
+        
         btnLigarVoluntario.setOnClickListener(v -> {
             Toast.makeText(this, "Ligando para Voluntário...", Toast.LENGTH_SHORT).show();
-            // String phone = currentEntrega.getVoluntarioTelefone(); // (Precisamos adicionar isso no modelo)
-            // Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null));
-            // startActivity(intent);
+            
+            
+            
         });
 
-        // Botão "Confirmar Coleta"
+        
         btnConfirmarColeta.setOnClickListener(v -> {
             updateStatus("Em Coleta");
         });
 
-        // Botão "Confirmar Entrega"
+        
         btnConfirmarEntrega.setOnClickListener(v -> {
             updateStatus("Concluída");
-            // TODO: Abrir a tela de Observações (image_512928.png)
-            // Intent intent = new Intent(this, ObservacoesEntregaActivity.class);
-            // intent.putExtra("ENTREGA_ID", entregaId);
-            // startActivity(intent);
-            // finish(); // Fecha esta tela
+            
+            
+            
+            
+            
         });
     }
 
-    // Função para atualizar o status no Firestore
+    
     private void updateStatus(String newStatus) {
         if (entregaId == null) return;
 
@@ -186,11 +186,11 @@ public class DetalhesEntregaActivity extends AppCompatActivity {
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(this, "Status atualizado para: " + newStatus, Toast.LENGTH_SHORT).show();
 
-                    // ★ NOVO: Se a entrega foi "Concluída", reseta a urgência da instituição
+                    
                     if ("Concluída".equals(newStatus) && currentEntrega != null && currentEntrega.getInstituicaoId() != null) {
                         resetarUrgenciaInstituicao(currentEntrega.getInstituicaoId());
                     }
-                    // O SnapshotListener vai atualizar a UI automaticamente
+                    
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Erro ao atualizar status.", Toast.LENGTH_SHORT).show();
@@ -198,7 +198,7 @@ public class DetalhesEntregaActivity extends AppCompatActivity {
                 });
     }
 
-    // ★ NOVO: Método para setar a urgência da instituição para "Normal"
+    
     private void resetarUrgenciaInstituicao(String instituicaoId) {
         db.collection("instituicoes").document(instituicaoId)
                 .update("urgencia", "Normal")
@@ -207,7 +207,7 @@ public class DetalhesEntregaActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> {
                     Log.w(TAG, "Erro ao resetar urgência da instituição " + instituicaoId, e);
-                    // Não mostra Toast para não poluir a tela, mas loga o erro.
+                    
                 });
     }
 }

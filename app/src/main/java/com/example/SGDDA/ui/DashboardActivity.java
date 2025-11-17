@@ -48,7 +48,7 @@ public class DashboardActivity extends AppCompatActivity {
 
     private static final String TAG = "DashboardActivity";
 
-    // Componentes do Layout
+    
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private ImageButton menuButton;
@@ -56,15 +56,15 @@ public class DashboardActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
     private FloatingActionButton fabAdicionarDoacao;
 
-    // Componentes do Dashboard
+    
     private PieChart pieChartEstoque;
     private TextView textLegendaNaoPerecivelQtd, textLegendaPerecivelQtd, textAlertaVencimentoQtd;
     private TextView textProximaEntrega1, textProximaEntrega2, textProximaEntrega3;
-    private TextView textHistorico1, textHistorico2, textHistorico3; // Para Histórico
-    private LinearLayout historicoContainer; // Para Histórico
-    private TextView textViewDoacoesMes; // Contador de Doações
+    private TextView textHistorico1, textHistorico2, textHistorico3; 
+    private LinearLayout historicoContainer; 
+    private TextView textViewDoacoesMes; 
 
-    // Firebase
+    
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private FirebaseUser currentUser;
@@ -75,7 +75,7 @@ public class DashboardActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_dashboard);
 
-        // Ajuste de Padding
+        
         View mainContent = findViewById(R.id.main);
         if (mainContent != null) {
             ViewCompat.setOnApplyWindowInsetsListener(mainContent, (v, insets) -> {
@@ -85,19 +85,19 @@ public class DashboardActivity extends AppCompatActivity {
             });
         }
 
-        // Inicializar Firebase
+        
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         currentUser = mAuth.getCurrentUser();
 
-        // Encontrar Componentes
+        
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
         menuButton = findViewById(R.id.menuButton);
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         fabAdicionarDoacao = findViewById(R.id.fabAdicionarDoacao);
 
-        // Componentes do Card
+        
         pieChartEstoque = findViewById(R.id.pieChartEstoque);
         textLegendaNaoPerecivelQtd = findViewById(R.id.textViewNaoPerecivelValor);
         textLegendaPerecivelQtd = findViewById(R.id.textViewPerecivelValor);
@@ -111,17 +111,17 @@ public class DashboardActivity extends AppCompatActivity {
         historicoContainer = findViewById(R.id.layoutHistoricoContainer);
         textViewDoacoesMes = findViewById(R.id.textViewDoacoesMes);
 
-        // Configurar Funções
+        
         setupDrawer();
         setupBottomNavigation();
         setupPieChart();
 
-        // Carregar Dados (só se o usuário estiver logado)
+        
         if (currentUser != null) {
-            loadUserData(); // Carrega dados do usuário
-            loadEstoqueData(); // Carrega dados do gráfico, alertas e total de doações
-            loadEntregasData(); // Carrega próximas entregas
-            loadHistoricoData(); // Carrega histórico
+            loadUserData(); 
+            loadEstoqueData(); 
+            loadEntregasData(); 
+            loadHistoricoData(); 
         } else {
             Intent intent = new Intent(DashboardActivity.this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -166,8 +166,8 @@ public class DashboardActivity extends AppCompatActivity {
                 String nome = documentSnapshot.getString("nomeCompleto");
                 String email = documentSnapshot.getString("email");
 
-                // A lógica de isAdmin foi removida daqui, pois o cadastro de instituição
-                // agora é feito apenas via MainActivity (Login Admin)
+                
+                
 
                 View headerView = navigationView.getHeaderView(0);
                 TextView navUserName = headerView.findViewById(R.id.navHeaderUserName);
@@ -205,7 +205,7 @@ public class DashboardActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
             }
-            // O item de cadastrar instituição foi removido daqui
+            
             else if (itemId == R.id.nav_relatorios) {
                 startActivity(new Intent(DashboardActivity.this, RelatoriosActivity.class));
                 overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
@@ -215,9 +215,9 @@ public class DashboardActivity extends AppCompatActivity {
                 overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             }
             else if (itemId == R.id.nav_notificacoes) {
-                // Abre a nova tela de Notificações
+                
                 startActivity(new Intent(DashboardActivity.this, NotificacoesActivity.class));
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out); // Opcional
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out); 
             }
 
             drawerLayout.closeDrawer(navigationView);
@@ -280,7 +280,7 @@ public class DashboardActivity extends AppCompatActivity {
                         }
                     }
 
-                    // 1. Atualizar o Gráfico
+                    
                     ArrayList<PieEntry> entries = new ArrayList<>();
                     if (naoPereciveis > 0) entries.add(new PieEntry(naoPereciveis, "Não Perecível"));
                     if (pereciveis > 0) entries.add(new PieEntry(pereciveis, "Perecível"));
@@ -302,14 +302,14 @@ public class DashboardActivity extends AppCompatActivity {
                     pieChartEstoque.setData(data);
                     pieChartEstoque.invalidate();
 
-                    // 2. Atualizar Textos do Gráfico e Alerta
+                    
                     textLegendaNaoPerecivelQtd.setText(String.valueOf(naoPereciveis));
                     textLegendaPerecivelQtd.setText(String.valueOf(pereciveis));
 
                     String alertaTexto = "Atenção: " + vencendoEm7Dias + " itens vencem nesta semana";
                     textAlertaVencimentoQtd.setText(alertaTexto);
 
-                    // 3. Atualizar "Doações Mês" com o Total
+                    
                     if (textViewDoacoesMes != null) {
                         textViewDoacoesMes.setText(String.valueOf(totalItens));
                     }

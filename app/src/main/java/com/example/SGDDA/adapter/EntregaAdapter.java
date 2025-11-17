@@ -45,19 +45,19 @@ public class EntregaAdapter extends RecyclerView.Adapter<EntregaAdapter.ViewHold
         holder.titleInstituicao.setText(entrega.getInstituicaoNome());
         holder.textEndereco.setText(entrega.getInstituicaoEndereco());
 
-        // Lógica Simplificada de Visibilidade
+        
         if ("Pendente".equals(entrega.getStatus()) || "Em Coleta".equals(entrega.getStatus())) {
-            // --- MODO PENDENTE ---
+            
             holder.textUrgencia.setText("Urgência: " + entrega.getInstituicaoUrgencia());
             holder.textAgendado.setText("Agendado: " + entrega.getDataEntrega());
 
             holder.textUrgencia.setVisibility(View.VISIBLE);
             holder.textAgendado.setVisibility(View.VISIBLE);
 
-            holder.textEntregue.setVisibility(View.GONE); // Some, puxando o endereço pra cima
+            holder.textEntregue.setVisibility(View.GONE); 
             holder.iconConcluido.setVisibility(View.GONE);
 
-            // Cores do Botão
+            
             holder.btnDetalhes.setText("Detalhes");
             if ("Em Coleta".equals(entrega.getStatus())) {
                 holder.btnDetalhes.setBackgroundColor(ContextCompat.getColor(context, R.color.app_accent_yellow));
@@ -66,20 +66,20 @@ public class EntregaAdapter extends RecyclerView.Adapter<EntregaAdapter.ViewHold
             }
 
         } else if ("Concluída".equals(entrega.getStatus())) {
-            // --- MODO CONCLUÍDO ---
+            
             holder.textEntregue.setText("Entregue: " + entrega.getDataEntrega());
 
-            holder.textUrgencia.setVisibility(View.GONE); // Some
-            holder.textAgendado.setVisibility(View.GONE); // Some
+            holder.textUrgencia.setVisibility(View.GONE); 
+            holder.textAgendado.setVisibility(View.GONE); 
 
-            holder.textEntregue.setVisibility(View.VISIBLE); // Aparece
+            holder.textEntregue.setVisibility(View.VISIBLE); 
             holder.iconConcluido.setVisibility(View.VISIBLE);
 
             holder.btnDetalhes.setText("Detalhes");
             holder.btnDetalhes.setBackgroundColor(ContextCompat.getColor(context, R.color.app_accent_blue));
         }
 
-        // Clique no botão
+        
         holder.btnDetalhes.setOnClickListener(v -> {
             if ("Concluída".equals(entrega.getStatus())) {
                 Intent intent = new Intent(context, DetalhesEntregaConcluidaActivity.class);

@@ -30,17 +30,17 @@ import java.util.Map;
 
 public class RegisterStep2Activity extends AppCompatActivity {
 
-    // Declaração dos Componentes
+    
     private ImageButton backButton;
     private TextView loginTextView;
     private Button registrarButton;
     private TextInputEditText cpfEditText, celularEditText, telefoneEditText;
 
-    // Firebase
+    
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
-    // Dados recebidos da Etapa 1
+    
     private String nomeCompleto, email, senha;
 
     @Override
@@ -49,37 +49,37 @@ public class RegisterStep2Activity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_register_step_2);
 
-        // Ajuste de layout para EdgeToEdge
+        
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        // Inicializar Firebase
+        
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        // Encontrar Componentes no Layout
+        
         backButton = findViewById(R.id.backButton);
-        // O ID no layout XML para o botão de registrar é "registrarButton"
+        
         registrarButton = findViewById(R.id.registrarButton);
         cpfEditText = findViewById(R.id.cpfEditText);
         celularEditText = findViewById(R.id.celularEditText);
         telefoneEditText = findViewById(R.id.telefoneEditText);
 
-        // Encontrar o link de login (dentro do layout novo ele está em um LinearLayout)
+        
         loginTextView = findViewById(R.id.loginTextView);
 
-        // Receber dados da Intent (da Tela 1)
+        
         Intent intent = getIntent();
         if (intent != null) {
-            nomeCompleto = intent.getStringExtra("NOME_COMPLETO"); // Deve bater com a chave usada na tela 1
+            nomeCompleto = intent.getStringExtra("NOME_COMPLETO"); 
             email = intent.getStringExtra("EMAIL");
             senha = intent.getStringExtra("SENHA");
         }
 
-        // Configurar Listeners
+        
         if (backButton != null) {
             backButton.setOnClickListener(v -> finish());
         }
@@ -103,12 +103,12 @@ public class RegisterStep2Activity extends AppCompatActivity {
     }
 
     private void registrarUsuario() {
-        // Pegar os dados desta tela
+        
         String cpf = cpfEditText.getText() != null ? cpfEditText.getText().toString().trim() : "";
         String celular = celularEditText.getText() != null ? celularEditText.getText().toString().trim() : "";
         String telefone = telefoneEditText.getText() != null ? telefoneEditText.getText().toString().trim() : "";
 
-        // Validação básica
+        
         if (cpf.isEmpty() || celular.isEmpty()) {
             Toast.makeText(this, "Por favor, preencha CPF e Celular.", Toast.LENGTH_SHORT).show();
             return;
@@ -119,11 +119,11 @@ public class RegisterStep2Activity extends AppCompatActivity {
             return;
         }
 
-        // Feedback visual
+        
         registrarButton.setEnabled(false);
         Toast.makeText(this, "Cadastrando...", Toast.LENGTH_SHORT).show();
 
-        // 1. Criar usuário no Auth
+        
         mAuth.createUserWithEmailAndPassword(email, senha)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override

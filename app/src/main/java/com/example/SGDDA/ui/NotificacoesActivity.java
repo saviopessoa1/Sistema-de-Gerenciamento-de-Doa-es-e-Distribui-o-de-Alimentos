@@ -47,7 +47,7 @@ public class NotificacoesActivity extends AppCompatActivity {
     private NotificacaoAdapter adapter;
     private List<Notificacao> listaNotificacoes;
 
-    // Contadores para saber quando todas as buscas terminaram
+    
     private int buscasPendentes = 3;
 
     @Override
@@ -56,7 +56,7 @@ public class NotificacoesActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_notificacoes);
 
-        // Ajuste de layout (EdgeToEdge)
+        
         View mainView = findViewById(R.id.main);
         if (mainView != null) {
             ViewCompat.setOnApplyWindowInsetsListener(mainView, (v, insets) -> {
@@ -68,12 +68,12 @@ public class NotificacoesActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
 
-        // Encontrar Componentes
+        
         backButton = findViewById(R.id.backButton);
         recyclerViewNotificacoes = findViewById(R.id.recyclerViewNotificacoes);
         textEmpty = findViewById(R.id.textEmpty);
 
-        // Configurar RecyclerView
+        
         listaNotificacoes = new ArrayList<>();
         adapter = new NotificacaoAdapter(this, listaNotificacoes);
         recyclerViewNotificacoes.setLayoutManager(new LinearLayoutManager(this));
@@ -81,32 +81,32 @@ public class NotificacoesActivity extends AppCompatActivity {
 
         backButton.setOnClickListener(v -> finish());
 
-        // Carregar dados
+        
         carregarTodasNotificacoes();
     }
 
     private void carregarTodasNotificacoes() {
         listaNotificacoes.clear();
-        buscasPendentes = 3; // Reseta o contador
+        buscasPendentes = 3; 
 
         gerarNotificacoesVencimento();
         gerarNotificacoesUrgencia();
         gerarNotificacoesEntregasAmanha();
     }
 
-    // Função chamada após CADA busca no Firebase
+    
     private synchronized void onBuscaConcluida() {
         buscasPendentes--;
         if (buscasPendentes == 0) {
-            // Todas as buscas terminaram, hora de atualizar o adapter
+            
 
-            // 1. Ordenar a lista (mais novo primeiro)
+            
             Collections.sort(listaNotificacoes, Notificacao.TimestampComparator);
 
-            // 2. Atualizar a UI
+            
             adapter.notifyDataSetChanged();
 
-            // 3. Mostrar/Esconder mensagem de "vazio"
+            
             if (listaNotificacoes.isEmpty()) {
                 textEmpty.setVisibility(View.VISIBLE);
                 recyclerViewNotificacoes.setVisibility(View.GONE);
@@ -117,7 +117,7 @@ public class NotificacoesActivity extends AppCompatActivity {
         }
     }
 
-    // BUSCA 1: Itens vencendo esta semana
+    
     private void gerarNotificacoesVencimento() {
         Calendar calHoje = Calendar.getInstance();
         Calendar cal7Dias = Calendar.getInstance();
@@ -134,7 +134,7 @@ public class NotificacoesActivity extends AppCompatActivity {
                     if (item.getDataValidade() != null && !item.getDataValidade().isEmpty()) {
                         try {
                             Date validade = sdf.parse(item.getDataValidade());
-                            // Se vence DEPOIS de hoje E ANTES de 7 dias
+                            
                             if (validade != null && validade.after(hoje) && validade.before(dataLimite)) {
                                 itensVencendo += item.getQuantidade();
                             }
@@ -150,17 +150,17 @@ public class NotificacoesActivity extends AppCompatActivity {
                             "VENCIMENTO",
                             "Alerta de Vencimento",
                             desc,
-                            System.currentTimeMillis() - 1000 // (Prioridade alta)
+                            System.currentTimeMillis() - 1000 
                     ));
                 }
             } else {
                 Log.e(TAG, "Erro ao buscar estoque p/ vencimento", task.getException());
             }
-            onBuscaConcluida(); // Marca esta busca como concluída
+            onBuscaConcluida(); 
         });
     }
 
-    // BUSCA 2: Instituições com urgência "Alta"
+    
     private void gerarNotificacoesUrgencia() {
         db.collection("instituicoes")
                 .whereEqualTo("urgencia", "Alta")
@@ -173,19 +173,19 @@ public class NotificacoesActivity extends AppCompatActivity {
                                     "URGENCIA",
                                     "Urgência Alta",
                                     inst.getNome() + " está com prioridade alta de recebimento.",
-                                    System.currentTimeMillis() - 2000 // (Prioridade média)
+                                    System.currentTimeMillis() - 2000 
                             ));
                         }
                     } else {
                         Log.e(TAG, "Erro ao buscar instituições", task.getException());
                     }
-                    onBuscaConcluida(); // Marca esta busca como concluída
+                    onBuscaConcluida(); 
                 });
     }
 
-    // BUSCA 3: Entregas agendadas para amanhã
+    
     private void gerarNotificacoesEntregasAmanha() {
-        // Pega a data de amanhã formatada
+        
         Calendar c1 = Calendar.getInstance();
         c1.add(Calendar.DAY_OF_YEAR, 1);
         String amanhaStr = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(c1.getTime());
@@ -199,7 +199,7 @@ public class NotificacoesActivity extends AppCompatActivity {
                             Entrega entrega = doc.toObject(Entrega.class);
                             String dataEntrega = entrega.getDataEntrega();
 
-                            // Extrai a data (ex: "13/11/2025") do texto (ex: "13/11/2025 às 14:00")
+                            
                             if (dataEntrega != null && dataEntrega.contains(" ")) {
                                 dataEntrega = dataEntrega.split(" ")[0];
                             }
@@ -209,14 +209,14 @@ public class NotificacoesActivity extends AppCompatActivity {
                                         "ENTREGA",
                                         "Entrega Amanhã",
                                         "Entrega para " + entrega.getInstituicaoNome() + " agendada para amanhã.",
-                                        System.currentTimeMillis() - 3000 // (Prioridade baixa)
+                                        System.currentTimeMillis() - 3000 
                                 ));
                             }
                         }
                     } else {
                         Log.e(TAG, "Erro ao buscar entregas", task.getException());
                     }
-                    onBuscaConcluida(); // Marca esta busca como concluída
+                    onBuscaConcluida(); 
                 });
     }
 }

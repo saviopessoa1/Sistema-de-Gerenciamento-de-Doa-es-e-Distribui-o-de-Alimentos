@@ -7,7 +7,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.SGDDA.R;
-import com.example.SGDDA.model.DoacaoItem; // (Importe seu modelo)
+import com.example.SGDDA.model.DoacaoItem; 
 import java.util.List;
 
 public class DoacaoItemAdapter extends RecyclerView.Adapter<DoacaoItemAdapter.ViewHolder> {
@@ -23,23 +23,23 @@ public class DoacaoItemAdapter extends RecyclerView.Adapter<DoacaoItemAdapter.Vi
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Infla (desenha) o layout do item que você já tinha
+        
         View view = LayoutInflater.from(context).inflate(R.layout.item_doacao_registrada, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        // Pega o item da lista
+        
         DoacaoItem item = itemList.get(position);
 
-        // Define os textos nos TextViews do layout do item
+        
         holder.itemName.setText(item.getNomeItem());
 
         String detalhes = "Qtd: " + item.getQuantidade() + " | Vence em: " + item.getDataValidade();
         holder.itemDetails.setText(detalhes);
 
-        // TODO: Adicionar lógica para os botões + e - (eles não farão nada por enquanto)
+        
     }
 
     @Override
@@ -47,10 +47,10 @@ public class DoacaoItemAdapter extends RecyclerView.Adapter<DoacaoItemAdapter.Vi
         return itemList.size();
     }
 
-    // Classe ViewHolder para "segurar" os componentes de cada item
+    
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView itemName, itemDetails;
-        // Adicione aqui os ImageButtons + e - se quiser controlá-los
+        
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);

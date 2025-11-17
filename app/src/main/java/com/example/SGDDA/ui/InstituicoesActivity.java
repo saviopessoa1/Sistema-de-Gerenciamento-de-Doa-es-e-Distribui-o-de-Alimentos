@@ -41,13 +41,13 @@ public class InstituicoesActivity extends AppCompatActivity implements Instituic
     private BottomNavigationView bottomNavigationView;
     private ImageButton menuButton;
 
-    // Componentes da UI para filtro
+    
     private RecyclerView recyclerViewInstituicoes;
     private EditText searchBar;
     private ChipGroup chipGroupFilters;
     private Chip chipAlta, chipMedia, chipNormal;
 
-    // Firebase e Listas
+    
     private FirebaseFirestore db;
     private InstituicaoAdapter adapter;
     private List<Instituicao> listaTodasInstituicoes;
@@ -70,12 +70,12 @@ public class InstituicoesActivity extends AppCompatActivity implements Instituic
             });
         }
 
-        // Inicializar Firebase e Listas
+        
         db = FirebaseFirestore.getInstance();
         listaTodasInstituicoes = new ArrayList<>();
         listaFiltrada = new ArrayList<>();
 
-        // Encontrar Componentes
+        
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         menuButton = findViewById(R.id.menuButton);
         recyclerViewInstituicoes = findViewById(R.id.recyclerViewInstituicoes);
@@ -86,8 +86,8 @@ public class InstituicoesActivity extends AppCompatActivity implements Instituic
         chipNormal = findViewById(R.id.chipNormal);
 
 
-        // Configurar RecyclerView
-        // ★ CORREÇÃO AQUI: Adicionado o 4º parâmetro "Definir"
+        
+        
         adapter = new InstituicaoAdapter(this, listaFiltrada, this, "Definir");
         recyclerViewInstituicoes.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewInstituicoes.setAdapter(adapter);
@@ -112,19 +112,19 @@ public class InstituicoesActivity extends AppCompatActivity implements Instituic
             int itemId = item.getItemId();
             if (itemId == R.id.nav_painel) {
                 startActivity(new Intent(this, DashboardActivity.class));
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out); // ADICIONADO
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out); 
                 finish();
                 return true;
             } else if (itemId == R.id.nav_estoque) {
                 startActivity(new Intent(this, PesquisarEstoqueActivity.class));
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out); // ADICIONADO
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out); 
                 finish();
                 return true;
             } else if (itemId == R.id.nav_instituicoes) {
                 return true;
             } else if (itemId == R.id.nav_entregas) {
                 startActivity(new Intent(this, EntregasActivity.class));
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out); // ADICIONADO
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out); 
                 finish();
                 return true;
             }

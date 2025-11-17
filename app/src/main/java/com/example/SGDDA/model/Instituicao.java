@@ -1,24 +1,24 @@
 package com.example.SGDDA.model;
 
 import com.google.firebase.firestore.Exclude;
-import java.io.Serializable; // Importar
+import java.io.Serializable; 
 
-// Adicionar "implements Serializable"
+
 public class Instituicao implements Serializable {
 
     @Exclude
-    private String documentId; // Para guardar o ID do Firestore
+    private String documentId; 
 
     private String nome;
     private String endereco;
-    private String urgencia; // ★ CAMPO ADICIONADO DE VOLTA
+    private String urgencia; 
     private String responsavel;
     private String telefone;
 
-    // Construtor vazio (obrigatório para o Firestore)
+    
     public Instituicao() {}
 
-    // Getters e Setters (obrigatórios para o Firestore)
+    
 
     public String getDocumentId() { return documentId; }
     public void setDocumentId(String documentId) { this.documentId = documentId; }
@@ -29,7 +29,7 @@ public class Instituicao implements Serializable {
     public String getEndereco() { return endereco; }
     public void setEndereco(String endereco) { this.endereco = endereco; }
 
-    // ★ GETTER E SETTER ADICIONADOS DE VOLTA
+    
     public String getUrgencia() { return urgencia; }
     public void setUrgencia(String urgencia) { this.urgencia = urgencia; }
 

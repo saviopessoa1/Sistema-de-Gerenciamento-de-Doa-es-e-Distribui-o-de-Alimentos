@@ -26,9 +26,9 @@ public class InstituicaoAdapter extends RecyclerView.Adapter<InstituicaoAdapter.
     private Context context;
     private OnInstituicaoClickListener clickListener;
 
-    // Variáveis para controlar a aparência
+    
     private String buttonTextDefault;
-    private String selectedId = null; // Guarda o ID da instituição selecionada
+    private String selectedId = null; 
 
     public InstituicaoAdapter(Context context, List<Instituicao> instituicaoList, OnInstituicaoClickListener listener, String buttonTextDefault) {
         this.context = context;
@@ -41,7 +41,7 @@ public class InstituicaoAdapter extends RecyclerView.Adapter<InstituicaoAdapter.
         void onInstituicaoClick(Instituicao instituicao);
     }
 
-    // Método para definir qual está selecionada
+    
     public void setSelectedId(String id) {
         this.selectedId = id;
         notifyDataSetChanged();
@@ -73,7 +73,7 @@ public class InstituicaoAdapter extends RecyclerView.Adapter<InstituicaoAdapter.
         }
         holder.textUrgencia.setText("Urgência: " + urgencia);
 
-        // Cores da Urgência
+        
         switch (urgencia.toLowerCase(Locale.ROOT)) {
             case "alta":
                 holder.iconUrgencia.setVisibility(View.VISIBLE);
@@ -91,7 +91,7 @@ public class InstituicaoAdapter extends RecyclerView.Adapter<InstituicaoAdapter.
                 break;
         }
 
-        // Lógica do Botão (Seleção)
+        
         boolean isSelected = instituicao.getDocumentId() != null && instituicao.getDocumentId().equals(selectedId);
 
         if (isSelected) {
@@ -100,11 +100,11 @@ public class InstituicaoAdapter extends RecyclerView.Adapter<InstituicaoAdapter.
             holder.btnAcessar.setTextColor(ContextCompat.getColor(context, R.color.white_60));
         } else {
             holder.btnAcessar.setText(buttonTextDefault);
-            holder.btnAcessar.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.app_accent_green))); // Verde padrão
+            holder.btnAcessar.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.app_accent_green))); 
             holder.btnAcessar.setTextColor(ContextCompat.getColor(context, R.color.app_primary_dark));
         }
 
-        // Cliques
+        
         View.OnClickListener listener = v -> {
             if (clickListener != null) {
                 clickListener.onInstituicaoClick(instituicao);

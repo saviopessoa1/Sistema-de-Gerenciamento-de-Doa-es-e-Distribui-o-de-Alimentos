@@ -8,8 +8,8 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button; // Import para Button
-import android.widget.EditText; // Import para EditText
+import android.widget.Button; 
+import android.widget.EditText; 
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -28,12 +28,12 @@ import com.example.SGDDA.model.DoacaoItem;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query; // Import para Query
+import com.google.firebase.firestore.Query; 
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale; // Import para Locale
+import java.util.Locale; 
 
 public class PesquisarEstoqueActivity extends AppCompatActivity {
 
@@ -43,21 +43,21 @@ public class PesquisarEstoqueActivity extends AppCompatActivity {
     private ImageButton backButton;
     private BottomNavigationView bottomNavigationView;
 
-    // --- NOVOS COMPONENTES ---
+    
     private EditText searchBar;
     private FloatingActionButton fabAdicionarDoacao;
 
     private Button btnPerecivel, btnNaoPerecivel;
-    private Button btnFiltros; // Botão de filtros avançados (sem uso por enquanto)
+    private Button btnFiltros; 
 
     private FirebaseFirestore db;
 
     private EstoqueAdapter adapter;
 
-    // --- NOVAS LISTAS E VARIÁVEIS DE FILTRO ---
-    private List<DoacaoItem> listaEstoqueCompleta; // Guarda todos os itens
-    private List<DoacaoItem> listaFiltrada;        // Lista mostrada no adapter
-    private String filtroPerecivelAtual = "todos"; // "todos", "perecivel", "nao_perecivel"
+    
+    private List<DoacaoItem> listaEstoqueCompleta; 
+    private List<DoacaoItem> listaFiltrada;        
+    private String filtroPerecivelAtual = "todos"; 
 
 
     @Override
@@ -77,7 +77,7 @@ public class PesquisarEstoqueActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
 
-        // Encontrar componentes
+        
         backButton = findViewById(R.id.backButton);
         estoqueRecyclerView = findViewById(R.id.estoqueRecyclerView);
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
@@ -85,21 +85,21 @@ public class PesquisarEstoqueActivity extends AppCompatActivity {
         btnPerecivel = findViewById(R.id.btnPerecivel);
         btnNaoPerecivel = findViewById(R.id.btnNaoPerecivel);
         fabAdicionarDoacao = findViewById(R.id.fabAdicionarDoacao);
-        btnFiltros = findViewById(R.id.btnFiltros); // (Opcional)
+        btnFiltros = findViewById(R.id.btnFiltros); 
 
-        // Inicializar listas
+        
         listaEstoqueCompleta = new ArrayList<>();
         listaFiltrada = new ArrayList<>();
 
-        // Configurar Adapter
-        adapter = new EstoqueAdapter(this, listaFiltrada); // Usa a lista filtrada
+        
+        adapter = new EstoqueAdapter(this, listaFiltrada); 
         estoqueRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         estoqueRecyclerView.setAdapter(adapter);
 
-        // Configurar Listeners
+        
         backButton.setOnClickListener(v -> finish());
         setupBottomNavigation();
-        setupFiltrosListeners(); // NOVO
+        setupFiltrosListeners(); 
         loadEstoqueData();
         setupFab();
 
@@ -113,19 +113,19 @@ public class PesquisarEstoqueActivity extends AppCompatActivity {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_painel) {
                 startActivity(new Intent(this, DashboardActivity.class));
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out); // ADICIONADO
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out); 
                 finish();
                 return true;
             } else if (itemId == R.id.nav_estoque) {
                 return true;
             } else if (itemId == R.id.nav_instituicoes) {
                 startActivity(new Intent(this, InstituicoesActivity.class));
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out); // ADICIONADO
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out); 
                 finish();
                 return true;
             } else if (itemId == R.id.nav_entregas) {
                 startActivity(new Intent(this, EntregasActivity.class));
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out); // ADICIONADO
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out); 
                 finish();
                 return true;
             }
@@ -141,52 +141,52 @@ public class PesquisarEstoqueActivity extends AppCompatActivity {
 
     private void loadEstoqueData() {
         db.collection("estoque")
-                .orderBy("dataValidade", Query.Direction.ASCENDING) // Ordena por FIFO
+                .orderBy("dataValidade", Query.Direction.ASCENDING) 
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
                         Log.w(TAG, "Listen failed.", error);
                         return;
                     }
-                    listaEstoqueCompleta.clear(); // Limpa a lista principal
+                    listaEstoqueCompleta.clear(); 
                     if (value != null) {
                         for (QueryDocumentSnapshot doc : value) {
                             DoacaoItem item = doc.toObject(DoacaoItem.class);
-                            listaEstoqueCompleta.add(item); // Adiciona na lista principal
+                            listaEstoqueCompleta.add(item); 
                         }
-                        aplicarFiltros(); // Aplica os filtros (mesmo que vazios)
+                        aplicarFiltros(); 
                     }
                 });
     }
 
-    // --- LÓGICA DE FILTROS ---
+    
 
     private void setupFiltrosListeners() {
-        // Filtro da Barra de Busca
+        
         searchBar.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                aplicarFiltros(); // Filtra a cada letra digitada
+                aplicarFiltros(); 
             }
             @Override public void afterTextChanged(Editable s) {}
         });
 
-        // Filtro Botão Perecível
+        
         btnPerecivel.setOnClickListener(v -> {
             if (filtroPerecivelAtual.equals("perecivel")) {
-                filtroPerecivelAtual = "todos"; // Desmarca
+                filtroPerecivelAtual = "todos"; 
             } else {
-                filtroPerecivelAtual = "perecivel"; // Marca
+                filtroPerecivelAtual = "perecivel"; 
             }
             updateFilterButtons();
             aplicarFiltros();
         });
 
-        // Filtro Botão Não Perecível
+        
         btnNaoPerecivel.setOnClickListener(v -> {
             if (filtroPerecivelAtual.equals("nao_perecivel")) {
-                filtroPerecivelAtual = "todos"; // Desmarca
+                filtroPerecivelAtual = "todos"; 
             } else {
-                filtroPerecivelAtual = "nao_perecivel"; // Marca
+                filtroPerecivelAtual = "nao_perecivel"; 
             }
             updateFilterButtons();
             aplicarFiltros();
@@ -200,25 +200,25 @@ public class PesquisarEstoqueActivity extends AppCompatActivity {
             boolean matchBusca = true;
             boolean matchPerecivel = true;
 
-            // 1. Filtro de Busca (Nome)
+            
             if (!queryBusca.isEmpty()) {
                 matchBusca = item.getNomeItem().toLowerCase(Locale.ROOT).contains(queryBusca);
             }
 
-            // 2. Filtro de Tipo (Perecível)
+            
             if (filtroPerecivelAtual.equals("perecivel")) {
                 matchPerecivel = item.isPerecivel();
             } else if (filtroPerecivelAtual.equals("nao_perecivel")) {
                 matchPerecivel = !item.isPerecivel();
             }
 
-            // Adiciona na lista se der match em ambos os filtros
+            
             if (matchBusca && matchPerecivel) {
                 listaFiltrada.add(item);
             }
         }
 
-        adapter.updateList(listaFiltrada); // Atualiza o RecyclerView
+        adapter.updateList(listaFiltrada); 
     }
 
     private void updateFilterButtons() {
@@ -227,7 +227,7 @@ public class PesquisarEstoqueActivity extends AppCompatActivity {
         int inactiveColor = ContextCompat.getColor(this, R.color.app_primary_light);
         int inactiveTextColor = Color.WHITE;
 
-        // Lógica do Botão Perecível
+        
         if (filtroPerecivelAtual.equals("perecivel")) {
             btnPerecivel.setBackgroundTintList(ColorStateList.valueOf(activeColor));
             btnPerecivel.setTextColor(activeTextColor);
@@ -236,7 +236,7 @@ public class PesquisarEstoqueActivity extends AppCompatActivity {
             btnPerecivel.setTextColor(inactiveTextColor);
         }
 
-        // Lógica do Botão Não Perecível
+        
         if (filtroPerecivelAtual.equals("nao_perecivel")) {
             btnNaoPerecivel.setBackgroundTintList(ColorStateList.valueOf(activeColor));
             btnNaoPerecivel.setTextColor(activeTextColor);

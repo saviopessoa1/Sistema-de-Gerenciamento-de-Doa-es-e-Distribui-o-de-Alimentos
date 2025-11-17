@@ -41,9 +41,9 @@ public class NotificacaoAdapter extends RecyclerView.Adapter<NotificacaoAdapter.
 
         holder.textTitulo.setText(notificacao.getTitulo());
         holder.textDescricao.setText(notificacao.getDescricao());
-        // holder.textTimestamp.setText(...); // Lógica de "há 5 min" (simplificado por enquanto)
+        
 
-        // Define ícone e cor com base no tipo
+        
         switch (notificacao.getTipo()) {
             case "VENCIMENTO":
                 holder.iconNotificacao.setImageResource(R.drawable.ic_warning);

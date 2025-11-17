@@ -17,7 +17,7 @@ public class ObservacoesEntregaActivity extends AppCompatActivity {
 
     private ImageButton backButton;
     private TextView observacoesTextView;
-    private TextView titleInstituicao; // Adicionado para mostrar o nome
+    private TextView titleInstituicao; 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,14 +34,14 @@ public class ObservacoesEntregaActivity extends AppCompatActivity {
             });
         }
 
-        // Encontrar Componentes
+        
         backButton = findViewById(R.id.backButton);
         observacoesTextView = findViewById(R.id.observacoesTextView);
         titleInstituicao = findViewById(R.id.titleInstituicao);
 
         backButton.setOnClickListener(v -> finish());
 
-        // Carregar Dados da Intent
+        
         String obs = getIntent().getStringExtra("OBSERVACOES");
         String nomeInstituicao = getIntent().getStringExtra("NOME_INSTITUICAO");
 

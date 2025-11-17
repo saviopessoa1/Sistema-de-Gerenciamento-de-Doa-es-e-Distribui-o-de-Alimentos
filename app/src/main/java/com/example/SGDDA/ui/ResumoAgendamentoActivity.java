@@ -11,7 +11,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat; // Import necessário
+import androidx.core.content.ContextCompat; 
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -42,7 +42,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-// ★ PASSO 1: Implementar a interface do adapter
+
 public class ResumoAgendamentoActivity extends AppCompatActivity implements ResumoItemAdapter.OnItemRemovedListener {
 
     private static final String TAG = "ResumoAgendamento";
@@ -83,7 +83,7 @@ public class ResumoAgendamentoActivity extends AppCompatActivity implements Resu
         obsEditText = findViewById(R.id.obsEditText);
         btnConfirmarEntrega = findViewById(R.id.btnConfirmarEntrega);
 
-        // Configura campos para não abrir teclado (apenas clique)
+        
         dataEditText.setFocusable(false);
         dataEditText.setClickable(true);
         horarioEditText.setFocusable(false);
@@ -107,14 +107,14 @@ public class ResumoAgendamentoActivity extends AppCompatActivity implements Resu
             itensSelecionados = new ArrayList<>();
         }
 
-        // ★ PASSO 2: Passar 'this' (a Activity) como listener para o adapter
+        
         adapter = new ResumoItemAdapter(this, itensSelecionados, this);
         resumoRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         resumoRecyclerView.setAdapter(adapter);
 
         setupListeners();
 
-        // ★ PASSO 3: Checar o estado inicial do botão
+        
         checkIfListIsEmpty();
     }
 
@@ -157,13 +157,13 @@ public class ResumoAgendamentoActivity extends AppCompatActivity implements Resu
         picker.show(getSupportFragmentManager(), "TIME_PICKER");
     }
 
-    // ★ PASSO 4: Implementar o método da interface
+    
     @Override
     public void onListEmpty() {
         checkIfListIsEmpty();
     }
 
-    // ★ PASSO 5: Criar método helper para centralizar a lógica do botão
+    
     private void checkIfListIsEmpty() {
         if (itensSelecionados.isEmpty()) {
             btnConfirmarEntrega.setEnabled(false);
@@ -182,10 +182,10 @@ public class ResumoAgendamentoActivity extends AppCompatActivity implements Resu
         String voluntario = voluntarioEditText.getText().toString().trim();
         String obs = obsEditText.getText().toString().trim();
 
-        // ★ PASSO 6: Validação principal (redundância de segurança)
+        
         if (itensSelecionados.isEmpty()) {
             Toast.makeText(this, "Não é possível agendar uma entrega vazia.", Toast.LENGTH_SHORT).show();
-            checkIfListIsEmpty(); // Garante que o botão esteja desabilitado
+            checkIfListIsEmpty(); 
             return;
         }
 
@@ -211,16 +211,16 @@ public class ResumoAgendamentoActivity extends AppCompatActivity implements Resu
         );
         novaEntrega.setObservacoes(obs);
 
-        // --- TRANSAÇÃO CORRIGIDA (Leituras PRIMEIRO, depois Escritas) ---
+        
         db.runTransaction((Transaction.Function<Void>) transaction -> {
 
-            // 1. LEITURAS (READS)
+            
             Map<DocumentReference, Long> atualizacoesEstoque = new HashMap<>();
             List<DocumentReference> remocoesEstoque = new ArrayList<>();
 
             for (DoacaoItem itemSelecionado : itensSelecionados) {
                 DocumentReference estoqueItemRef = db.collection("estoque").document(itemSelecionado.getDocumentId());
-                DocumentSnapshot snapshot = transaction.get(estoqueItemRef); // LEITURA
+                DocumentSnapshot snapshot = transaction.get(estoqueItemRef); 
 
                 if (!snapshot.exists()) {
                     continue;
@@ -245,9 +245,9 @@ public class ResumoAgendamentoActivity extends AppCompatActivity implements Resu
                 }
             }
 
-            // 2. ESCRITAS (WRITES)
+            
             DocumentReference entregaRef = db.collection("entregas").document();
-            transaction.set(entregaRef, novaEntrega); // Salva a entrega
+            transaction.set(entregaRef, novaEntrega); 
 
             for (Map.Entry<DocumentReference, Long> entry : atualizacoesEstoque.entrySet()) {
                 transaction.update(entry.getKey(), "quantidade", entry.getValue());

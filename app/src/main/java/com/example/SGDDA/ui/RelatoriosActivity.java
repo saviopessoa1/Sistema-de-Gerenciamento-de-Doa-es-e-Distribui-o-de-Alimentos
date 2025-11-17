@@ -70,14 +70,14 @@ public class RelatoriosActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
 
-        // Componentes
+        
         backButton = findViewById(R.id.backButton);
         textDemandasAtendidas = findViewById(R.id.textDemandasAtendidas);
         textDesperdicio = findViewById(R.id.textDesperdicio);
         barChartDistribuicao = findViewById(R.id.barChartDistribuicao);
         recyclerVencidos = findViewById(R.id.recyclerVencidos);
 
-        // Configurar Lista de Vencidos
+        
         listaVencidos = new ArrayList<>();
         vencidosAdapter = new DetalhesItemAdapter(this, listaVencidos);
         recyclerVencidos.setLayoutManager(new LinearLayoutManager(this));
@@ -85,10 +85,10 @@ public class RelatoriosActivity extends AppCompatActivity {
 
         backButton.setOnClickListener(v -> finish());
 
-        // Configurações Iniciais do Gráfico
+        
         setupBarChart();
 
-        // Carregar Dados
+        
         carregarDadosDesperdicio();
         carregarDadosDistribuicao();
     }
@@ -102,28 +102,28 @@ public class RelatoriosActivity extends AppCompatActivity {
         barChartDistribuicao.setNoDataText("Carregando dados...");
         barChartDistribuicao.setNoDataTextColor(Color.WHITE);
 
-        // Eixo X (Meses)
+        
         XAxis xAxis = barChartDistribuicao.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setGranularity(1f);
         xAxis.setTextColor(Color.WHITE);
         xAxis.setDrawGridLines(false);
-        xAxis.setLabelCount(6); // Limita a quantidade de labels para não ficar poluído
+        xAxis.setLabelCount(6); 
 
-        // Eixos Y
+        
         barChartDistribuicao.getAxisLeft().setTextColor(Color.WHITE);
-        barChartDistribuicao.getAxisLeft().setAxisMinimum(0f); // Começa do 0
-        barChartDistribuicao.getAxisRight().setEnabled(false); // Desativa eixo direito
+        barChartDistribuicao.getAxisLeft().setAxisMinimum(0f); 
+        barChartDistribuicao.getAxisRight().setEnabled(false); 
     }
 
     private void carregarDadosDesperdicio() {
-        // Busca TODOS os itens no estoque
+        
         db.collection("estoque").get().addOnSuccessListener(queryDocumentSnapshots -> {
             listaVencidos.clear();
             int totalItensVencidos = 0;
 
             Calendar calHoje = Calendar.getInstance();
-            // Zera hora para comparar apenas datas
+            
             calHoje.set(Calendar.HOUR_OF_DAY, 0);
             calHoje.set(Calendar.MINUTE, 0);
             calHoje.set(Calendar.SECOND, 0);
@@ -139,7 +139,7 @@ public class RelatoriosActivity extends AppCompatActivity {
                     try {
                         Date validade = sdf.parse(item.getDataValidade());
 
-                        // Se a validade for ANTES de hoje (00:00), significa que venceu ontem ou antes.
+                        
                         if (validade != null && validade.before(dataHojeZerada)) {
                             listaVencidos.add(item);
                             totalItensVencidos += item.getQuantidade();
@@ -150,7 +150,7 @@ public class RelatoriosActivity extends AppCompatActivity {
                 }
             }
 
-            // Atualiza UI
+            
             textDesperdicio.setText(String.valueOf(totalItensVencidos));
             vencidosAdapter.notifyDataSetChanged();
 
@@ -165,9 +165,9 @@ public class RelatoriosActivity extends AppCompatActivity {
                     int totalAtendimentos = queryDocumentSnapshots.size();
                     textDemandasAtendidas.setText(String.valueOf(totalAtendimentos));
 
-                    // Mapa: "MM/yyyy" -> Quantidade de Itens
+                    
                     Map<String, Integer> distribuicaoPorMes = new HashMap<>();
-                    // Mapa auxiliar para ordenação: Date -> "MM/yyyy"
+                    
                     Map<Date, String> ordemMeses = new TreeMap<>();
 
                     SimpleDateFormat sdfDoc = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
@@ -178,7 +178,7 @@ public class RelatoriosActivity extends AppCompatActivity {
                         Entrega entrega = doc.toObject(Entrega.class);
                         String dataString = entrega.getDataEntrega();
 
-                        // Trata formato "dd/MM/yyyy às HH:mm"
+                        
                         if (dataString != null && dataString.contains(" ")) {
                             dataString = dataString.split(" ")[0];
                         }
@@ -230,15 +230,15 @@ public class RelatoriosActivity extends AppCompatActivity {
                         dataSet.setValueTextSize(12f);
 
                         BarData barData = new BarData(dataSet);
-                        // Configura a largura das barras para ficarem bonitas
+                        
                         barData.setBarWidth(0.5f);
 
                         barChartDistribuicao.setData(barData);
                         barChartDistribuicao.getXAxis().setValueFormatter(new IndexAxisValueFormatter(labels));
-                        barChartDistribuicao.invalidate(); // Redesenha
-                        barChartDistribuicao.animateY(1000); // Animação de subida
+                        barChartDistribuicao.invalidate(); 
+                        barChartDistribuicao.animateY(1000); 
                     } else {
-                        barChartDistribuicao.clear(); // Limpa se não tiver dados
+                        barChartDistribuicao.clear(); 
                         barChartDistribuicao.setNoDataText("Sem dados de entregas ainda.");
                     }
 
