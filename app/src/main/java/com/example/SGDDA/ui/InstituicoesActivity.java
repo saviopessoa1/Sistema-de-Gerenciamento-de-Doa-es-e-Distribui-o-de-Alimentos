@@ -105,7 +105,7 @@ public class InstituicoesActivity extends AppCompatActivity implements Instituic
         loadInstituicoes();
     }
 
-    private void setupBottomNavigation() {
+    private void    setupBottomNavigation() {
         bottomNavigationView.setSelectedItemId(R.id.nav_instituicoes);
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
