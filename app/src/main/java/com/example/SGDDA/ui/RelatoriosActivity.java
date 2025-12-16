@@ -16,6 +16,7 @@ import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -28,6 +29,7 @@ import com.example.SGDDA.model.DoacaoItem;
 import com.example.SGDDA.model.Entrega;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -37,87 +39,154 @@ import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 public class RelatoriosActivity extends AppCompatActivity {
 
+    // UI Dashboard
+    private TextView textTotalDoacoes, textTotalEntregas, textItensVencidos;
+
+    // UI PDF
     private Button btnExportarPdf;
     private ImageButton backButton;
-    private FirebaseFirestore db;
-    private static final int REQUEST_CODE_WRITE_STORAGE = 101;
 
-    // Listas para armazenar dados para o PDF
+    // Firebase
+    private FirebaseFirestore db;
+    private FirebaseAuth mAuth;
+
+    // Constantes e Listas
+    private static final int REQUEST_CODE_WRITE_STORAGE = 101;
     private List<Entrega> listaEntregasParaPdf = new ArrayList<>();
     private List<DoacaoItem> listaPerdasParaPdf = new ArrayList<>();
 
-    // Variáveis para contagem
-    private long countTotalDoacoes = 0;
-    private long countTotalEstoque = 0;
+    // Variáveis para o PDF
+    private long countTotalDoacoes = 0; // Quantidade total de itens
+    private long countTotalEstoque = 0; // Quantidade total de itens em estoque (mesmo que doações neste contexto)
+    private long countTotalVencidos = 0; // Quantidade total de itens vencidos
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_relatorios);
 
-        // Inicializa Views
+        // Inicializa Firebase
+        db = FirebaseFirestore.getInstance();
+        mAuth = FirebaseAuth.getInstance();
+
+        // Inicializa Views do Dashboard
+        textTotalDoacoes = findViewById(R.id.textTotalDoacoes);
+        textTotalEntregas = findViewById(R.id.textTotalEntregas);
+        textItensVencidos = findViewById(R.id.textItensVencidos);
+
+        // Inicializa Botões
         btnExportarPdf = findViewById(R.id.btnExportarPdf);
         backButton = findViewById(R.id.backButton);
-        db = FirebaseFirestore.getInstance();
 
         // Configuração do Botão Voltar
         backButton.setOnClickListener(v -> finish());
 
+        // Carregar dados na tela imediatamente
+        carregarDadosTela();
+
         // Configuração do Botão PDF
-        btnExportarPdf.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (verificarPermissao()) {
-                    prepararDadosParaPdf();
-                }
+        btnExportarPdf.setOnClickListener(v -> {
+            if (verificarPermissao()) {
+                prepararDadosParaPdf();
             }
         });
+    }
+
+    // --- Lógica do Dashboard (Tela) ---
+    private void carregarDadosTela() {
+        if (mAuth.getCurrentUser() == null) return;
+        String userId = mAuth.getCurrentUser().getUid();
+
+        // 1. Total de Doações (Soma das quantidades)
+        db.collection("users").document(userId).collection("estoque")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    int total = 0;
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        Long qtd = doc.getLong("quantidade");
+                        if (qtd != null) total += qtd.intValue();
+                    }
+                    textTotalDoacoes.setText(String.valueOf(total));
+                });
+
+        // 2. Entregas Concluídas
+        db.collection("users").document(userId).collection("entregas")
+                .whereEqualTo("status", "Concluída")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    textTotalEntregas.setText(String.valueOf(queryDocumentSnapshots.size()));
+                });
+
+        // 3. Itens Vencidos (Lógica corrigida de data e soma de quantidade)
+        db.collection("users").document(userId).collection("estoque")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    int totalVencidos = 0;
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        DoacaoItem item = doc.toObject(DoacaoItem.class);
+                        if (isVencido(item.getDataValidade())) {
+                            totalVencidos += item.getQuantidade();
+                        }
+                    }
+                    textItensVencidos.setText(String.valueOf(totalVencidos));
+                });
     }
 
     // --- Lógica de Geração do PDF ---
 
     private void prepararDadosParaPdf() {
+        if (mAuth.getCurrentUser() == null) {
+            Toast.makeText(this, "Erro: Usuário não logado.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         Toast.makeText(this, "Gerando relatório PDF...", Toast.LENGTH_SHORT).show();
         btnExportarPdf.setEnabled(false);
         btnExportarPdf.setText("Gerando...");
 
-        Task<QuerySnapshot> taskDoacoes = db.collection("doacoes").get();
-        Task<QuerySnapshot> taskEntregas = db.collection("entregas").get();
-        Task<QuerySnapshot> taskEstoque = db.collection("estoque").get();
+        String userId = mAuth.getCurrentUser().getUid();
 
-        Tasks.whenAllSuccess(taskDoacoes, taskEntregas, taskEstoque).addOnSuccessListener(results -> {
+        // Usando as coleções corretas do usuário (users/{uid}/...)
+        Task<QuerySnapshot> taskEstoque = db.collection("users").document(userId).collection("estoque").get();
+        Task<QuerySnapshot> taskEntregas = db.collection("users").document(userId).collection("entregas").get();
 
-            // 1. Processar Doações
-            QuerySnapshot snapDoacoes = (QuerySnapshot) results.get(0);
-            countTotalDoacoes = snapDoacoes.size();
+        Tasks.whenAllSuccess(taskEstoque, taskEntregas).addOnSuccessListener(results -> {
+            // Processar Estoque (Doações e Perdas)
+            QuerySnapshot snapEstoque = (QuerySnapshot) results.get(0);
 
-            // 2. Processar Entregas
+            listaPerdasParaPdf.clear();
+            countTotalDoacoes = 0;
+            countTotalEstoque = 0;
+            countTotalVencidos = 0;
+
+            for (QueryDocumentSnapshot doc : snapEstoque) {
+                DoacaoItem item = doc.toObject(DoacaoItem.class);
+
+                // Soma quantidade total
+                long qtd = item.getQuantidade();
+                countTotalDoacoes += qtd; // Assumindo que estoque atual reflete doações disponíveis
+                countTotalEstoque += qtd;
+
+                // Verifica validade
+                if (isVencido(item.getDataValidade())) {
+                    listaPerdasParaPdf.add(item);
+                    countTotalVencidos += qtd; // Soma a QUANTIDADE vencida
+                }
+            }
+
+            // Processar Entregas
             QuerySnapshot snapEntregas = (QuerySnapshot) results.get(1);
             listaEntregasParaPdf.clear();
             for (QueryDocumentSnapshot doc : snapEntregas) {
                 listaEntregasParaPdf.add(doc.toObject(Entrega.class));
             }
-
-            // 3. Processar Estoque e Perdas
-            QuerySnapshot snapEstoque = (QuerySnapshot) results.get(2);
-            listaPerdasParaPdf.clear();
-            long qtdEstoqueTemp = 0;
-
-            for (QueryDocumentSnapshot doc : snapEstoque) {
-                DoacaoItem item = doc.toObject(DoacaoItem.class);
-                qtdEstoqueTemp += item.getQuantidade();
-//
-                if (isVencido(item.getValidade())) {
-                    listaPerdasParaPdf.add(item);
-                }
-            }
-            countTotalEstoque = qtdEstoqueTemp;
 
             gerarPdfFinal();
             btnExportarPdf.setEnabled(true);
@@ -143,15 +212,15 @@ public class RelatoriosActivity extends AppCompatActivity {
 
         // Estilos
         titlePaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
-        titlePaint.textSize = 24;
+        titlePaint.setTextSize(24);
         titlePaint.setColor(Color.BLACK);
 
         sectionPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
-        sectionPaint.textSize = 18;
+        sectionPaint.setTextSize(18);
         sectionPaint.setColor(Color.BLUE);
 
         paint.setTypeface(Typeface.DEFAULT);
-        paint.textSize = 12;
+        paint.setTextSize(12);
         paint.setColor(Color.BLACK);
 
         int y = 50;
@@ -168,24 +237,24 @@ public class RelatoriosActivity extends AppCompatActivity {
         canvas.drawText("Resumo Geral", x, y, sectionPaint);
         y += 25;
         paint.setTextSize(14);
-        canvas.drawText("- Total Doações Recebidas: " + countTotalDoacoes, x + 10, y, paint);
-        y += 20;
-        canvas.drawText("- Itens em Estoque (Total): " + countTotalEstoque, x + 10, y, paint);
+        // Exibindo as somas de quantidades
+        canvas.drawText("- Itens em Estoque (Total Qtd): " + countTotalEstoque, x + 10, y, paint);
         y += 20;
         canvas.drawText("- Entregas Realizadas: " + listaEntregasParaPdf.size(), x + 10, y, paint);
         y += 20;
-        canvas.drawText("- Itens Vencidos (Perdas): " + listaPerdasParaPdf.size(), x + 10, y, paint);
+        // Mostra a quantidade total de itens perdidos, não apenas o número de tipos
+        canvas.drawText("- Itens Vencidos (Perda Total Qtd): " + countTotalVencidos, x + 10, y, paint);
         y += 40;
 
         // Tabela Perdas
-        canvas.drawText("Detalhamento: Itens Vencidos / Perdas", x, y, sectionPaint);
+        canvas.drawText("Detalhamento: Itens Vencidos", x, y, sectionPaint);
         y += 25;
 
         paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
         paint.setTextSize(12);
         canvas.drawText("Item", x, y, paint);
         canvas.drawText("Validade", x + 200, y, paint);
-        canvas.drawText("Qtd", x + 350, y, paint);
+        canvas.drawText("Qtd Perdida", x + 350, y, paint);
         paint.setTypeface(Typeface.DEFAULT);
         y += 5;
         canvas.drawLine(x, y, 550, y, paint);
@@ -204,7 +273,7 @@ public class RelatoriosActivity extends AppCompatActivity {
                     y = 50;
                 }
                 String nome = item.getDescricao() != null ? item.getDescricao() : "Sem descrição";
-                String validade = item.getValidade() != null ? item.getValidade() : "--";
+                String validade = item.getDataValidade() != null ? item.getDataValidade() : "--";
                 canvas.drawText(nome, x, y, paint);
                 canvas.drawText(validade, x + 200, y, paint);
                 canvas.drawText(String.valueOf(item.getQuantidade()), x + 350, y, paint);
@@ -246,7 +315,7 @@ public class RelatoriosActivity extends AppCompatActivity {
                 }
                 String dataEnt = entrega.getDataEntrega() != null ? entrega.getDataEntrega() : "--";
                 String status = entrega.getStatus() != null ? entrega.getStatus() : "--";
-                String inst = entrega.getInstituicaoId() != null ? entrega.getInstituicaoId() : "--";
+                String inst = entrega.getNomeInstituicao() != null ? entrega.getNomeInstituicao() : (entrega.getInstituicaoId() != null ? entrega.getInstituicaoId() : "--");
 
                 canvas.drawText(dataEnt, x, y, paint);
                 canvas.drawText(status, x + 150, y, paint);
@@ -288,13 +357,24 @@ public class RelatoriosActivity extends AppCompatActivity {
         }
     }
 
+    // --- Métodos Auxiliares e Permissões ---
+
     private boolean isVencido(String dataValidade) {
         if (dataValidade == null || dataValidade.isEmpty()) return false;
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         try {
             Date dataItem = sdf.parse(dataValidade);
-            Date hoje = new Date();
-            return dataItem != null && dataItem.before(hoje);
+
+            // Configurar a data de hoje zerando as horas (meia-noite)
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            Date hojeSemHora = calendar.getTime();
+
+            // Se a data de validade for ANTES de hoje (00:00), o item venceu
+            return dataItem != null && dataItem.before(hojeSemHora);
         } catch (ParseException e) {
             return false;
         }
@@ -316,8 +396,12 @@ public class RelatoriosActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_CODE_WRITE_STORAGE && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            prepararDadosParaPdf();
+        if (requestCode == REQUEST_CODE_WRITE_STORAGE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                prepararDadosParaPdf();
+            } else {
+                Toast.makeText(this, "Permissão necessária para salvar o PDF", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }

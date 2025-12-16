@@ -257,5 +257,3 @@ public class InstituicoesActivity extends AppCompatActivity implements Instituic
                 });
     }
 }
-
-

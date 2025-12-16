@@ -272,8 +272,7 @@ public class MontarEntregaActivity extends AppCompatActivity implements Institui
                             qtd,
                             itemOriginal.isPerecivel(),
                             itemOriginal.getDataValidade(),
-                            itemOriginal.getUidUsuario()
-                    );
+                            itemOriginal.getUidUsuario());
                     itemParaEnvio.setDocumentId(id);
                     itensSelecionadosParaEnvio.add(itemParaEnvio);
                 }

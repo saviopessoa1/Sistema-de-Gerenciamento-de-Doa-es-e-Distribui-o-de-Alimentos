@@ -10,6 +10,7 @@ public class DoacaoItem implements Serializable {
     private String documentId; 
     private String nomeItem;
     private int quantidade;
+    private String descricao;
     private boolean perecivel;
     private String dataValidade;
     private String uidUsuario;
@@ -24,10 +25,16 @@ public class DoacaoItem implements Serializable {
         this.perecivel = perecivel;
         this.dataValidade = dataValidade;
         this.uidUsuario = uidUsuario;
+        this.descricao = descricao;
     }
 
-    
-    
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
 
     public String getDocumentId() { return documentId; }
     public void setDocumentId(String documentId) { this.documentId = documentId; }
