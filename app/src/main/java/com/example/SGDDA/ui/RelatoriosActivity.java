@@ -112,7 +112,7 @@ public class RelatoriosActivity extends AppCompatActivity {
             for (QueryDocumentSnapshot doc : snapEstoque) {
                 DoacaoItem item = doc.toObject(DoacaoItem.class);
                 qtdEstoqueTemp += item.getQuantidade();
-
+//
                 if (isVencido(item.getValidade())) {
                     listaPerdasParaPdf.add(item);
                 }
